@@ -1,0 +1,31 @@
+{
+  "name": "gregdchan",
+  "private": true,
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "deploy-graphql": "sanity graphql deploy",
+    "gen:types": "sanity-codegen schema-codegen"  },
+    
+  "dependencies": {
+    "@sanity/color-input": "^3.1.2",
+    "@sanity/vision": "^3.95.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sanity": "^3.95.0",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@sanity-codegen/cli": "^1.0.0-alpha.13",
+    "@sanity/codegen": "^3.95.0",
+    "@sanity/eslint-config-studio": "^5.0.1",
+    "@types/react": "^18.0.25",
+    "eslint": "^9.9.0",
+    "prettier": "^3.0.2",
+    "typescript": "^5.1.6"
+  }
+}
