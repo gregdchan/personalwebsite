@@ -3,6 +3,8 @@ import { createClient, type SanityClient } from '@sanity/client'
 import type { Navigation } from '$lib/types/navigation'
 import type { DesignToken } from '$lib/types/designToken'
 
+import type { BlogPost } from "$lib/types/blogPost"
+
 const client: SanityClient = createClient({
   projectId: 'smxz6rsz',
   dataset:   'production',
@@ -22,7 +24,6 @@ export async function getNavigation(): Promise<Navigation | null> {
     return null
   }
 }
-
 export async function getDesignToken(): Promise<DesignToken | null> {
   const query = `*[_type=="designToken"] | order(_createdAt desc)[0]`
   try {
@@ -30,5 +31,24 @@ export async function getDesignToken(): Promise<DesignToken | null> {
   } catch (err) {
     console.error('Sanity fetch error for design token:', err)
     return null
+=======
+  const tokens = await client.fetch<DesignToken[]>(`
+    *[_type=="designToken"] | order(_createdAt desc)[0]
+  `);
+  return tokens[0] || null;
+}
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  const query = `*[_type=="blogPost"] | order(publishedAt desc){
+    _id,
+    title,
+    slug,
+    excerpt
+  }`;
+  try {
+    return await client.fetch<BlogPost[]>(query);
+  } catch (err) {
+    console.error('Sanity fetch error for blog posts:', err);
+    return [];
+ main
   }
 }
