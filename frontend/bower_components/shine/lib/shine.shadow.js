@@ -1,5 +1,5 @@
 /**
- * @fileOverview Adds a shadow to a DOM elment using CSS.
+ * @fileOverview Adds a shadow to a DOM element using CSS.
  * @author <a href="http://benjaminbojko.com">Benjamin Bojko</a>
  * Copyright (c) 2015 Big Spaceship; Licensed MIT
  */
