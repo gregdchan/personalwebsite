@@ -7,23 +7,23 @@
 	import type { Navigation } from '$lib/types/navigation';
   
 	// whatever the server returned
-	export let data: {
-	  tokens:       DesignToken[];
-	  navigation:   Navigation | null;
-	};
+        export let data: {
+          tokens:       DesignToken | null;
+          navigation:   Navigation | null;
+        };
   
 	// apply tokens on the client
-	if (browser && data.tokens?.length > 0) {
-	  applyTokens(data.tokens[0]);
-	}
+        if (browser && data.tokens) {
+          applyTokens(data.tokens);
+        }
   
-	function applyTokens(token: DesignToken) {
-	  const root = document.documentElement;
-	  // … your existing applyTokens implementation …
-	  if (token.colors) {
-		root.style.setProperty('--color-primary', token.colors.primary?.hex ?? '');
-		// etc…
-	  }
+        function applyTokens(token: DesignToken) {
+          const root = document.documentElement;
+          // Apply color tokens to CSS variables
+          if (token.colors) {
+                root.style.setProperty('--color-primary', token.colors.primary?.hex ?? '');
+                // etc…
+          }
 	  // dark‐mode
 	  document.body.classList.toggle('dark', token.mode === 'dark');
 	}
