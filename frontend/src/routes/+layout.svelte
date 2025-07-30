@@ -17,13 +17,13 @@
           applyTokens(data.tokens);
         }
   
-	function applyTokens(token: DesignToken) {
-	  const root = document.documentElement;
-	  // … your existing applyTokens implementation …
-	  if (token.colors) {
-		root.style.setProperty('--color-primary', token.colors.primary?.hex ?? '');
-		// etc…
-	  }
+        function applyTokens(token: DesignToken) {
+          const root = document.documentElement;
+          // Apply color tokens to CSS variables
+          if (token.colors) {
+                root.style.setProperty('--color-primary', token.colors.primary?.hex ?? '');
+                // etc…
+          }
 	  // dark‐mode
 	  document.body.classList.toggle('dark', token.mode === 'dark');
 	}
