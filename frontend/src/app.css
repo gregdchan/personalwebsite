@@ -1,14 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&family=Source+Code+Pro:wght@400;500&display=swap');
-@import 'tailwindcss';
+@import "tailwindcss";
 
-/* Tailwind Design Token Fallbacks */
+/* Custom CSS variables for theme colors */
 :root {
-  --color-primary: #1D4ED8;
-  --color-secondary: #9333EA;
-  --color-bg: #ffffff;
-  --color-fg: #000000;
-  --color-accent: #F59E0B;
-  --color-muted: #9CA3AF;
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-primary: #3b82f6;
 
   --font-family: 'Poppins', sans-serif;
   --font-size-base: 16px;
@@ -27,21 +24,42 @@
   --font-source-code: 'Source Code Pro', monospace;
 }
 
-/* Body and Base Typography */
-body {
-  font-family: var(--font-family, var(--font-source-code));
-  font-weight: var(--font-weight);
-  font-size: var(--font-size-base);
-  color: var(--color-fg);
-  background-color: var(--color-bg);
+.dark {
+  --color-background: #0f172a;
+  --color-foreground: #f8fafc;
+  --color-primary: #60a5fa;
 }
 
-/* Dark Mode (optional override if using Tailwind’s `dark` class) */
-body.dark {
-  --color-bg: #000000;
-  --color-fg: #ffffff;
-  background-color: var(--color-bg);
-  color: var(--color-fg);
+/* Apply CSS variables to Tailwind classes */
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.border-foreground {
+  border-color: var(--color-foreground);
+}
+
+/* Add hover states for theme integration */
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+/* Body and Base Typography */
+body {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight);
+  font-size: var(--font-size-base);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Headings */
@@ -89,5 +107,10 @@ h6 {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-fg);
+  color: var(--color-foreground);
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-primary);
 }

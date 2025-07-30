@@ -31,11 +31,7 @@ export async function getDesignToken(): Promise<DesignToken | null> {
   } catch (err) {
     console.error('Sanity fetch error for design token:', err)
     return null
-=======
-  const tokens = await client.fetch<DesignToken[]>(`
-    *[_type=="designToken"] | order(_createdAt desc)[0]
-  `);
-  return tokens[0] || null;
+  }
 }
 export async function getBlogPosts(): Promise<BlogPost[]> {
   const query = `*[_type=="blogPost"] | order(publishedAt desc){
@@ -49,6 +45,5 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   } catch (err) {
     console.error('Sanity fetch error for blog posts:', err);
     return [];
- main
   }
 }
