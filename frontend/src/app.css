@@ -1,152 +1,178 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&family=Source+Code+Pro:wght@400;500&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* =====================
    Design Token Variables
    ===================== */
 :root {
-  /* Typography */
-  --font-family: system-ui, sans-serif;
-  --font-family-heading: var(--font-family);
-  --font-size-base: 16px;
-  --font-weight: 400;
+	/* Typography */
+	--font-family: system-ui, sans-serif;
+	--font-family-heading: var(--font-family);
+	--font-size-base: 16px;
+	--font-weight: 400;
 
-  /* Colors (will be overwritten by JS) */
-  --color-background: #ffffff;
-  --color-foreground: #000000;
-  --color-primary: #3b82f6;
+	/* Colors (will be overwritten by JS) */
+	--color-background: #ffffff;
+	--color-foreground: #000000;
+	--color-primary: #3b82f6;
 }
 
 /* =====================
    Base Styles
    ===================== */
 body {
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight);
-  color: var(--color-foreground);
-  background-color: var(--color-background);
-  transition: background-color 0.3s ease, color 0.3s ease;
+	font-family: var(--font-family);
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight);
+	color: var(--color-foreground);
+	background-color: var(--color-background);
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease;
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family-heading);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-family-heading);
 }
 
 /* =====================
    Tailwind Utility Overrides
    ===================== */
-.bg-background { background-color: var(--color-background); }
-.text-foreground { color: var(--color-foreground); }
-.text-primary { color: var(--color-primary); }
-.border-foreground { border-color: var(--color-foreground); }
-.hover\:text-primary:hover { color: var(--color-primary); }
+.bg-background {
+	background-color: var(--color-background);
+}
+.text-foreground {
+	color: var(--color-foreground);
+}
+.bg-header {
+	background-color: var(--color-headerBackground);
+}
+.text-header {
+	color: var(--color-headerText);
+}
+.text-primary {
+	color: var(--color-primary);
+}
+.border-foreground {
+	border-color: var(--color-foreground);
+}
+.hover\:text-primary:hover {
+	color: var(--color-primary);
+}
 
 /* =====================
    Navigation Links
    ===================== */
 .nav-link {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-foreground);
-  transition: color 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  min-height: 48px; /* Match logo height */
+	font-family: var(--font-family-heading);
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--color-headerText);
+	transition: color 0.3s ease;
+	position: relative;
+	overflow: hidden;
+	display: inline-flex;
+	align-items: center;
+	min-height: 48px; /* Match logo height */
 }
 .nav-link:hover {
-  color: var(--color-primary);
+	color: var(--color-primary);
 }
 .nav-link img {
-  display: block;
-  position: relative;
-  z-index: 10;
+	display: block;
+	position: relative;
+	z-index: 10;
 }
 .nav-link span {
-  display: block;
-  position: relative;
-  z-index: 0;
+	display: block;
+	position: relative;
+	z-index: 0;
 }
 
 /* =====================
    Buttons
    ===================== */
 button {
-  background-color: var(--color-primary);
-  color: var(--color-foreground);
-  font-family: var(--font-family);
-  transition: background-color 0.3s, color 0.3s;
+	background-color: var(--color-primary);
+	color: var(--color-foreground);
+	font-family: var(--font-family);
+	transition:
+		background-color 0.3s,
+		color 0.3s;
 }
 
 /* =====================
    Preload Font-Faces
    ===================== */
 @font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 400 800;
-  src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap') format('woff2');
+	font-family: 'Poppins';
+	font-style: normal;
+	font-weight: 400 800;
+	src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap')
+		format('woff2');
 }
 @font-face {
-  font-family: 'Source Code Pro';
-  font-style: normal;
-  font-weight: 400 500;
-  src: url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap') format('woff2');
+	font-family: 'Source Code Pro';
+	font-style: normal;
+	font-weight: 400 500;
+	src: url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap')
+		format('woff2');
 }
 /* Logo container always reserves space */
 .logo-link {
-  display: inline-flex;
-  align-items: center;
+	display: inline-flex;
+	align-items: center;
 }
 
 /* Hide/show via data-has-logo */
-header[data-has-logo="true"] .logo-text {
-  display: none;
+header[data-has-logo='true'] .logo-text {
+	display: none;
 }
-header[data-has-logo="false"] .logo-img {
-  display: none;
+header[data-has-logo='false'] .logo-img {
+	display: none;
 }
 
 /* Ensure crisp scaling */
 /* No fixed Tailwind h-8 here; we use the <img>'s intrinsic 120×40 box */
 .logo-img {
-  /* width: 128px; */
-  height: 48px; /* Increased proportionally */
-  object-fit: contain;
-  transform: translateZ(0); /* Force GPU acceleration */
-  backface-visibility: hidden; 
-  -webkit-font-smoothing: antialiased;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  will-change: transform;
-  display: block; /* Prevent line height issues */
-  
+	/* width: 128px; */
+	height: 48px; /* Increased proportionally */
+	object-fit: contain;
+	transform: translateZ(0); /* Force GPU acceleration */
+	backface-visibility: hidden;
+	-webkit-font-smoothing: antialiased;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	will-change: transform;
+	display: block; /* Prevent line height issues */
 }
 
 /* Add or update this container class */
 .site-container {
-  width: 100%;
-  max-width: 1280px; /* Adjust this to your preferred max width */
-  margin: 0 auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+	width: 100%;
+	max-width: 1280px; /* Adjust this to your preferred max width */
+	margin: 0 auto;
+	padding-left: 1.5rem;
+	padding-right: 1.5rem;
 }
 
 @media (min-width: 768px) {
-  .site-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+	.site-container {
+		padding-left: 2rem;
+		padding-right: 2rem;
+	}
 }
 
 @media (min-width: 1024px) {
-  .site-container {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
+	.site-container {
+		padding-left: 2.5rem;
+		padding-right: 2.5rem;
+	}
 }
