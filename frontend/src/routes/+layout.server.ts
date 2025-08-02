@@ -1,15 +1,23 @@
 // src/routes/+layout.server.ts
+import { getNavigation, getDesignTokens } from '$lib/sanity';
 import type { LayoutServerLoad } from './$types';
-import { getDesignToken, getNavigation } from '$lib/sanity';
 
 export const load: LayoutServerLoad = async () => {
-  const [tokens, navigation] = await Promise.all([
-    getDesignToken(),
-    getNavigation()
+  const [navigation, tokens] = await Promise.all([
+    getNavigation(),
+    getDesignTokens()
   ]);
 
+  if (!tokens) {
+    // Optionally: throw error(500, 'Failed to load tokens');
+    return {
+      navigation,
+      tokens: {} // fallback to empty object
+    };
+  }
+
   return {
-    tokens,
-    navigation
+    navigation,
+    tokens
   };
 };

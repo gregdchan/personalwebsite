@@ -12,12 +12,13 @@
     "gen:types": "sanity-codegen schema-codegen"
   },
   "dependencies": {
-    "@sanity/color-input": "^3.1.2",
-    "@sanity/vision": "^3.99.0",
+    "@sanity/code-input": "^5.1.3",
+    "@sanity/color-input": "^4.0.5",
+    "@sanity/vision": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-is": "^19.1.1",
-    "sanity": "^3.99.0",
+    "sanity": "^4.2.0",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {

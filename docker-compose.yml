@@ -1,0 +1,34 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3333
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./gregdchan
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./gregdchan:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

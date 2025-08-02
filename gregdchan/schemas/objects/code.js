@@ -1,10 +1,12 @@
 // objects/code.js
-export default {
+import {defineType, defineField} from 'sanity'
+
+export default defineType({
     name: 'code',
     title: 'Code',
     type: 'object',
     fields: [
-      {
+      defineField({
         name: 'language',
         title: 'Language',
         type: 'string',
@@ -22,18 +24,18 @@ export default {
             { title: 'Plain text', value: 'text' }
           ]
         }
-      },
-      {
+      }),
+      defineField({
         name: 'filename',
         title: 'Filename',
         type: 'string'
-      },
-      {
+      }),
+      defineField({
         name: 'code',
         title: 'Code',
         type: 'text',
         rows: 10
-      }
+      })
     ]
-  }
+  })
   

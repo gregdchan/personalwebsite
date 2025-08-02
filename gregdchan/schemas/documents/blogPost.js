@@ -1,16 +1,18 @@
 // documents/blogPost.js
-export default {
+import {defineType, defineField, defineArrayMember} from 'sanity'
+
+export default defineType({
     name: 'blogPost',
     title: 'Blog Posts',
     type: 'document',
     fields: [
-      {
+      defineField({
         name: 'title',
         title: 'Title',
         type: 'string',
         validation: Rule => Rule.required()
-      },
-      {
+      }),
+      defineField({
         name: 'slug',
         title: 'Slug',
         type: 'slug',
@@ -19,14 +21,14 @@ export default {
           source: 'title',
         },
         validation: Rule => Rule.required()
-      },
-      {
+      }),
+      defineField({
         name: 'author',
         title: 'Author',
         type: 'reference',
         to: [{ type: 'author' }]
-      },
-      {
+      }),
+      defineField({
         name: 'mainImage',
         title: 'Main Image',
         type: 'mainImage',
@@ -76,12 +78,12 @@ export default {
         title: 'Related Posts',
         type: 'array',
         of: [{ type: 'reference', to: { type: 'blogPost' } }]
-      },
-      {
+      }),
+      defineField({
         name: 'seo',
         title: 'SEO & Social',
         type: 'seo'
-      }
+      })
     ],
     orderings: [
       {
@@ -110,4 +112,4 @@ export default {
         };
       }
     }
-  };
+  });

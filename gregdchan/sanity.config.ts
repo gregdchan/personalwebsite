@@ -1,21 +1,22 @@
-import { defineConfig } from 'sanity';
-import { structureTool } from 'sanity/structure';
-import { visionTool } from '@sanity/vision';
-import { colorInput } from '@sanity/color-input';
-import { schemaTypes } from './schemas/schema';
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { colorInput } from '@sanity/color-input'
+import schemaTypes from './schemas' // 👈 index.js or index.ts for schemas
 
 export default defineConfig({
   name: 'default',
   title: 'gregdchan',
+
   projectId: 'smxz6rsz',
   dataset: 'production',
+
+  // Sanity v3+ plugins
   plugins: [
-    structureTool(),
-    visionTool(),
-    colorInput(),
+    structureTool(), // Replaces deprecated deskTool()
+    colorInput()
   ],
+
   schema: {
-    // ← cast here
-    types: schemaTypes as any /* or better: SchemaTypeDefinition[] */,
-  },
-});
+    types: schemaTypes
+  }
+})
