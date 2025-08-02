@@ -8,6 +8,10 @@ export interface DesignToken {
 		secondary?: { hex: string };
 		background?: { hex: string };
 		foreground?: { hex: string };
+		headerBackground?: { hex: string };
+		headerText?: { hex: string };
+		bodyBackground?: { hex: string };
+		bodyText?: { hex: string };
 		accent?: { hex: string };
 		muted?: { hex: string };
 	};
