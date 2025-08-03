@@ -2,3 +2,15 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Build artifacts
+.svelte-kit
+dist
+build
+
+# Dependencies
+node_modules
+bower_components
+
+# Static assets
+static
