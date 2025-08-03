@@ -1,38 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-        <meta name="viewport" content="width=device-width" />
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width" />
 
-        <!-- Theme script - Prevent flash of wrong theme -->
-        <script>
-            (function() {
-                const theme = localStorage.getItem('theme') ||
-                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.classList.toggle('dark', theme === 'dark');
+		<!-- Theme script - Prevent flash of wrong theme -->
+		<script>
+			(function () {
+				const theme =
+					localStorage.getItem('theme') ||
+					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				document.documentElement.classList.toggle('dark', theme === 'dark');
 
-                // Try to load cached tokens from localStorage for instant application
-                const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
-                const tokenSet = tokens[theme];
-                if (tokenSet && tokenSet.colors) {
-                    Object.entries(tokenSet.colors).forEach(([key, value]) => {
-                        if (value?.hex) {
-                            document.documentElement.style.setProperty(`--color-${key}`, value.hex);
-                        }
-                    });
-                } else if (theme === 'dark') {
-                    // Fallback if no tokens cached
-                    document.documentElement.style.setProperty('--color-background', '#000');
-                    document.documentElement.style.setProperty('--color-foreground', '#f8fafc');
-                    document.documentElement.style.setProperty('--color-primary', '#60a5fa');
-                }
-            })();
-        </script>
+				// Try to load cached tokens from localStorage for instant application
+				const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
+				const tokenSet = tokens[theme];
+				if (tokenSet && tokenSet.colors) {
+					Object.entries(tokenSet.colors).forEach(([key, value]) => {
+						if (value?.hex) {
+							document.documentElement.style.setProperty(`--color-${key}`, value.hex);
+						}
+					});
+				} else if (theme === 'dark') {
+					// Fallback if no tokens cached
+					document.documentElement.style.setProperty('--color-background', '#000');
+					document.documentElement.style.setProperty('--color-foreground', '#f8fafc');
+					document.documentElement.style.setProperty('--color-primary', '#60a5fa');
+				}
+			})();
+		</script>
 
-        %sveltekit.head%
-    </head>
-    <body data-sveltekit-preload-data="hover">
-        <div style="display: contents">%sveltekit.body%</div>
-    </body>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
 </html>

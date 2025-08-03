@@ -1,14 +1,15 @@
 // src/lib/utils/sanityImage.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import imageUrlBuilder from '@sanity/image-url';
 import { createClient } from '@sanity/client';
 import type { ImageUrlBuilder } from '@sanity/image-url/lib/types/builder';
 
 // 1) initialize your Sanity client
 const client = createClient({
-  projectId: 'smxz6rsz',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  useCdn: true,
+	projectId: 'smxz6rsz',
+	dataset: 'production',
+	apiVersion: '2024-01-01',
+	useCdn: true
 });
 
 // 2) create the image URL builder
@@ -19,7 +20,7 @@ const builder: ImageUrlBuilder = imageUrlBuilder(client);
  * Usage: urlFor(source).width(300).height(200).format('webp').url()
  */
 export function urlFor(source: any) {
-  return builder.image(source);
+	return builder.image(source);
 }
 
 /**
@@ -33,26 +34,21 @@ export function urlFor(source: any) {
  * @returns `"url-1x 1x, url-2x 2x"`
  */
 export function logoSrcsetWebp(
-  source: any,
-  width = 120,
-  quality = 80,
-  fmt: 'webp' | 'png' | 'jpg' = 'webp'
+	source: any,
+	width = 120,
+	quality = 80,
+	fmt: 'webp' | 'png' | 'jpg' = 'webp'
 ) {
-  if (!source?.asset?._ref) return '';
+	if (!source?.asset?._ref) return '';
 
-  const oneX = builder
-    .image(source)
-    .width(width)
-    .format(fmt)
-    .quality(quality)
-    .url();
+	const oneX = builder.image(source).width(width).format(fmt).quality(quality).url();
 
-  const twoX = builder
-    .image(source)
-    .width(width * 2)
-    .format(fmt)
-    .quality(quality)
-    .url();
+	const twoX = builder
+		.image(source)
+		.width(width * 2)
+		.format(fmt)
+		.quality(quality)
+		.url();
 
-  return `${oneX} 1x, ${twoX} 2x`;
+	return `${oneX} 1x, ${twoX} 2x`;
 }

@@ -2,7 +2,7 @@
   import HeroSection from '$lib/HeroSection.svelte';
 </script> -->
 
-<main class="bg-black text-white min-h-screen font-sans">
-  <!-- <HeroSection /> -->
-  <!-- Your other sections: bio, education, experience, etc. -->
+<main class="min-h-screen bg-black font-sans text-white">
+	<!-- <HeroSection /> -->
+	<!-- Your other sections: bio, education, experience, etc. -->
 </main>
