@@ -8,24 +8,27 @@
 	import { fade } from 'svelte/transition';
 	import { theme } from '$lib/stores/themeStore';
 	import { onMount, onDestroy } from 'svelte';
-	import { get } from 'svelte/store';
 
 	export let data: {
 		tokens: { light: DesignToken | null; dark: DesignToken | null };
 		navigation: Navigation | null;
 	};
 
-	let currentThemeData: DesignToken | null = data.tokens.light || data.tokens.dark || null;
-	let unsubscribeTheme: () => void;
-
-	let isInitialLoad = true;
+	// Keep track of current theme data
+	let currentThemeData: DesignToken | null = null;
 	let isHomePage = false;
-
+	
+	/**
+	 * Apply design tokens to document root as CSS variables
+	 */
 	function applyTokens(tokenSet: DesignToken) {
-		// — COLORS —
+		if (!tokenSet) return;
+
+		// Colors
 		for (const [key, val] of Object.entries(tokenSet.colors || {})) {
 			if ((val as any)?.hex) {
 				document.documentElement.style.setProperty(`--color-${key}`, (val as any).hex);
+				// Map main colors to standard variables
 				if (key === 'bodyBackground') {
 					document.documentElement.style.setProperty('--color-background', (val as any).hex);
 				}
@@ -35,70 +38,63 @@
 			}
 		}
 
-		// — TYPOGRAPHY —
+		// Typography
 		const ty = tokenSet.typography;
 		if (ty) {
-			// Body font-family
-			const bf = ty.bodyFontFamily === 'custom' ? ty.customBodyFontFamily : ty.bodyFontFamily;
-			if (bf && bf !== 'custom') {
-				document.documentElement.style.setProperty('--font-family', bf);
+			// Base font - use consistent variable name
+			const baseFont = ty.fontFamily === 'custom' ? ty.customFontFamily : ty.fontFamily;
+			if (baseFont) {
+				document.documentElement.style.setProperty('--font-family-base', baseFont);
+				// Also set the alternate name for backwards compatibility
+				document.documentElement.style.setProperty('--font-family', baseFont);
 			}
-
-			// Base font-size
-			if (typeof ty.baseFontSize === 'number' && ty.baseFontSize > 0) {
-				document.documentElement.style.setProperty('--font-size-base', `${ty.baseFontSize}px`);
+			
+			// Heading font
+			const headingFont = ty.fontFamily === 'inherit' 
+				? baseFont 
+				: ty.fontFamily === 'custom'
+					? ty.customFontFamily
+					: ty.fontFamily;
+					
+			if (headingFont) {
+				document.documentElement.style.setProperty('--font-family-heading', headingFont);
 			}
-
-			// Base font-weight
-			if (ty.baseFontWeight) {
-				document.documentElement.style.setProperty('--font-weight', ty.baseFontWeight);
+			
+			// Font sizes and weights
+			if (typeof ty.fontSize === 'number' && ty.fontSize > 0) {
+				document.documentElement.style.setProperty('--font-size-base', `${ty.fontSize}px`);
 			}
-
-			// Header font-family
-			const hf =
-				ty.headerFontFamily === 'inherit'
-					? bf
-					: ty.headerFontFamily === 'custom'
-						? ty.customHeaderFontFamily
-						: ty.headerFontFamily;
-			if (hf && hf !== 'custom') {
-				document.documentElement.style.setProperty('--font-family-heading', hf);
+			
+			if (ty.fontWeight) {
+				document.documentElement.style.setProperty('--font-weight', ty.fontWeight);
 			}
 		}
 	}
 
 	onMount(() => {
-		// 1) Homepage fade
-		isHomePage = window.location.pathname === '/';
-		setTimeout(() => (isInitialLoad = false), 200);
-
 		if (!browser) return;
-
-		// 2) Figure out initial theme
-		const initTheme = get(theme);
-		currentThemeData = initTheme === 'dark' ? data.tokens.dark : data.tokens.light;
-
-		// 3) Apply it once
+		
+		// Check if we're on the homepage
+		isHomePage = window.location.pathname === '/';
+		
+		// Apply initial theme
+		const currentMode = $theme;
+		currentThemeData = currentMode === 'dark' ? data.tokens.dark : data.tokens.light;
 		if (currentThemeData) {
 			applyTokens(currentThemeData);
-			// cache to localStorage
 			localStorage.setItem('designTokens', JSON.stringify(data.tokens));
 		}
-
-		// 4) Subscribe so toggles reapply instantly
-		unsubscribeTheme = theme.subscribe((t) => {
-			document.documentElement.classList.toggle('dark', t === 'dark');
-			const ts = t === 'dark' ? data.tokens.dark : data.tokens.light;
-			if (ts) {
-				currentThemeData = ts;
-				applyTokens(ts);
+		
+		// Subscribe to theme changes
+		return theme.subscribe(newTheme => {
+			document.documentElement.classList.toggle('dark', newTheme === 'dark');
+			const tokens = newTheme === 'dark' ? data.tokens.dark : data.tokens.light;
+			if (tokens) {
+				currentThemeData = tokens;
+				applyTokens(tokens);
 				localStorage.setItem('designTokens', JSON.stringify(data.tokens));
 			}
 		});
-	});
-
-	onDestroy(() => {
-		unsubscribeTheme && unsubscribeTheme();
 	});
 </script>
 
@@ -106,77 +102,104 @@
 	<title>Greg D. Chan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<!--
-    Pre-hydrate theme class + CSS variables from last session.
-    Prevents FOUC/blink when you navigate or reload.
-  -->
+	<!-- Initialize theme from localStorage before hydration to prevent flash -->
 	<script>
-		(function () {
-			const storedTheme =
-				localStorage.getItem('theme') ||
+		(function() {
+			// Get theme from localStorage or system preference
+			const storedTheme = localStorage.getItem('theme') || 
 				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			
+			// Apply theme class
 			document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-
-			let tokens = {};
+			
+			// Try to restore design tokens from localStorage
 			try {
-				tokens = JSON.parse(localStorage.getItem('designTokens')) || {};
-			} catch {}
-			const tokenSet = tokens[storedTheme] || {};
-
-			// Apply colors
-			if (tokenSet.colors) {
-				Object.entries(tokenSet.colors).forEach(([k, v]) => {
-					if (v?.hex) {
-						document.documentElement.style.setProperty(`--color-${k}`, v.hex);
-						if (k === 'bodyBackground') {
-							document.documentElement.style.setProperty('--color-background', v.hex);
+				const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
+				const tokenSet = tokens[storedTheme] || {};
+				
+				// Apply color tokens
+				if (tokenSet.colors) {
+					Object.entries(tokenSet.colors).forEach(([key, val]) => {
+						if (val?.hex) {
+							document.documentElement.style.setProperty(`--color-${key}`, val.hex);
+							if (key === 'bodyBackground') {
+								document.documentElement.style.setProperty('--color-background', val.hex);
+							}
+							if (key === 'bodyText') {
+								document.documentElement.style.setProperty('--color-foreground', val.hex);
+							}
 						}
-						if (k === 'bodyText') {
-							document.documentElement.style.setProperty('--color-foreground', v.hex);
-						}
+					});
+				}
+				
+				// Apply typography tokens
+				if (tokenSet.typography) {
+					const ty = tokenSet.typography;
+					const baseFont = ty.fontFamily === 'custom' ? ty.customFontFamily : ty.fontFamily;
+					
+					if (baseFont) {
+						document.documentElement.style.setProperty('--font-family-base', baseFont);
 					}
-				});
-			}
-
-			// Apply typography
-			if (tokenSet.typography) {
-				const ty = tokenSet.typography;
-				const bf = ty.bodyFontFamily === 'custom' ? ty.customBodyFontFamily : ty.bodyFontFamily;
-				if (bf) {
-					document.documentElement.style.setProperty('--font-family', bf);
-				}
-				if (ty.baseFontSize > 0) {
-					document.documentElement.style.setProperty('--font-size-base', `${ty.baseFontSize}px`);
-				}
-				if (ty.baseFontWeight) {
-					document.documentElement.style.setProperty('--font-weight', ty.baseFontWeight);
-				}
-				const hf =
-					ty.headerFontFamily === 'inherit'
-						? bf
+					
+					if (typeof ty.baseFontSize === 'number' && ty.baseFontSize > 0) {
+						document.documentElement.style.setProperty('--font-size-base', `${ty.baseFontSize}px`);
+					}
+					
+					if (ty.baseFontWeight) {
+						document.documentElement.style.setProperty('--font-weight', ty.baseFontWeight);
+					}
+					
+					const headingFont = ty.headerFontFamily === 'inherit' 
+						? baseFont 
 						: ty.headerFontFamily === 'custom'
 							? ty.customHeaderFontFamily
 							: ty.headerFontFamily;
-				if (hf) {
-					document.documentElement.style.setProperty('--font-family-heading', hf);
+							
+					if (headingFont) {
+						document.documentElement.style.setProperty('--font-family-heading', headingFont);
+					}
 				}
+			} catch (e) {
+				console.error('Error restoring design tokens:', e);
 			}
 		})();
 	</script>
 </svelte:head>
 
-{#if isInitialLoad && isHomePage}
-	<div in:fade={{ duration: 150, delay: 150 }}>
-		<Header navigation={data.navigation} currentTheme={$theme} {currentThemeData} />
-		<main class="bg-background text-foreground min-h-[90vh]">
-			<slot />
-		</main>
-		<Footer />
-	</div>
-{:else}
-	<Header navigation={data.navigation} currentTheme={$theme} {currentThemeData} />
-	<main class="bg-background text-foreground min-h-[90vh]">
-		<slot />
-	</main>
-	<Footer />
-{/if}
+<Header navigation={data.navigation} currentTheme={$theme} {currentThemeData} />
+
+<main class="bg-background text-foreground">
+    <div class="site-container">
+        {#if isHomePage}
+            <div in:fade={{ duration: 150, delay: 150 }}>
+                <slot />
+            </div>
+        {:else}
+            <slot />
+        {/if}
+    </div>
+</main>
+
+<Footer />
+
+<style>
+:root {
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: var(--font-family-base); /* For backwards compatibility */
+  --font-family-heading: var(--font-family-base);
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+  --font-weight: 400;
+}
+
+html, body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: var(--font-weight);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+}
+</style>

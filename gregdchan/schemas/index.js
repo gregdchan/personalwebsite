@@ -23,6 +23,20 @@ import testimonial from './objects/testimonial'
 import hero from './objects/hero'
 import parallaxSection from './objects/parallaxSection'
 import threeJsSection from './objects/threeJsSection'
+import pictureHero from './objects/pictureHero'
+
+// Resume/CV schemas
+import education from './objects/education'
+import skills from './objects/skills'
+import experience from './objects/experience'
+
+// Content section schemas
+import videoHero from './objects/videoHero'
+import richText from './objects/richText'
+import testimonialCarousel from './objects/testimonialCarousel'
+import faq from './objects/faq'
+import featureGrid from './objects/featureGrid'
+import imageCarousel from './objects/imageCarousel'
 
 const validateSchema = (schema) => {
   console.log(`Validating schema: ${schema.name}`)
@@ -31,28 +45,43 @@ const validateSchema = (schema) => {
 
 export default [
   // Documents
-  // validateSchema(navigation),
-  // validateSchema(blogPost),
-  // validateSchema(caseStudy),
-  // validateSchema(category),
   validateSchema(page),
-  // validateSchema(portfolioProject),
+  validateSchema(blogPost),
   validateSchema(tag),
   validateSchema(author),
   validateSchema(designToken),
+  validateSchema(navigation),
+  validateSchema(caseStudy),
+  validateSchema(category),
+  validateSchema(portfolioProject),
   
   // Objects
   validateSchema(blockContent),
-  // validateSchema(callToAction),
   validateSchema(code),
-  // validateSchema(embed),
-  // validateSchema(gallery),
-  //validateSchema(link),
   validateSchema(mainImage),
   validateSchema(seo),
-  // validateSchema(testimonial),
+  validateSchema(link),
   validateSchema(hero),
-  // validateSchema(parallaxSection),
-  // validateSchema(threeJsSection),
-
+  validateSchema(pictureHero),
+  validateSchema(testimonial),
+  
+  // Resume/CV schemas
+  validateSchema(education),
+  validateSchema(skills),
+  validateSchema(experience),
+  
+  // Content section schemas
+  validateSchema(videoHero),
+  validateSchema(richText),
+  validateSchema(testimonialCarousel),
+  validateSchema(faq),
+  validateSchema(featureGrid),
+  validateSchema(imageCarousel),
+  
+  // Additional objects
+  validateSchema(callToAction),
+  validateSchema(embed),
+  validateSchema(gallery),
+  validateSchema(parallaxSection),
+  validateSchema(threeJsSection)
 ]

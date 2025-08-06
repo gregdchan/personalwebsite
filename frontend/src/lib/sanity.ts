@@ -97,29 +97,88 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
-export async function getPage(slug: string): Promise<Page | null> {
-  const query = `*[_type == "page" && slug.current == $slug][0]{
+export async function getPage(slug: string, options: {
+  includeReferences?: boolean;
+  includeSections?: boolean;
+  includeRelated?: boolean;
+} = {}): Promise<Page | null> {
+  const { 
+    includeReferences = true, 
+    includeSections = true, 
+    includeRelated = false 
+  } = options;
+  
+  // Base query with essential fields
+  let query = `*[_type == "page" && slug.current == $slug][0]{
     _id,
     title,
     slug,
-    content,
-    sections[]{
+    mainImage {
+      asset-> {
+        _id,
+        url
+      },
+      alt,
+      caption
+    },
+    description,
+    body`;
+    
+  // Add sections handling if needed
+  if (includeSections) {
+    query += `,
+    sections[] {
       _type,
       _key,
+      // Expand hero section
       _type == "hero" => {
         heading,
         subheading,
         backgroundType,
-        backgroundImage,
+        backgroundImage {
+          asset-> {
+            _id,
+            url
+          },
+          alt,
+          hotspot,
+          crop
+        },
         backgroundVideo,
         backgroundColor,
         secondaryColor,
-        cta
+        cta {
+          text,
+          link,
+          style,
+          target
+        }
       }
-      // Add other section types with their specific fields
+      // You can add more section types here as your schema evolves
+    }`;
+  }
+  
+  // Add SEO
+  query += `,
+    seo {
+      description,
+      keywords,
+      canonicalUrl,
+      openGraph {
+        title,
+        description,
+        image {
+          asset-> {
+            url
+          }
+        }
+      },
+      metaTags
     },
-    seo
-  }`;
+    isIndexPage`;
+    
+  // Close the query
+  query += `}`;
 
   try {
     return await client.fetch(query, { slug });

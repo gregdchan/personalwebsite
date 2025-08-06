@@ -3,7 +3,38 @@
 	import { onMount } from 'svelte';
 	import PortableText from '$lib/components/PortableText.svelte';
 
-	export let data;
+	// Define the types for homePage and its nested properties
+	interface MainImage {
+		asset?: {
+			_ref?: string;
+		};
+		alt?: string;
+	}
+
+	interface Section {
+		_key: string;
+		_type: string;
+		backgroundType?: string;
+		backgroundImage?: MainImage;
+		backgroundVideo?: string;
+		heading?: string;
+		subheading?: string;
+		cta?: {
+			text?: string;
+			url?: string;
+		};
+		// Add other fields as needed for other section types
+	}
+
+	interface HomePage {
+		title?: string;
+		description?: string;
+		mainImage?: MainImage;
+		body?: any;
+		sections?: Section[];
+	}
+
+	export let data: { homePage: HomePage };
 	const { homePage } = data;
 
 	onMount(() => {
@@ -17,13 +48,14 @@
 </svelte:head>
 
 <!-- Page content -->
-<div class="page-content site-container">
+<div class="container mx-auto px-4 py-8">
+  
 	{#if homePage?.title}
-		<h1 class="page-title">{homePage.title}</h1>
+		<h1 class="text-4xl font-bold mb-4">{homePage.title}</h1>
 	{/if}
 
 	{#if homePage?.description}
-		<div class="page-description">{homePage.description}</div>
+		<div class="text-lg mb-4">{homePage.description}</div>
 	{/if}
 
 	{#if homePage?.mainImage?.asset?._ref}
@@ -101,12 +133,6 @@
 	/* Basic styling */
 	.page-content {
 		padding: 2rem 0;
-	}
-
-	.page-title {
-		font-size: 2.5rem;
-		font-family: var(--font-family-heading);
-		margin-bottom: 1rem;
 	}
 
 	.page-description {
