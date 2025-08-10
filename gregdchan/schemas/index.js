@@ -8,12 +8,13 @@ import category from './documents/category'
 import portfolioProject from './documents/portfolioProject'
 import tag from './documents/tag'
 import author from './documents/author'
-import page from './documents/page' 
+import page from './documents/page'
+// import post from './documents/post'
 
 // Objects
 import blockContent from './objects/blockContent'
 import callToAction from './objects/callToAction'
-import code from './objects/code'
+// import code from './objects/code'
 import embed from './objects/embed'
 import gallery from './objects/gallery'
 import link from './objects/link'
@@ -55,22 +56,23 @@ export default [
   validateSchema(caseStudy),
   validateSchema(category),
   validateSchema(portfolioProject),
-  
+  // validateSchema(post),
+
   // Objects
   validateSchema(blockContent),
-  validateSchema(code),
+  // validateSchema(code),
   validateSchema(mainImage),
   validateSchema(seo),
   validateSchema(link),
   validateSchema(hero),
   validateSchema(pictureHero),
   validateSchema(testimonial),
-  
+
   // Resume/CV schemas
   validateSchema(education),
   validateSchema(skills),
   validateSchema(experience),
-  
+
   // Content section schemas
   validateSchema(videoHero),
   validateSchema(richText),

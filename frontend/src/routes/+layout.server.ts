@@ -1,23 +1,25 @@
 // src/routes/+layout.server.ts
-import { getNavigation, getDesignTokens } from '$lib/sanity';
 import type { LayoutServerLoad } from './$types';
+import { fetchTokens, fetchNav } from '$lib/sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
+import { client } from '$lib/sanity/client'; // if you already export client here
 
 export const load: LayoutServerLoad = async () => {
-  const [navigation, tokens] = await Promise.all([
-    getNavigation(),
-    getDesignTokens()
+  const [tokens, navDoc, site] = await Promise.all([
+    fetchTokens(),
+    fetchNav(),
+    // adjust the query to match your settings doc
+    client.fetch(`*[_type=="siteSettings"][0]{logo}`)
   ]);
 
-  if (!tokens) {
-    // Optionally: throw error(500, 'Failed to load tokens');
-    return {
-      navigation,
-      tokens: {} // fallback to empty object
-    };
-  }
+  const builder = imageUrlBuilder(client);
+  const logoUrl = site?.logo
+    ? builder.image(site.logo).width(360).format('png').quality(95).url()
+    : null;
 
   return {
-    navigation,
-    tokens
+    tokens,                         // your single DesignToken (unchanged)
+    navigation: navDoc || null,     // (unchanged)
+    logoUrl                         // NEW: single fixed URL string
   };
 };

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { slide, fly } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import ThemeToggle from '$lib/ThemeToggle.svelte';
 	import type { Navigation } from '$lib/types/navigation';
+	import type { NavItem } from '$lib/types/navigation'; // keep your existing types
 	import { urlFor, logoSrcsetWebp } from '$lib/utils/sanityImage';
-	import { browser } from '$app/environment';
 	import { logoCache } from '$lib/stores/logoStore';
 
 	/** Props **/
@@ -16,43 +16,57 @@
 	/** Local state **/
 	let mobileMenuOpen = false;
 	let headerElement: HTMLElement;
+
+	// We keep a stable, local copy of the logo props so the <img> doesn't flip sources
 	let logoUrl = '';
 	let logoSrcset = '';
 	let logoAlt = '';
 
-	/** Process logo data once when component mounts or theme changes **/
-	$: if (currentThemeData?.logo?.asset?._ref) {
-		if (!$logoCache || $logoCache.alt !== currentThemeData.themeName) {
-			logoUrl = urlFor(currentThemeData.logo)
-				.width(360)
-				.auto('format')
-				.quality(95)
-				.url();
+	const dispatch = createEventDispatcher<{ themeChange: { theme: 'light' | 'dark' } }>();
 
-			logoSrcset = logoSrcsetWebp(currentThemeData.logo, 360, 95, 'webp');
-			logoAlt = currentThemeData.themeName || 'Site Logo';
+	/** Helpers **/
+	function setLogoFromThemeData() {
+		// Build from Sanity only if a logo asset is present
+		if (currentThemeData?.logo?.asset?._ref) {
+			const url = urlFor(currentThemeData.logo).width(360).auto('format').quality(95).url();
+			const srcset = logoSrcsetWebp(currentThemeData.logo, 360, 95, 'webp');
+			const alt = currentThemeData.themeName || 'Site Logo';
 
-			logoCache.set({
-				url: logoUrl,
-				srcset: logoSrcset,
-				alt: logoAlt
-			});
-		} else {
-			logoUrl = $logoCache.url;
-			logoSrcset = $logoCache.srcset;
-			logoAlt = $logoCache.alt;
+			// Update local state (stable for template)
+			logoUrl = url || '';
+			logoSrcset = srcset || '';
+			logoAlt = alt;
+
+			// Persist in your existing store (same shape you used before)
+			logoCache.set({ url: logoUrl, srcset: logoSrcset, alt: logoAlt });
 		}
 	}
 
-	$: showLogo = Boolean(currentThemeData?.logo?.asset?._ref) || Boolean($logoCache);
-
-	const dispatch = createEventDispatcher<{ themeChange: { theme: 'light' | 'dark' } }>();
-
+	// Initialize once on mount: prefer cache, otherwise compute from current theme data
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
+
+		const cached = $logoCache;
+		if (cached?.url) {
+			logoUrl = cached.url;
+			logoSrcset = cached.srcset || '';
+			logoAlt = cached.alt || 'Site Logo';
+		} else {
+			setLogoFromThemeData();
+		}
+
 		return () => document.removeEventListener('click', handleClickOutside);
 	});
 
+	// Update only when the theme's identity changes relative to what's in cache
+	// (prevents recomputation on every navigation)
+	$: if (currentTheme && currentThemeData?.themeName) {
+		if ($logoCache?.alt !== currentThemeData.themeName) {
+			setLogoFromThemeData();
+		}
+	}
+
+	/** Events & UI handlers **/
 	function handleThemeChange(event: CustomEvent<{ theme: 'light' | 'dark' }>) {
 		dispatch('themeChange', event.detail);
 	}
@@ -83,15 +97,19 @@
 	<nav class="site-container w-full">
 		<div class="flex h-16 items-center justify-between">
 			<div class="flex-shrink-0 flex items-center">
-				<a href="/" class="nav-link flex items-center space-x-2">
-					{#if showLogo && (logoUrl || ($logoCache && $logoCache.url))}
+				<a href="/" class="nav-link flex items-center space-x-2" aria-label="Home">
+					{#if logoUrl}
 						<img
-							src={logoUrl || $logoCache?.url}
-							alt={logoAlt || $logoCache?.alt || 'Site Logo'}
-							class="logo-img"
-							fetchpriority="high"
-							loading="eager"
+							src={logoUrl}
+							srcset={logoSrcset}
+							alt={logoAlt}
+							width="160"
+							height="40"
 							decoding="async"
+							loading="eager"
+							fetchpriority="high"
+							style="display:block"
+							class="logo-img"
 						/>
 					{:else}
 						<span class="text-xl font-bold">Greg D. Chan</span>
