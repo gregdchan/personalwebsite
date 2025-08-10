@@ -1,12 +1,20 @@
 <script lang="ts">
   import { theme, toggleTheme } from '$lib/stores/themeStore';
-  
+  import { createEventDispatcher } from 'svelte';
+
   // No need for prop if using the store directly, but keep for compatibility
   export let currentTheme: 'light' | 'dark' = $theme;
+  const dispatch = createEventDispatcher<{ themeChange: 'light' | 'dark' }>();
+
+  function handleClick() {
+    const newTheme = $theme === 'dark' ? 'light' : 'dark';
+    toggleTheme();
+    dispatch('themeChange', newTheme);
+  }
 </script>
 
-<button 
-  on:click={toggleTheme}
+<button
+  on:click={handleClick}
   class="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
   aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
 >

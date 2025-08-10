@@ -170,7 +170,7 @@
 	</script>
 </svelte:head>
 
-<Header navigation={data.navigation} logoUrl={data.logoUrl} />
+<Header navigation={data.navigation} logoUrl={data.logoUrl} currentTheme={$theme} />
 
 <main class="bg-background text-foreground">
 	<div class="site-container">
