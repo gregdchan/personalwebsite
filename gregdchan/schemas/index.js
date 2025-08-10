@@ -23,6 +23,7 @@ import testimonial from './objects/testimonial'
 import hero from './objects/hero'
 import parallaxSection from './objects/parallaxSection'
 import threeJsSection from './objects/threeJsSection'
+import frame from './objects/frame'
 import pictureHero from './objects/pictureHero'
 
 // Resume/CV schemas
@@ -77,11 +78,12 @@ export default [
   validateSchema(faq),
   validateSchema(featureGrid),
   validateSchema(imageCarousel),
-  
+
   // Additional objects
   validateSchema(callToAction),
   validateSchema(embed),
   validateSchema(gallery),
   validateSchema(parallaxSection),
-  validateSchema(threeJsSection)
+  validateSchema(threeJsSection),
+  validateSchema(frame)
 ]

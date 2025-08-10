@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { urlFor } from '$lib/utils/sanityImage';
-	import { onMount } from 'svelte';
-	import PortableText from '$lib/components/PortableText.svelte';
+        import { urlFor } from '$lib/utils/sanityImage';
+        import { onMount } from 'svelte';
+        import PortableText from '$lib/components/PortableText.svelte';
+        import ThreeJsSection from '$lib/components/sections/ThreeJsSection.svelte';
+        import Frame from '$lib/components/Frame.svelte';
 
 	// Define the types for homePage and its nested properties
 	interface MainImage {
@@ -11,20 +13,21 @@
 		alt?: string;
 	}
 
-	interface Section {
-		_key: string;
-		_type: string;
-		backgroundType?: string;
-		backgroundImage?: MainImage;
-		backgroundVideo?: string;
-		heading?: string;
-		subheading?: string;
-		cta?: {
-			text?: string;
-			url?: string;
-		};
-		// Add other fields as needed for other section types
-	}
+        interface Section {
+                _key: string;
+                _type: string;
+                backgroundType?: string;
+                backgroundImage?: MainImage;
+                backgroundVideo?: string;
+                heading?: string;
+                subheading?: string;
+                cta?: {
+                        text?: string;
+                        url?: string;
+                };
+                // Additional properties for other section types
+                [key: string]: any;
+        }
 
 	interface HomePage {
 		title?: string;
@@ -115,8 +118,8 @@
 					</section>
 				{/if}
 
-				<!-- Add other section types here -->
-				<!-- For example:
+                                <!-- Add other section types here -->
+                                <!-- For example:
         {#if section._type === 'textSection'}
           <section class="text-section">
             {#if section.heading}<h2>{section.heading}</h2>{/if}
@@ -124,9 +127,23 @@
           </section>
         {/if}
         -->
-			{/each}
-		</div>
-	{/if}
+
+                                {#if section._type === 'threeJsSection'}
+                                        <div class="my-8">
+                                                <ThreeJsSection {...section} />
+                                        </div>
+                                {/if}
+
+                                {#if section._type === 'frame'}
+                                        <div class="my-8">
+                                                <Frame>
+                                                        <iframe src={section.url} title={section.title} class="w-full" style={`height:${section.height || 400}px`}></iframe>
+                                                </Frame>
+                                        </div>
+                                {/if}
+                        {/each}
+                </div>
+        {/if}
 </div>
 
 <style>
