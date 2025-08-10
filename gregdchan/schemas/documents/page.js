@@ -407,6 +407,8 @@ export default defineType({
         defineArrayMember({ type: 'imageCarousel' }),
         defineArrayMember({ type: 'testimonialCarousel' }),
         defineArrayMember({ type: 'faq' }),
+        defineArrayMember({ type: 'threeJsSection' }),
+        defineArrayMember({ type: 'frame' }),
         // New resume/CV section types
         defineArrayMember({ type: 'education' }),
         defineArrayMember({ type: 'skills' }),
