@@ -7,17 +7,18 @@
 	import '../app.css';
 	import { fade } from 'svelte/transition';
 	import { theme } from '$lib/stores/themeStore';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 
 	export let data: {
 		tokens: { light: DesignToken | null; dark: DesignToken | null };
 		navigation: Navigation | null;
+		logoUrl: string | null;
 	};
 
 	// Keep track of current theme data
 	let currentThemeData: DesignToken | null = null;
 	let isHomePage = false;
-	
+
 	/**
 	 * Apply design tokens to document root as CSS variables
 	 */
@@ -48,23 +49,24 @@
 				// Also set the alternate name for backwards compatibility
 				document.documentElement.style.setProperty('--font-family', baseFont);
 			}
-			
+
 			// Heading font
-			const headingFont = ty.fontFamily === 'inherit' 
-				? baseFont 
-				: ty.fontFamily === 'custom'
-					? ty.customFontFamily
-					: ty.fontFamily;
-					
+			const headingFont =
+				ty.fontFamily === 'inherit'
+					? baseFont
+					: ty.fontFamily === 'custom'
+						? ty.customFontFamily
+						: ty.fontFamily;
+
 			if (headingFont) {
 				document.documentElement.style.setProperty('--font-family-heading', headingFont);
 			}
-			
+
 			// Font sizes and weights
 			if (typeof ty.fontSize === 'number' && ty.fontSize > 0) {
 				document.documentElement.style.setProperty('--font-size-base', `${ty.fontSize}px`);
 			}
-			
+
 			if (ty.fontWeight) {
 				document.documentElement.style.setProperty('--font-weight', ty.fontWeight);
 			}
@@ -73,10 +75,10 @@
 
 	onMount(() => {
 		if (!browser) return;
-		
+
 		// Check if we're on the homepage
 		isHomePage = window.location.pathname === '/';
-		
+
 		// Apply initial theme
 		const currentMode = $theme;
 		currentThemeData = currentMode === 'dark' ? data.tokens.dark : data.tokens.light;
@@ -84,9 +86,9 @@
 			applyTokens(currentThemeData);
 			localStorage.setItem('designTokens', JSON.stringify(data.tokens));
 		}
-		
+
 		// Subscribe to theme changes
-		return theme.subscribe(newTheme => {
+		return theme.subscribe((newTheme) => {
 			document.documentElement.classList.toggle('dark', newTheme === 'dark');
 			const tokens = newTheme === 'dark' ? data.tokens.dark : data.tokens.light;
 			if (tokens) {
@@ -104,19 +106,20 @@
 
 	<!-- Initialize theme from localStorage before hydration to prevent flash -->
 	<script>
-		(function() {
+		(function () {
 			// Get theme from localStorage or system preference
-			const storedTheme = localStorage.getItem('theme') || 
+			const storedTheme =
+				localStorage.getItem('theme') ||
 				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-			
+
 			// Apply theme class
 			document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-			
+
 			// Try to restore design tokens from localStorage
 			try {
 				const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
 				const tokenSet = tokens[storedTheme] || {};
-				
+
 				// Apply color tokens
 				if (tokenSet.colors) {
 					Object.entries(tokenSet.colors).forEach(([key, val]) => {
@@ -131,30 +134,31 @@
 						}
 					});
 				}
-				
+
 				// Apply typography tokens
 				if (tokenSet.typography) {
 					const ty = tokenSet.typography;
 					const baseFont = ty.fontFamily === 'custom' ? ty.customFontFamily : ty.fontFamily;
-					
+
 					if (baseFont) {
 						document.documentElement.style.setProperty('--font-family-base', baseFont);
 					}
-					
+
 					if (typeof ty.baseFontSize === 'number' && ty.baseFontSize > 0) {
 						document.documentElement.style.setProperty('--font-size-base', `${ty.baseFontSize}px`);
 					}
-					
+
 					if (ty.baseFontWeight) {
 						document.documentElement.style.setProperty('--font-weight', ty.baseFontWeight);
 					}
-					
-					const headingFont = ty.headerFontFamily === 'inherit' 
-						? baseFont 
-						: ty.headerFontFamily === 'custom'
-							? ty.customHeaderFontFamily
-							: ty.headerFontFamily;
-							
+
+					const headingFont =
+						ty.headerFontFamily === 'inherit'
+							? baseFont
+							: ty.headerFontFamily === 'custom'
+								? ty.customHeaderFontFamily
+								: ty.headerFontFamily;
+
 					if (headingFont) {
 						document.documentElement.style.setProperty('--font-family-heading', headingFont);
 					}
@@ -166,40 +170,47 @@
 	</script>
 </svelte:head>
 
-<Header navigation={data.navigation} currentTheme={$theme} {currentThemeData} />
+<Header navigation={data.navigation} logoUrl={data.logoUrl} />
 
 <main class="bg-background text-foreground">
-    <div class="site-container">
-        {#if isHomePage}
-            <div in:fade={{ duration: 150, delay: 150 }}>
-                <slot />
-            </div>
-        {:else}
-            <slot />
-        {/if}
-    </div>
+	<div class="site-container">
+		{#if isHomePage}
+			<div in:fade={{ duration: 150, delay: 150 }}>
+				<slot />
+			</div>
+		{:else}
+			<slot />
+		{/if}
+	</div>
 </main>
 
 <Footer />
 
 <style>
-:root {
-  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-family: var(--font-family-base); /* For backwards compatibility */
-  --font-family-heading: var(--font-family-base);
-  --font-size-base: 16px;
-  --line-height-base: 1.5;
-  --font-weight: 400;
-}
+	:root {
+		--font-family-base:
+			system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		--font-family: var(--font-family-base); /* For backwards compatibility */
+		--font-family-heading: var(--font-family-base);
+		--font-size-base: 16px;
+		--line-height-base: 1.5;
+		--font-weight: 400;
+	}
 
-html, body {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-base);
-  font-weight: var(--font-weight);
-}
+	html,
+	body {
+		font-family: var(--font-family-base);
+		font-size: var(--font-size-base);
+		line-height: var(--line-height-base);
+		font-weight: var(--font-weight);
+	}
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family-heading);
-}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-family-heading);
+	}
 </style>
