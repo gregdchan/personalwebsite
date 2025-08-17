@@ -2,8 +2,6 @@
         import { urlFor } from '$lib/utils/sanityImage';
         import { onMount } from 'svelte';
         import PortableText from '$lib/components/PortableText.svelte';
-        import ThreeJsSection from '$lib/components/sections/ThreeJsSection.svelte';
-        import Frame from '$lib/components/Frame.svelte';
 
 	// Define the types for homePage and its nested properties
 	interface MainImage {
