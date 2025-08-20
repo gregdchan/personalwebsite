@@ -1,7 +1,11 @@
 <script lang="ts">
         import { urlFor } from '$lib/utils/sanityImage';
         import { onMount } from 'svelte';
+        import { gsap } from 'gsap';
+        import { ScrollTrigger } from 'gsap/ScrollTrigger';
         import PortableText from '$lib/components/PortableText.svelte';
+        import Hero from '$lib/components/sections/Hero.svelte';
+        import Frame from '$lib/components/Frame.svelte';
 
 	// Define the types for homePage and its nested properties
 	interface MainImage {
@@ -40,193 +44,282 @@
 
 	onMount(() => {
 		console.log('HomePage data:', homePage);
+		
+		// Initialize GSAP ScrollTrigger
+		gsap.registerPlugin(ScrollTrigger);
+		
+		// Animate sections on scroll
+		gsap.utils.toArray('.content-section').forEach((section: any) => {
+			gsap.fromTo(section,
+				{ 
+					opacity: 0, 
+					y: 50 
+				},
+				{ 
+					opacity: 1, 
+					y: 0,
+					duration: 0.8,
+					ease: "power2.out",
+					scrollTrigger: {
+						trigger: section,
+						start: "top 80%",
+						end: "bottom 20%",
+						toggleActions: "play none none reverse"
+					}
+				}
+			);
+		});
 	});
 </script>
 
 <svelte:head>
-	<title>{homePage?.title || 'Home'}</title>
-	<meta name="description" content={homePage?.description || ''} />
+	<title>{homePage?.title || 'Greg D. Chan - Personal Website'}</title>
+	<meta name="description" content={homePage?.description || 'Personal website and portfolio of Greg D. Chan'} />
 </svelte:head>
 
-<!-- Page content -->
-<div class="container mx-auto px-4 py-8">
-  
-	{#if homePage?.title}
-		<h1 class="text-4xl font-bold mb-4">{homePage.title}</h1>
-	{/if}
-
-	{#if homePage?.description}
-		<div class="text-lg mb-4">{homePage.description}</div>
-	{/if}
-
-	{#if homePage?.mainImage?.asset?._ref}
-		<div class="featured-image">
-			<img
-				src={urlFor(homePage.mainImage).width(1200).auto('format').url()}
-				alt={homePage.mainImage.alt || homePage.title}
+<!-- Hero Section -->
+{#if homePage?.sections && homePage.sections.length > 0}
+	{#each homePage.sections as section (section._key)}
+		{#if section._type === 'hero'}
+			<Hero 
+				heading={section.heading}
+				subheading={section.subheading}
+				backgroundType={section.backgroundType}
+				backgroundImage={section.backgroundImage}
+				backgroundColor={section.backgroundColor}
+				cta={section.cta}
 			/>
-		</div>
-	{/if}
+		{/if}
+	{/each}
+{/if}
 
-	<!-- Render body content if available -->
-	{#if homePage?.body}
-		<div class="body-content">
-			<PortableText value={homePage.body} />
-		</div>
-	{/if}
-
-	<!-- Render all section types -->
-	{#if homePage?.sections && homePage.sections.length > 0}
-		<div class="sections">
-			{#each homePage.sections as section (section._key)}
-				<!-- Hero Section -->
-				{#if section._type === 'hero'}
-					<section class="hero-section {section.backgroundType || 'color'}">
-						{#if section.backgroundType === 'image' && section.backgroundImage?.asset?._ref}
-							<div class="background">
-								<img
-									src={urlFor(section.backgroundImage).width(1600).auto('format').url()}
-									alt=""
-									class="bg-image"
-								/>
-							</div>
-						{/if}
-
-						{#if section.backgroundType === 'video' && section.backgroundVideo}
-							<div class="background">
-								<video autoplay muted loop playsinline class="bg-video">
-									<source src={section.backgroundVideo} type="video/mp4" />
-								</video>
-							</div>
-						{/if}
-
-						<div class="content">
-							{#if section.heading}
-								<h2>{section.heading}</h2>
-							{/if}
-
-							{#if section.subheading}
-								<p class="subheading">{section.subheading}</p>
-							{/if}
-
-							{#if section.cta?.text && section.cta?.url}
-								<a href={section.cta.url} class="cta-button">{section.cta.text}</a>
-							{/if}
-						</div>
-					</section>
+<!-- Main Content -->
+<main class="main-content">
+	<!-- Page Header -->
+	{#if homePage?.title && !homePage?.sections?.some(s => s._type === 'hero')}
+		<section class="content-section page-header">
+			<div class="container">
+				{#if homePage.title}
+					<h1 class="page-title">{homePage.title}</h1>
 				{/if}
 
-                                <!-- Add other section types here -->
-                                <!-- For example:
-        {#if section._type === 'textSection'}
-          <section class="text-section">
-            {#if section.heading}<h2>{section.heading}</h2>{/if}
-            {#if section.text}<div class="text">{section.text}</div>{/if}
-          </section>
-        {/if}
-        -->
+				{#if homePage.description}
+					<p class="page-description">{homePage.description}</p>
+				{/if}
 
-                                {#if section._type === 'threeJsSection'}
-                                        <div class="my-8">
-                                                <ThreeJsSection {...section} />
-                                        </div>
-                                {/if}
+				{#if homePage?.mainImage?.asset?._ref}
+					<div class="featured-image">
+						<img
+							src={urlFor(homePage.mainImage).width(1200).auto('format').url()}
+							alt={homePage.mainImage.alt || homePage.title}
+							class="hero-image"
+						/>
+					</div>
+				{/if}
+			</div>
+		</section>
+	{/if}
 
-                                {#if section._type === 'frame'}
-                                        <div class="my-8">
-                                                <Frame>
-                                                        <iframe src={section.url} title={section.title} class="w-full" style={`height:${section.height || 400}px`}></iframe>
-                                                </Frame>
-                                        </div>
-                                {/if}
-                        {/each}
-                </div>
-        {/if}
-</div>
+	<!-- Body Content -->
+	{#if homePage?.body}
+		<section class="content-section body-content">
+			<div class="container">
+				<PortableText value={homePage.body} />
+			</div>
+		</section>
+	{/if}
+
+	<!-- Render all other section types -->
+	{#if homePage?.sections && homePage.sections.length > 0}
+		{#each homePage.sections as section (section._key)}
+			{#if section._type !== 'hero'}
+				<section class="content-section section-{section._type}">
+					<div class="container">
+						<!-- Three.js Section -->
+						{#if section._type === 'threeJsSection'}
+							<div class="threejs-container">
+								<!-- Three.js content will go here -->
+								<div class="threejs-placeholder">
+									<h3>Three.js Interactive Section</h3>
+									<p>This section will contain interactive 3D content.</p>
+								</div>
+							</div>
+						{/if}
+
+						<!-- Frame Section -->
+						{#if section._type === 'frame'}
+							<Frame>
+								<iframe 
+									src={section.url} 
+									title={section.title || 'Embedded Content'} 
+									class="frame-content"
+									style="height: {section.height || 400}px"
+								></iframe>
+							</Frame>
+						{/if}
+
+						<!-- Generic Section -->
+						{#if !['threeJsSection', 'frame'].includes(section._type)}
+							{#if section.heading}
+								<h2 class="section-heading">{section.heading}</h2>
+							{/if}
+							
+							{#if section.subheading}
+								<p class="section-subheading">{section.subheading}</p>
+							{/if}
+							
+							{#if section.cta?.text && section.cta?.url}
+								<div class="section-cta">
+									<a href={section.cta.url} class="btn btn-primary">
+										{section.cta.text}
+									</a>
+								</div>
+							{/if}
+						{/if}
+					</div>
+				</section>
+			{/if}
+		{/each}
+	{/if}
+</main>
 
 <style>
-	/* Basic styling */
-	.page-content {
-		padding: 2rem 0;
+	.main-content {
+		padding-top: 4rem; /* Account for fixed header */
+	}
+
+	.content-section {
+		padding: var(--space-16) 0;
+		opacity: 0; /* Will be animated by GSAP */
+	}
+
+	.content-section:nth-child(even) {
+		background: var(--color-border-light);
+	}
+
+	.page-header {
+		text-align: center;
+		padding: var(--space-24) 0;
+	}
+
+	.page-title {
+		font-size: var(--font-size-6xl);
+		margin-bottom: var(--space-6);
+		color: var(--color-foreground);
 	}
 
 	.page-description {
-		font-size: 1.25rem;
-		margin-bottom: 2rem;
-		max-width: 60ch;
-		font-family: var(--font-family);
+		font-size: var(--font-size-xl);
+		color: var(--color-muted);
+		max-width: 600px;
+		margin: 0 auto var(--space-8) auto;
+		line-height: var(--line-height-relaxed);
 	}
 
 	.featured-image {
-		margin-bottom: 2rem;
+		margin: var(--space-8) 0;
+		border-radius: var(--radius-2xl);
+		overflow: hidden;
+		box-shadow: var(--shadow-xl);
 	}
 
-	.featured-image img {
+	.hero-image {
 		width: 100%;
 		height: auto;
-		max-height: 500px;
+		max-height: 600px;
 		object-fit: cover;
+		transition: transform var(--transition-slow);
 	}
 
-	/* Hero section styling */
-	.hero-section {
-		position: relative;
-		min-height: 60vh;
-		display: flex;
-		align-items: center;
-		margin-bottom: 2rem;
-		padding: 2rem;
-		overflow: hidden;
+	.featured-image:hover .hero-image {
+		transform: scale(1.02);
 	}
 
-	.hero-section .background {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-	}
-
-	.hero-section .bg-image,
-	.hero-section .bg-video {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.hero-section .content {
-		position: relative;
-		z-index: 1;
+	.body-content {
 		max-width: 800px;
+		margin: 0 auto;
 	}
 
-	.hero-section h2 {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-		font-family: var(--font-family-heading);
+	.section-heading {
+		font-size: var(--font-size-4xl);
+		margin-bottom: var(--space-4);
+		color: var(--color-foreground);
+		text-align: center;
 	}
 
-	.hero-section .subheading {
-		font-size: 1.5rem;
-		margin-bottom: 1.5rem;
-		font-family: var(--font-family);
+	.section-subheading {
+		font-size: var(--font-size-lg);
+		color: var(--color-muted);
+		text-align: center;
+		margin-bottom: var(--space-8);
+		max-width: 600px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
-	.hero-section .cta-button {
-		display: inline-block;
-		padding: 0.75rem 1.5rem;
-		background-color: var(--primary, #1a73e8);
-		color: white;
-		text-decoration: none;
-		border-radius: 4px;
-		font-weight: bold;
+	.section-cta {
+		text-align: center;
+		margin-top: var(--space-8);
 	}
 
-	/* Background types */
-	.hero-section.color {
-		background-color: #f5f5f5;
+	.threejs-container {
+		text-align: center;
+		padding: var(--space-16);
+		background: var(--color-background);
+		border-radius: var(--radius-2xl);
+		border: 2px dashed var(--color-border);
 	}
 
-	.hero-section.image .content {
-		color: white;
-		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	.threejs-placeholder h3 {
+		color: var(--color-muted);
+		margin-bottom: var(--space-4);
+	}
+
+	.threejs-placeholder p {
+		color: var(--color-muted-light);
+	}
+
+	.frame-content {
+		width: 100%;
+		border: none;
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-lg);
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.content-section {
+			padding: var(--space-12) 0;
+		}
+
+		.page-header {
+			padding: var(--space-16) 0;
+		}
+
+		.page-title {
+			font-size: var(--font-size-4xl);
+		}
+
+		.page-description {
+			font-size: var(--font-size-lg);
+		}
+
+		.section-heading {
+			font-size: var(--font-size-3xl);
+		}
+	}
+
+	@media (max-width: 640px) {
+		.page-title {
+			font-size: var(--font-size-3xl);
+		}
+
+		.page-description {
+			font-size: var(--font-size-base);
+		}
+
+		.section-heading {
+			font-size: var(--font-size-2xl);
+		}
 	}
 </style>

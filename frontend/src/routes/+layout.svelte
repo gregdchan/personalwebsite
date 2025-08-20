@@ -172,45 +172,22 @@
 
 <Header navigation={data.navigation} logoUrl={data.logoUrl} currentTheme={$theme} />
 
-<main class="bg-background text-foreground">
-	<div class="site-container">
-		{#if isHomePage}
-			<div in:fade={{ duration: 150, delay: 150 }}>
-				<slot />
-			</div>
-		{:else}
+<main class="main-layout">
+	{#if isHomePage}
+		<div in:fade={{ duration: 150, delay: 150 }}>
 			<slot />
-		{/if}
-	</div>
+		</div>
+	{:else}
+		<slot />
+	{/if}
 </main>
 
 <Footer />
 
 <style>
-	:root {
-		--font-family-base:
-			system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		--font-family: var(--font-family-base); /* For backwards compatibility */
-		--font-family-heading: var(--font-family-base);
-		--font-size-base: 16px;
-		--line-height-base: 1.5;
-		--font-weight: 400;
-	}
-
-	html,
-	body {
-		font-family: var(--font-family-base);
-		font-size: var(--font-size-base);
-		line-height: var(--line-height-base);
-		font-weight: var(--font-weight);
-	}
-
-	h1,
-	h2,
-	h3,
-	h4,
-	h5,
-	h6 {
-		font-family: var(--font-family-heading);
+	.main-layout {
+		min-height: 100vh;
+		background: var(--color-background);
+		color: var(--color-foreground);
 	}
 </style>
