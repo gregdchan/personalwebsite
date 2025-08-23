@@ -1,38 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-        <meta name="viewport" content="width=device-width" />
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      /* Prevent flash of wrong theme variables (transitions disabled until init removed) */
+      html[data-theme-preload] *, html[data-theme-preload] *::before, html[data-theme-preload] *::after {
+        transition: none !important;
+      }
+    </style>
+    <script>
+      (function () {
+        const doc = document.documentElement;
+        doc.setAttribute('data-theme-preload','');
 
-        <!-- Theme script - Prevent flash of wrong theme -->
-        <script>
-            (function() {
-                const theme = localStorage.getItem('theme') ||
-                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.classList.toggle('dark', theme === 'dark');
+        // 1. Decide theme immediately
+        let theme = localStorage.getItem('theme');
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        doc.setAttribute('data-theme', theme);
 
-                // Try to load cached tokens from localStorage for instant application
-                const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
-                const tokenSet = tokens[theme];
-                if (tokenSet && tokenSet.colors) {
-                    Object.entries(tokenSet.colors).forEach(([key, value]) => {
-                        if (value?.hex) {
-                            document.documentElement.style.setProperty(`--color-${key}`, value.hex);
-                        }
-                    });
-                } else if (theme === 'dark') {
-                    // Fallback if no tokens cached
-                    document.documentElement.style.setProperty('--color-background', '#000');
-                    document.documentElement.style.setProperty('--color-foreground', '#f8fafc');
-                    document.documentElement.style.setProperty('--color-primary', '#60a5fa');
-                }
-            })();
-        </script>
+        // 2. Try cached design tokens
+        try {
+          const all = JSON.parse(localStorage.getItem('designTokens') || '{}');
+          // Accept shapes: { light:{colors:{}}, dark:{colors:{} } } OR { themes:{light:{colors:{}}}}
+          const themed =
+            all[theme] ||
+            (all.themes && all.themes[theme]) ||
+            all; // fallback single set
 
-        %sveltekit.head%
-    </head>
-    <body data-sveltekit-preload-data="hover">
-        <div style="display: contents">%sveltekit.body%</div>
-    </body>
+          const colors = themed?.colors || {};
+          const setVar = (k, v) => {
+            if (typeof v === 'string') doc.style.setProperty(`--color-${k}`, v);
+            else if (v && typeof v.hex === 'string') doc.style.setProperty(`--color-${k}`, v.hex);
+          };
+
+          // Generic colors
+            setVar('background', colors.background);
+            setVar('foreground', colors.foreground);
+            setVar('primary', colors.primary);
+
+          // Header-specific
+            setVar('header-bg', colors.headerBackground || colors.headerbackground);
+            setVar('header-fg', colors.headerText || colors.headertext || colors.headerForeground);
+            setVar('header-bg-scrolled', colors.headerBackgroundScrolled || colors.headerbackgroundScrolled);
+            setVar('header-border', colors.headerBorder);
+
+          // Fallbacks if unset
+          if (!getComputedStyle(doc).getPropertyValue('--color-header-bg').trim()) {
+            doc.style.setProperty('--color-header-bg', theme === 'dark' ? '#111111' : '#ffffff');
+          }
+          if (!getComputedStyle(doc).getPropertyValue('--color-header-fg').trim()) {
+            doc.style.setProperty('--color-header-fg', theme === 'dark' ? '#ffffff' : '#111111');
+          }
+          if (!getComputedStyle(doc).getPropertyValue('--color-header-bg-scrolled').trim()) {
+            doc.style.setProperty('--color-header-bg-scrolled', theme === 'dark' ? 'rgba(17,17,17,0.88)' : 'rgba(255,255,255,0.9)');
+          }
+          if (!getComputedStyle(doc).getPropertyValue('--color-header-border').trim()) {
+            doc.style.setProperty('--color-header-border', theme === 'dark' ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)');
+          }
+        } catch (_e) {
+          // Minimal dark fallback if needed
+          if (theme === 'dark') {
+            doc.style.setProperty('--color-header-bg','#111111');
+            doc.style.setProperty('--color-header-fg','#ffffff');
+            doc.style.setProperty('--color-header-bg-scrolled','rgba(17,17,17,0.88)');
+            doc.style.setProperty('--color-header-border','rgba(255,255,255,0.18)');
+          }
+        }
+
+        // 3. Enable transitions next frame (only first load animation handled in component)
+        requestAnimationFrame(() => {
+          doc.removeAttribute('data-theme-preload');
+        });
+      })();
+    </script>
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
 </html>

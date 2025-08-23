@@ -1,170 +1,90 @@
 <script lang="ts">
-  import { theme, toggleTheme } from '$lib/stores/themeStore';
-  import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
-  import { gsap } from 'gsap';
+  import { theme, toggleTheme } from '$lib/stores/themeStore';
+  import { fade, scale } from 'svelte/transition';
 
-  export let currentTheme: 'light' | 'dark' = $theme;
-  const dispatch = createEventDispatcher<{ themeChange: 'light' | 'dark' }>();
-  
-  let buttonElement: HTMLElement;
-  let iconElement: HTMLElement;
+  let currentTheme: 'light' | 'dark' = 'light';
+  const unsubscribe = theme.subscribe(value => {
+    currentTheme = value;
+  });
 
-  function handleClick() {
-    const newTheme = $theme === 'dark' ? 'light' : 'dark';
-    
-    // Animate the button
-    gsap.to(buttonElement, {
-      scale: 0.9,
-      duration: 0.1,
-      ease: "power2.in",
-      onComplete: () => {
-        gsap.to(buttonElement, {
-          scale: 1,
-          duration: 0.2,
-          ease: "power2.out"
-        });
-      }
-    });
-    
-    // Animate the icon
-    gsap.to(iconElement, {
-      rotation: 360,
-      duration: 0.5,
-      ease: "power2.out"
-    });
-    
-    toggleTheme();
-    dispatch('themeChange', newTheme);
-  }
-  
   onMount(() => {
-    // Initial animation
-    gsap.fromTo(buttonElement,
-      { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
-    );
+    return () => unsubscribe();
   });
 </script>
 
 <button
-  bind:this={buttonElement}
-  on:click={handleClick}
   class="theme-toggle"
-  aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+  on:click={toggleTheme}
+  aria-label="Toggle theme"
+  title="Toggle theme"
 >
-  <div bind:this={iconElement} class="theme-icon">
-    {#if $theme === 'dark'}
-      <!-- Sun icon for light mode -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"/>
-        <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
+  {#if currentTheme === 'dark'}
+    <div class="icon-wrapper" in:fade={{ duration: 150 }} out:fade={{ duration: 150 }}>
+      <!-- Moon Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
       </svg>
-    {:else}
-      <!-- Moon icon for dark mode -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+    </div>
+  {:else}
+    <div class="icon-wrapper" in:fade={{ duration: 150 }} out:fade={{ duration: 150 }}>
+      <!-- Sun Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-6.364-.386l1.591-1.591M3 12h2.25m.386-6.364l1.591 1.591" />
       </svg>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </button>
 
 <style>
+  /* When the body has the 'no-transitions' class, disable transitions on the icon wrapper. */
+  :global(body.no-transitions) .icon-wrapper {
+    /* By setting the animation to 'none', the svelte transition will not run */
+    animation: none !important;
+  }
+
   .theme-toggle {
+    --size: 2rem;
+    --icon-color-light: #f59e0b; /* Sun color */
+    --icon-color-dark: #fde047;  /* Moon color */
+
     position: relative;
-    width: 3rem;
-    height: 3rem;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    color: var(--color-foreground);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-      0 4px 6px rgba(0, 0, 0, 0.05),
-      0 1px 3px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    overflow: hidden;
-  }
-  
-  .theme-toggle::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 50%;
-  }
-  
-  .theme-toggle:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.15),
-      0 3px 10px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-  
-  .theme-toggle:hover::before {
-    opacity: 1;
-  }
-  
-  .theme-toggle:active {
-    transform: translateY(0);
-    box-shadow: 
-      0 2px 4px rgba(0, 0, 0, 0.1),
-      inset 0 1px 3px rgba(0, 0, 0, 0.2);
-  }
-  
-  .theme-icon {
-    position: relative;
-    z-index: 1;
     display: flex;
-    align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.3s ease;
+    align-items: center;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
   }
-  
-  .theme-toggle:hover .theme-icon {
+
+  .theme-toggle:hover {
     transform: scale(1.1);
   }
-  
-  /* Dark theme specific styles */
-  :global(.dark) .theme-toggle {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: #f8fafc;
-    box-shadow: 
-      0 4px 6px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--color-primary, #0ea5e9);
+    outline-offset: 2px;
   }
-  
-  :global(.dark) .theme-toggle::before {
-    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+
+  .icon-wrapper {
+    position: absolute;
+    width: 65%;
+    height: 65%;
   }
-  
-  :global(.dark) .theme-toggle:hover {
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.4),
-      0 3px 10px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  .icon-wrapper svg {
+    width: 100%;
+    height: 100%;
+    color: var(--icon-color-light);
   }
-  
-  /* Focus styles for accessibility */
-  .theme-toggle:focus {
-    outline: none;
-    box-shadow: 
-      0 0 0 3px rgba(59, 130, 246, 0.5),
-      0 4px 6px rgba(0, 0, 0, 0.05),
-      0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  :global(.dark) .theme-toggle:focus {
-    box-shadow: 
-      0 0 0 3px rgba(59, 130, 246, 0.5),
-      0 4px 6px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.2);
+
+  :global(.dark) .icon-wrapper svg {
+    color: var(--icon-color-dark);
   }
 </style>

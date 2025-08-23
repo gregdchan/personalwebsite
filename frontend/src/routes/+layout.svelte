@@ -1,102 +1,35 @@
 <script lang="ts">
+	import { onMount, afterNavigate } from 'svelte';
+	import { browser } from '$app/environment';
 	import Header from '$lib/Header.svelte';
 	import Footer from '$lib/Footer.svelte';
-	import { browser } from '$app/environment';
+	import { designTokens, activeLogoUrl } from '$lib/stores/themeStore';
 	import type { DesignToken } from '$lib/types/designToken';
 	import type { Navigation } from '$lib/types/navigation';
 	import '../app.css';
-	import { fade } from 'svelte/transition';
-	import { theme } from '$lib/stores/themeStore';
-	import { onMount } from 'svelte';
 
 	export let data: {
 		tokens: { light: DesignToken | null; dark: DesignToken | null };
 		navigation: Navigation | null;
-		logoUrl: string | null;
 	};
 
-	// Keep track of current theme data
-	let currentThemeData: DesignToken | null = null;
-	let isHomePage = false;
-
-	/**
-	 * Apply design tokens to document root as CSS variables
-	 */
-	function applyTokens(tokenSet: DesignToken) {
-		if (!tokenSet) return;
-
-		// Colors
-		for (const [key, val] of Object.entries(tokenSet.colors || {})) {
-			if ((val as any)?.hex) {
-				document.documentElement.style.setProperty(`--color-${key}`, (val as any).hex);
-				// Map main colors to standard variables
-				if (key === 'bodyBackground') {
-					document.documentElement.style.setProperty('--color-background', (val as any).hex);
-				}
-				if (key === 'bodyText') {
-					document.documentElement.style.setProperty('--color-foreground', (val as any).hex);
-				}
-			}
-		}
-
-		// Typography
-		const ty = tokenSet.typography;
-		if (ty) {
-			// Base font - use consistent variable name
-			const baseFont = ty.fontFamily === 'custom' ? ty.customFontFamily : ty.fontFamily;
-			if (baseFont) {
-				document.documentElement.style.setProperty('--font-family-base', baseFont);
-				// Also set the alternate name for backwards compatibility
-				document.documentElement.style.setProperty('--font-family', baseFont);
-			}
-
-			// Heading font
-			const headingFont =
-				ty.fontFamily === 'inherit'
-					? baseFont
-					: ty.fontFamily === 'custom'
-						? ty.customFontFamily
-						: ty.fontFamily;
-
-			if (headingFont) {
-				document.documentElement.style.setProperty('--font-family-heading', headingFont);
-			}
-
-			// Font sizes and weights
-			if (typeof ty.fontSize === 'number' && ty.fontSize > 0) {
-				document.documentElement.style.setProperty('--font-size-base', `${ty.fontSize}px`);
-			}
-
-			if (ty.fontWeight) {
-				document.documentElement.style.setProperty('--font-weight', ty.fontWeight);
-			}
-		}
-	}
-
 	onMount(() => {
-		if (!browser) return;
+		// This runs once the page is fully interactive.
+		// We set the design tokens from the server.
+		designTokens.set(data.tokens);
 
-		// Check if we're on the homepage
-		isHomePage = window.location.pathname === '/';
+		// Now that the page is loaded, we remove the 'no-transitions' class
+		// to re-enable animations for user interactions (like theme toggling).
+		document.body.classList.remove('no-transitions');
+	});
 
-		// Apply initial theme
-		const currentMode = $theme;
-		currentThemeData = currentMode === 'dark' ? data.tokens.dark : data.tokens.light;
-		if (currentThemeData) {
-			applyTokens(currentThemeData);
-			localStorage.setItem('designTokens', JSON.stringify(data.tokens));
-		}
-
-		// Subscribe to theme changes
-		return theme.subscribe((newTheme) => {
-			document.documentElement.classList.toggle('dark', newTheme === 'dark');
-			const tokens = newTheme === 'dark' ? data.tokens.dark : data.tokens.light;
-			if (tokens) {
-				currentThemeData = tokens;
-				applyTokens(tokens);
-				localStorage.setItem('designTokens', JSON.stringify(data.tokens));
-			}
-		});
+	// After navigating to a new page, re-apply the 'no-transitions' class
+	// and then remove it after a short delay. This prevents flashes on client-side navigation.
+	afterNavigate(() => {
+		document.body.classList.add('no-transitions');
+		setTimeout(() => {
+			document.body.classList.remove('no-transitions');
+		}, 100); // A short delay is enough for the DOM to update.
 	});
 </script>
 
@@ -104,90 +37,34 @@
 	<title>Greg D. Chan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<!-- Initialize theme from localStorage before hydration to prevent flash -->
+	<!-- 
+	This inline script is the core of the FOUC fix.
+	It runs instantly, before Svelte hydrates and before the browser paints the page.
+  -->
 	<script>
 		(function () {
-			// Get theme from localStorage or system preference
+			// Immediately set the 'no-transitions' class on the body.
+			document.body.classList.add('no-transitions');
+
+			// Determine the theme from localStorage or system preference.
 			const storedTheme =
 				localStorage.getItem('theme') ||
 				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
-			// Apply theme class
+			// Apply the theme class to the root <html> element.
 			document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-
-			// Try to restore design tokens from localStorage
-			try {
-				const tokens = JSON.parse(localStorage.getItem('designTokens') || '{}');
-				const tokenSet = tokens[storedTheme] || {};
-
-				// Apply color tokens
-				if (tokenSet.colors) {
-					Object.entries(tokenSet.colors).forEach(([key, val]) => {
-						if (val?.hex) {
-							document.documentElement.style.setProperty(`--color-${key}`, val.hex);
-							if (key === 'bodyBackground') {
-								document.documentElement.style.setProperty('--color-background', val.hex);
-							}
-							if (key === 'bodyText') {
-								document.documentElement.style.setProperty('--color-foreground', val.hex);
-							}
-						}
-					});
-				}
-
-				// Apply typography tokens
-				if (tokenSet.typography) {
-					const ty = tokenSet.typography;
-					const baseFont = ty.fontFamily === 'custom' ? ty.customFontFamily : ty.fontFamily;
-
-					if (baseFont) {
-						document.documentElement.style.setProperty('--font-family-base', baseFont);
-					}
-
-					if (typeof ty.baseFontSize === 'number' && ty.baseFontSize > 0) {
-						document.documentElement.style.setProperty('--font-size-base', `${ty.baseFontSize}px`);
-					}
-
-					if (ty.baseFontWeight) {
-						document.documentElement.style.setProperty('--font-weight', ty.baseFontWeight);
-					}
-
-					const headingFont =
-						ty.headerFontFamily === 'inherit'
-							? baseFont
-							: ty.headerFontFamily === 'custom'
-								? ty.customHeaderFontFamily
-								: ty.headerFontFamily;
-
-					if (headingFont) {
-						document.documentElement.style.setProperty('--font-family-heading', headingFont);
-					}
-				}
-			} catch (e) {
-				console.error('Error restoring design tokens:', e);
-			}
+			document.documentElement.setAttribute('data-theme', storedTheme);
 		})();
 	</script>
 </svelte:head>
 
-<Header navigation={data.navigation} logoUrl={data.logoUrl} currentTheme={$theme} />
+<div class="main-container">
+	<Header navigation={data.navigation} logoUrl={$activeLogoUrl} />
 
-<main class="main-layout">
-	{#if isHomePage}
-		<div in:fade={{ duration: 150, delay: 150 }}>
-			<slot />
-		</div>
-	{:else}
+	<main>
 		<slot />
-	{/if}
-</main>
+	</main>
 
-<Footer />
+	<Footer />
+</div>
 
-<style>
-	.main-layout {
-		min-height: 100vh;
-		background: var(--color-background);
-		color: var(--color-foreground);
-	}
-</style>

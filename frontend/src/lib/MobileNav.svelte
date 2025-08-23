@@ -1,97 +1,148 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import type { NavItem } from '$lib/types/navigation';
-  
-  export let navItems: NavItem[] = [];
+  import type { NavigationItem } from '$lib/types/navigation';
+  import { onMount, onDestroy } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
+
+  export let navItems: NavigationItem[] = [];
+
   let open = false;
-  
-  function toggle() {
+  let panel: HTMLElement;
+  let triggerBtn: HTMLButtonElement;
+
+  // Toggle menu state and manage scroll locking
+  function toggle() { 
     open = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
   }
   
-  function getHref(item: NavItem): string {
-    if (typeof item.link === 'string') return item.link;
-    if (item.link?.external) return item.link.external;
-    const slug = item.link?.internal?.slug?.current;
-    return slug ? `/${slug}` : '#';
+  function close() { 
+    if (!open) return;
+    open = false; 
+    document.body.style.overflow = '';
   }
+
+  // Force close on any outside click - this is the most reliable approach
+  function handleOutsideClick(e: MouseEvent | TouchEvent) {
+    if (!open) return;
+    if (triggerBtn?.contains(e.target as Node)) return; // Don't close when clicking the toggle button
+    
+    // THIS IS CRUCIAL: Don't check if panel contains the target
+    // We want to close on ANY click that's not the toggle button
+    close();
+  }
+  
+  // Close on scroll and window resize (for responsive layouts)
+  function handleScroll() { close(); }
+  function handleResize() { if (window.innerWidth >= 768) close(); }
+  function handleKeydown(e: KeyboardEvent) { if (e.key === 'Escape') close(); }
+
+  onMount(() => {
+    // Use capturing phase to ensure our handler runs first
+    document.addEventListener('click', handleOutsideClick, true);
+    document.addEventListener('touchstart', handleOutsideClick, true);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeydown);
+  });
+  
+  onDestroy(() => {
+    document.removeEventListener('click', handleOutsideClick, true);
+    document.removeEventListener('touchstart', handleOutsideClick, true);
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', handleResize);
+    window.removeEventListener('keydown', handleKeydown);
+    document.body.style.overflow = '';
+  });
+
+  // Also close on navigation
+  afterNavigate(() => { close(); });
 </script>
 
 <button
-  on:click={toggle}
-  class="md:hidden p-2 text-foreground hover:text-accent transition-colors"
+  bind:this={triggerBtn}
+  type="button"
+  on:click|stopPropagation={toggle}
+  class="md:hidden p-2"
   aria-expanded={open}
-  aria-label="Toggle menu"
+  aria-controls="mobile-nav"
+  aria-label="Toggle navigation menu"
 >
-  <!-- Hamburger/Close icon that toggles based on state -->
-  <div class="w-6 h-6 relative">
-    <span class="block absolute h-0.5 w-6 bg-current transform transition duration-300 ease-in-out {open ? 'rotate-45 translate-y-1.5' : '-translate-y-1.5'}"></span>
-    <span class="block absolute h-0.5 w-6 bg-current transition duration-300 ease-in-out {open ? 'opacity-0' : 'opacity-100'}"></span>
-    <span class="block absolute h-0.5 w-6 bg-current transform transition duration-300 ease-in-out {open ? '-rotate-45 translate-y-1.5' : 'translate-y-1.5'}"></span>
-  </div>
+  <!-- hamburger icon -->
+  <span>☰</span>
 </button>
 
 {#if open}
-  <nav 
-    class="md:hidden fixed top-[100px] left-0 right-0 z-50 bg-background border-t border-gray-200 dark:border-gray-700 shadow-lg" 
+  <div 
+    class="backdrop" 
+    aria-hidden="true"
+    on:click|stopPropagation={close}
+  ></div>
+
+  <nav
+    id="mobile-nav"
+    bind:this={panel}
+    class="sheet md:hidden"
+    style="top: var(--header-h, 3.25rem)"
     transition:slide={{ duration: 300, easing: cubicOut }}
   >
-    <div class="max-h-[80vh] overflow-y-auto py-4">
+    <div class="menu">
       {#each navItems as item}
-        <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800 last:border-none">
-          <a
-            href={getHref(item)}
-            target={item.newWindow ? "_blank" : undefined}
-            rel={item.newWindow ? "noopener noreferrer" : undefined}
-            class="block text-foreground hover:text-accent transition-colors font-normal text-base"
-            style="font-family: var(--font-family-base);"
-          >
-            {item.text}
-          </a>
-
-          {#if item.children?.length}
-            <div class="pl-4 mt-2 space-y-2">
-              {#each item.children as child}
-                <a
-                  href={getHref(child)}
-                  target={child.newWindow ? "_blank" : undefined}
-                  rel={child.newWindow ? "noopener noreferrer" : undefined}
-                  class="block text-foreground hover:text-accent transition-colors font-normal text-base"
-                  style="font-family: var(--font-family-base);"
-                >
-                  {child.text}
-                </a>
-              {/each}
-            </div>
-          {/if}
-        </div>
+        <a
+          href={item.link || '#'}
+          class="item"
+          on:click|stopPropagation={() => close()}
+        >{item.text}</a>
       {/each}
     </div>
   </nav>
 {/if}
 
 <style>
-  /* Ensure mobile menu uses the right fonts and styling */
-  nav a {
-    font-family: var(--font-family-base, var(--font-family));
-    font-size: var(--font-size-base, 16px);
-    font-weight: var(--font-weight, 400);
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
-  
-  /* Hamburger menu styling */
-  button div span {
-    margin-top: -1px;
+  .sheet {
+    position: fixed;
     left: 0;
-    top: 50%;
-    transition: all 0.25s ease-in-out;
+    right: 0;
+    z-index: 50;
+    
+    /* 
+      This is the key fix. 
+      We directly apply the semi-transparent background and blur effect
+      using the same CSS variables the Header uses for its scrolled state.
+      This ensures visual consistency.
+    */
+    background: var(--color-header-bg-scrolled);
+    -webkit-backdrop-filter: blur(18px); /* Safari */
+    backdrop-filter: blur(18px);
+    
+    border-top: 1px solid var(--color-header-border);
+    box-shadow: 0 6px 24px rgba(0,0,0,.12);
+  }
+  .menu { 
+    max-height: 80vh; 
+    overflow-y: auto; 
+    padding: .75rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .item { 
+    display: block; 
+    padding: 1rem 1.25rem;
+    color: var(--color-header-fg); /* Use header foreground color for text */
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  button div span:nth-child(1) {
-    transform: translateY(-6px);
-  }
-
-  button div span:nth-child(3) {
-    transform: translateY(6px);
+  /* Add a subtle hover effect for better UX */
+  .item:hover {
+    background-color: rgba(128, 128, 128, 0.1);
   }
 </style>

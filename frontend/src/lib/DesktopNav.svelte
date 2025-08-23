@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { NavItem } from '$lib/types/navigation'
-  export let navItems: NavItem[] = []
+  import type { NavigationItem } from '$lib/types/navigation'
+  export let navItems: NavigationItem[] = []
 </script>
 
 <nav class="hidden md:flex space-x-8">

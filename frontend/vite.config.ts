@@ -9,6 +9,10 @@ export default defineConfig({
 
   // OPTION A: mark them external so Vite leaves the imports alone
   build: {
+    // This combines all CSS into a single file during the build process.
+    cssCodeSplit: false,
+    // This prevents any assets from being inlined as data URIs, forcing them to be external files.
+    assetsInlineLimit: 0,
     rollupOptions: {
       external: [
         'refractor/lang/bash.js',
@@ -20,30 +24,33 @@ export default defineConfig({
     }
   },
 
-  // OPTION B: alias each to the real file on disk so Vite bundles them
+  ssr: { noExternal: ['gsap'] },
+  optimizeDeps: { include: ['gsap'] },
+
+
   resolve: {
     alias: [
       {
         find: 'refractor/lang/bash.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/bash.js')
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/bash.js'),
       },
       {
         find: 'refractor/lang/javascript.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/javascript.js')
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/javascript.js'),
       },
       {
         find: 'refractor/lang/json.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/json.js')
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/json.js'),
       },
       {
         find: 'refractor/lang/jsx.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/jsx.js')
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/jsx.js'),
       },
       {
         find: 'refractor/lang/typescript.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/typescript.js')
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/typescript.js'),
       },
-    ]
+    ],
   },
 
   test: {
@@ -57,8 +64,8 @@ export default defineConfig({
           clearMocks: true,
           include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
           exclude: ['src/lib/server/**'],
-          setupFiles: ['./vitest-setup-client.ts']
-        }
+          setupFiles: ['./vitest-setup-client.ts'],
+        },
       },
       {
         extends: './vite.config.ts',
@@ -66,9 +73,9 @@ export default defineConfig({
           name: 'server',
           environment: 'node',
           include: ['src/**/*.{test,spec}.{js,ts}'],
-          exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
-        }
-      }
-    ]
-  }
+          exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+        },
+      },
+    ],
+  },
 });
