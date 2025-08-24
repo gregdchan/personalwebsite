@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { theme, toggleTheme } from '$lib/stores/themeStore';
-  import { fade, scale } from 'svelte/transition';
+  import { fade } from 'svelte/transition';
 
   let currentTheme: 'light' | 'dark' = 'light';
   const unsubscribe = theme.subscribe(value => {
@@ -44,9 +44,8 @@
   }
 
   .theme-toggle {
-    --size: 2rem;
-    --icon-color-light: #f59e0b; /* Sun color */
-    --icon-color-dark: #fde047;  /* Moon color */
+    /* Larger hit area and inherit text color */
+    --size: 2.5rem;
 
     position: relative;
     display: flex;
@@ -57,8 +56,9 @@
     border-radius: 9999px;
     border: none;
     background: transparent;
+    color: var(--color-headerText, var(--color-foreground));
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     padding: 0;
   }
@@ -81,10 +81,6 @@
   .icon-wrapper svg {
     width: 100%;
     height: 100%;
-    color: var(--icon-color-light);
-  }
-
-  :global(.dark) .icon-wrapper svg {
-    color: var(--icon-color-dark);
+    color: currentColor;
   }
 </style>
