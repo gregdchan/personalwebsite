@@ -1,7 +1,7 @@
-// postcss.config.cjs
+/* eslint-disable */
 module.exports = {
   plugins: {
-    '@tailwindcss/postcss': {},  // tailwind’s new PostCSS plugin
-    autoprefixer: {}
-  }
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
 }

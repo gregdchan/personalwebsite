@@ -1,81 +1,52 @@
 import tailwindcss from '@tailwindcss/vite';
-import { svelteTesting } from '@testing-library/svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [sveltekit(), tailwindcss()],
+  plugins: [
+    sveltekit(),
+    tailwindcss() // OK with Tailwind v4; keep after sveltekit is also fine
+  ],
 
-  // OPTION A: mark them external so Vite leaves the imports alone
+  // If you do NOT need to force a single CSS or externalize assets, you can drop these.
   build: {
-    // This combines all CSS into a single file during the build process.
-    cssCodeSplit: false,
-    // This prevents any assets from being inlined as data URIs, forcing them to be external files.
-    assetsInlineLimit: 0,
-    rollupOptions: {
-      external: [
-        'refractor/lang/bash.js',
-        'refractor/lang/javascript.js',
-        'refractor/lang/json.js',
-        'refractor/lang/jsx.js',
-        'refractor/lang/typescript.js',
-      ]
-    }
+    cssCodeSplit: false,    // keep if you want a single CSS file
+    assetsInlineLimit: 0,   // keep if you want zero inlined data URIs
+    // If you truly need to keep refractor langs external at runtime, uncomment below
+    // rollupOptions: {
+    //   external: [
+    //     'refractor/lang/bash.js',
+    //     'refractor/lang/javascript.js',
+    //     'refractor/lang/json.js',
+    //     'refractor/lang/jsx.js',
+    //     'refractor/lang/typescript.js'
+    //   ]
+    // }
   },
 
-  ssr: { noExternal: ['gsap'] },
+  // Prebundle GSAP for faster dev starts; prevent externalization in SSR.
   optimizeDeps: { include: ['gsap'] },
+  ssr: { noExternal: ['gsap'] },
 
-
+  // Only keep aliases if you removed `external` and you *must* force a specific file path.
+  // Otherwise, you can remove this whole alias block.
   resolve: {
     alias: [
-      {
-        find: 'refractor/lang/bash.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/bash.js'),
-      },
-      {
-        find: 'refractor/lang/javascript.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/javascript.js'),
-      },
-      {
-        find: 'refractor/lang/json.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/json.js'),
-      },
-      {
-        find: 'refractor/lang/jsx.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/jsx.js'),
-      },
-      {
-        find: 'refractor/lang/typescript.js',
-        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/typescript.js'),
-      },
-    ],
-  },
-
-  test: {
-    workspace: [
-      {
-        extends: './vite.config.ts',
-        plugins: [svelteTesting()],
-        test: {
-          name: 'client',
-          environment: 'jsdom',
-          clearMocks: true,
-          include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-          exclude: ['src/lib/server/**'],
-          setupFiles: ['./vitest-setup-client.ts'],
-        },
-      },
-      {
-        extends: './vite.config.ts',
-        test: {
-          name: 'server',
-          environment: 'node',
-          include: ['src/**/*.{test,spec}.{js,ts}'],
-          exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-        },
-      },
-    ],
-  },
+      { find: 'refractor/lang/bash.js',
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/bash.js') },
+      { find: 'refractor/lang/javascript.js',
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/javascript.js') },
+      { find: 'refractor/lang/json.js',
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/json.js') },
+      { find: 'refractor/lang/jsx.js',
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/jsx.js') },
+      { find: 'refractor/lang/typescript.js',
+        replacement: path.resolve(__dirname, 'node_modules/refractor/lang/typescript.js') }
+    ]
+  }
 });

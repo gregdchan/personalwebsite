@@ -1,17 +1,9 @@
 export interface NavigationItem {
-  text: string;
-  link: string;
-  resolvedLink?: string;
-  target?: string;
-  children?: NavigationItem[];
+  text?: string;
+  link?: any;
+  href?: string; // normalized URL from GROQ
 }
 
 export interface Navigation {
-  _id: string;
-  _type: string;
-  title: string;
-  slug: {
-    current: string;
-  };
-  items: NavigationItem[];
+  items?: NavigationItem[];
 }

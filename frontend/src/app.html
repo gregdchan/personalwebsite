@@ -1,38 +1,24 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Apply saved/system theme before hydration -->
+    <meta name="color-scheme" content="light dark" />
     <script>
       (function () {
         try {
-          const storageKey = 'theme';
-          const persisted = localStorage.getItem(storageKey);
-          const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = persisted || (systemDark ? 'dark' : 'light');
-          const root = document.documentElement;
-
-          // Tailwind expects 'dark' class; also expose data attr if you use it
-          if (theme === 'dark') root.classList.add('dark');
-          root.setAttribute('data-theme', theme);
-
-          // Optional: help form controls & UA styles match
-          const meta = document.createElement('meta');
-          meta.name = 'color-scheme';
-          meta.content = theme === 'dark' ? 'dark light' : 'light dark';
-          document.head.appendChild(meta);
-
-          // Prevent transition jank during first paint
-          const style = document.createElement('style');
-          style.textContent = `
-            .no-transitions * { transition: none !important; }
-          `;
-          document.head.appendChild(style);
-          root.classList.add('no-transitions');
-        } catch (_) {}
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = stored ? stored === 'dark' : prefersDark;
+          if (isDark) document.documentElement.classList.add('dark');
+        } catch {}
       })();
     </script>
     %sveltekit.head%
   </head>
-  <body data-sveltekit-preload-data="hover">
+  <body 
+    data-sveltekit-preload-code="hover"
+    data-sveltekit-preload-data="hover"
+  >
     <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>

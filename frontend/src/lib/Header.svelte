@@ -1,228 +1,159 @@
 <script lang="ts">
-  import ThemeToggle from '$lib/ThemeToggle.svelte';
   import type { Navigation, NavigationItem } from '$lib/types/navigation';
   import { onMount } from 'svelte';
-
+  import { slide, fade } from 'svelte/transition';
+  import { quintOut, cubicIn } from 'svelte/easing';
+  import ThemeToggle from './ThemeToggle.svelte';
+  
   export let navigation: Navigation | null = null;
   export let logoUrl: string | null = null;
-
-  let isMobileMenuOpen = false;
-
-  function href(item: NavigationItem) {
-    const any = item as any;
-    if (typeof any.link === 'string') return any.link;
-    if (any.link?.external) return any.link.external;
-    const slug = any.link?.internal?.slug?.current;
-    return slug ? `/${slug}` : '#';
+  
+  let isMenuOpen = false;
+  let mounted = false;
+  
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
   }
-
-  function toggleMobileMenu() { isMobileMenuOpen = !isMobileMenuOpen; }
-  function closeMobileMenu() { isMobileMenuOpen = false; }
-
+  
+  // Close menu when clicking outside or pressing escape
   onMount(() => {
-    const onKeydown = (e: KeyboardEvent) => { if (e.key === 'Escape') closeMobileMenu(); };
-    const onResize = () => { if (isMobileMenuOpen) closeMobileMenu(); };
-    window.addEventListener('keydown', onKeydown);
-    window.addEventListener('resize', onResize);
+    mounted = true;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('nav') && isMenuOpen) {
+        isMenuOpen = false;
+      }
+    };
+    
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        isMenuOpen = false;
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    
     return () => {
-      window.removeEventListener('keydown', onKeydown);
-      window.removeEventListener('resize', onResize);
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
     };
   });
+
+  function href(item: NavigationItem) {
+    if ((item as any)?.href) return (item as any).href;
+    const link: any = (item as any)?.link;
+    if (!link) return '#';
+    if (typeof link === 'string') return link;
+    if (link.url) return link.url;
+    if (link.external) return link.external;
+    const slug =
+      link.internal?.slug?.current ??
+      link.internal?.slug ??
+      link.slug?.current ??
+      link.slug;
+    return slug ? `/${slug}` : '#';
+  }
 </script>
 
-{#if isMobileMenuOpen}
-  <div class="mobile-backdrop" on:click={closeMobileMenu} aria-hidden="true"></div>
-{/if}
+<header class="bg-[var(--color-header-bg)] text-[var(--color-header-text)] shadow-sm sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <a href="/" aria-label="Home" data-sveltekit-prefetch class="flex items-center">
+          {#if logoUrl}
+            <img src={logoUrl} alt="Logo" class="h-8 w-auto" />
+          {:else}
+            <span class="text-lg font-bold">Site</span>
+          {/if}
+        </a>
+      </div>
 
-<header class="header">
-  <nav class="nav-container" aria-label="Primary">
-    <div class="nav-content">
-      <a href="/" aria-label="Home" class="logo-link" data-sveltekit-prefetch on:click={closeMobileMenu}>
-        {#if logoUrl}
-          <img src={logoUrl} alt="Site Logo" class="logo-img" />
-        {:else}
-          <span class="logo-text">Greg D. Chan</span>
+      <!-- Desktop nav -->
+      <div class="hidden md:flex md:items-center md:space-x-6">
+        {#if navigation?.items}
+          <ul class="flex space-x-6">
+            {#each navigation.items as item}
+              <li>
+                <a
+                  href={href(item)}
+                  data-sveltekit-prefetch
+                  class="px-1 py-2 text-sm font-medium transition-colors duration-200 relative text-[var(--color-muted)] hover:text-[var(--color-foreground)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-primary)] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+                >
+                  {item.text}
+                </a>
+              </li>
+            {/each}
+          </ul>
         {/if}
-      </a>
 
-      {#if navigation?.items}
-        <div class="desktop-nav" role="menubar">
-          {#each navigation.items as item}
-            <a
-              href={href(item)}
-              class="nav-item"
-              role="menuitem"
-              target={(item as any).target || '_self'}
-              data-sveltekit-prefetch
-              on:click={closeMobileMenu}
-            >
-              <span class="nav-text">{(item as any).text}</span>
-              <span class="nav-underline"></span>
-            </a>
-          {/each}
+        <!-- Theme toggle -->
+        <div class="pl-5 border-l border-[color:var(--color-muted)]/30">
+          <ThemeToggle />
         </div>
-      {/if}
+      </div>
 
-      <div class="nav-controls">
-        <div class="theme-toggle-wrapper">
-          <ThemeToggle /> <!-- Make sure ThemeToggle does not trigger page-wide transitions -->
-        </div>
+      <!-- Mobile button -->
+      <div class="flex items-center md:hidden">
+        <ThemeToggle />
+        
         <button
-          class="mobile-menu-button"
-          on:click={toggleMobileMenu}
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring-2"
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
+          on:click={toggleMenu}
           aria-label="Toggle menu"
-          aria-expanded={isMobileMenuOpen}
-          aria-controls="mobile-nav"
-          type="button"
         >
-          <span class="hamburger-line {isMobileMenuOpen ? 'open' : ''}"></span>
-          <span class="hamburger-line {isMobileMenuOpen ? 'open' : ''}"></span>
-          <span class="hamburger-line {isMobileMenuOpen ? 'open' : ''}"></span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-[color:var(--color-header-text)]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            {#if isMenuOpen}
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            {:else}
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            {/if}
+          </svg>
         </button>
       </div>
-    </div>
-
-    {#if navigation?.items}
-      <div id="mobile-nav" class="mobile-nav {isMobileMenuOpen ? 'open' : ''}">
-        {#each navigation.items as item}
-          <a
-            href={href(item)}
-            class="mobile-nav-item"
-            target={(item as any).target || '_self'}
-            sveltekit:prefetch
-            on:click={closeMobileMenu}
-          >{(item as any).text}</a>
-        {/each}
-      </div>
+    </nav>
+    
+    <!-- Mobile menu, show/hide based on menu state -->
+    {#if mounted && navigation?.items}
+      {#if isMenuOpen}
+        <div
+          id="mobile-menu"
+          class="md:hidden fixed inset-x-0 top-16 z-40 backdrop-blur-md shadow-lg"
+          style="
+            background-color: color-mix(in srgb, var(--color-header-bg) 85%, transparent);
+            color: var(--color-header-text);
+          "
+          in:slide={{ duration: 260, easing: quintOut }}
+          out:slide={{ duration: 200, easing: cubicIn }}
+        >
+          <nav class="px-4 py-4 space-y-2">
+            {#if navigation?.items}
+              {#each navigation.items as item}
+                <a
+                  href={href(item)}
+                  data-sveltekit-prefetch
+                  class="block rounded-md px-3 py-2 text-base font-medium hover:opacity-80 focus:outline-none focus-visible:ring-2"
+                  on:click={() => { isMenuOpen = false; }}
+                >
+                  {item.text}
+                </a>
+              {/each}
+            {/if}
+            <!-- Removed ThemeToggle from dropdown -->
+          </nav>
+        </div>
+      {/if}
     {/if}
-  </nav>
+  </div>
 </header>
-
-<style>
-  :global(:root) {
-    --header-h: 64px;
-    --page-max: 1280px;
-  }
-
-  /* Fixed, full-bleed header with no theme/background transitions */
-  .header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 1000;
-    background: transparent; /* background rendered on ::before */
-    transform: translateZ(0); /* avoid 1px seams on some GPUs */
-  }
-
-  /* Full-width plate behind constrained content; NOTE: no transitions here */
-  .header::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: color-mix(in srgb, var(--color-headerBackground, var(--color-background)) 85%, transparent);
-    -webkit-backdrop-filter: blur(18px);
-            backdrop-filter: blur(18px);
-    border-bottom: 1px solid var(--color-border, #e2e8f0);
-    box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.12);
-  }
-
-  /* Constrain inner content; header itself remains full width */
-  .nav-container {
-    width: 100%;
-    max-width: var(--page-max);
-    margin-inline: auto;
-    padding-inline: clamp(1rem, 3vw, 2rem);
-  }
-
-  .nav-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--header-h);
-  }
-
-  /* Logo */
-  .logo-link { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: inherit; }
-  .logo-text {
-    font-size: 1.25rem; font-weight: 800; line-height: 1;
-    color: var(--color-headerText, var(--color-foreground));
-  }
-  .logo-img { max-height: calc(var(--header-h) - 0.75rem); height: auto; object-fit: contain; }
-
-  /* Desktop nav */
-  .desktop-nav { display: none; gap: 1.5rem; }
-  @media (min-width: 768px) { .desktop-nav { display: flex; } }
-
-  .nav-item {
-    position: relative;
-    padding: .4rem 0;
-    color: var(--color-headerText, var(--color-foreground));
-    text-decoration: none;
-    font-weight: 500;
-    font-size: .9rem;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    white-space: nowrap;
-  }
-  /* Keep this micro-UX; it doesn't trigger on route change */
-  .nav-item .nav-underline {
-    position: absolute; left: 0; bottom: 0; height: 2px; width: 0;
-    background: var(--color-primary, currentColor);
-    transition: width .2s ease; /* hover-only */
-  }
-  .nav-item:hover .nav-underline { width: 100%; }
-
-  .nav-controls { display: flex; align-items: center; gap: 1rem; }
-  .theme-toggle-wrapper { line-height: 0; display: flex; align-items: center; margin-right: .25rem; }
-
-  .mobile-menu-button {
-    display: flex; flex-direction: column; justify-content: space-around;
-    width: 2rem; height: 2rem; background: transparent; border: none; cursor: pointer; padding: 0;
-  }
-  @media (min-width: 768px) { .mobile-menu-button { display: none; } }
-
-  .hamburger-line { width: 100%; height: 2px; background: var(--color-headerText, var(--color-foreground)); transition: all .25s ease; transform-origin: center; }
-  .hamburger-line.open:nth-child(1) { transform: rotate(45deg) translate(6px,6px); }
-  .hamburger-line.open:nth-child(2) { opacity: 0; }
-  .hamburger-line.open:nth-child(3) { transform: rotate(-45deg) translate(6px,-6px); }
-
-  /* Mobile sheet */
-  .mobile-nav {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: color-mix(in srgb, var(--color-headerBackground, var(--color-background)) 90%, transparent);
-    -webkit-backdrop-filter: blur(18px);
-            backdrop-filter: blur(18px);
-    border-top: 1px solid var(--color-border, #e2e8f0);
-    transform: translateY(-8px);
-    opacity: 0; visibility: hidden; pointer-events: none;
-    transition: opacity .2s ease, transform .2s ease; /* only for opening/closing menu */
-  }
-  .mobile-nav.open { transform: translateY(0); opacity: 1; visibility: visible; pointer-events: auto; }
-
-  .mobile-nav-item {
-    display: block;
-    padding: 1rem clamp(1rem, 3vw, 2rem);
-    color: var(--color-headerText, var(--color-foreground));
-    text-decoration: none;
-    font-weight: 500;
-    font-size: .9rem;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    border-bottom: 1px solid var(--color-border, #e2e8f0);
-  }
-  .mobile-nav-item:last-child { border-bottom: none; }
-
-  @media (max-width: 767px) {
-    .nav-container { padding-inline: 1rem; }
-  }
-
-  /* Prevent children from forcing horizontal scroll on the fixed header */
-  .header, .header * { max-width: 100vw; }
-
-  /* Ensure your ThemeToggle doesn’t add outline flicker */
-  :global(.theme-toggle) { outline: none; border: 0; -webkit-tap-highlight-color: transparent; }
-  :global(.theme-toggle:focus), :global(.theme-toggle:focus-visible) { outline: none !important; box-shadow: none !important; }
-</style>

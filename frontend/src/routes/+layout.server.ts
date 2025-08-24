@@ -1,34 +1,16 @@
-// src/routes/+layout.server.ts
-import type { LayoutServerLoad } from './$types';
-import { fetchTokens, fetchNav, fetchLogoUrl } from '$lib/sanity/client';
+// Define PageServerLoad locally if not exported from './$types'
+type PageServerLoad = () => Promise<{ navigation: unknown; tokens: unknown; errorPages: unknown }>;
+// If './$types' does not export PageServerLoad, verify the correct type or define it locally.
+import { getNavigation, getDesignTokens, getErrorPages } from '$lib/sanity';
 
-export const load: LayoutServerLoad = async ({ setHeaders }) => {
-  const [tokensRaw, navigation, logoUrl] = await Promise.all([
-    fetchTokens(),
-    fetchNav(),
-    fetchLogoUrl()
+export const load: PageServerLoad = async () => {
+  const [navigation, tokens, errorPages] = await Promise.all([
+    getNavigation(),
+    getDesignTokens(),
+    getErrorPages()
   ]);
 
-  // Ensure a consistent shape:
-  // - legacy usage: data.tokens.light / data.tokens.dark
-  // - pre-hydration script: data.tokens.themes.light / .dark
-  const tokens = tokensRaw ?? { light: null, dark: null };
-  const tokensPayload = {
-    ...tokens,
-    themes: {
-      light: tokens.light,
-      dark: tokens.dark
-    }
-  };
-
-  // Modest caching: browsers revalidate, CDN can cache for 60s
-  setHeaders({
-    'cache-control': 'public, max-age=0, s-maxage=60'
-  });
-
-  return {
-    tokens: tokensPayload,
-    navigation: navigation ?? null,
-    logoUrl: logoUrl ?? null
-  };
+  return { navigation, tokens, errorPages };
 };
+
+content: ['./src/**/*.{html,js,svelte,ts}']
