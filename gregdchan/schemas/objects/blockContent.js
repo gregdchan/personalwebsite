@@ -9,9 +9,8 @@ export default defineType({
       type: 'block',
       styles: [
         {title: 'Normal', value: 'normal'},
-        {title: 'Heading 1', value: 'h1'},
-        {title: 'Heading 2', value: 'h2'},
-        {title: 'Heading 3', value: 'h3'},
+        {title: 'H2', value: 'h2'},
+        {title: 'H3', value: 'h3'},
         {title: 'Quote', value: 'blockquote'},
       ],
       lists: [
@@ -22,18 +21,16 @@ export default defineType({
         decorators: [
           {title: 'Strong', value: 'strong'},
           {title: 'Emphasis', value: 'em'},
+          {title: 'Code', value: 'code'},
         ],
         annotations: [
           {
-            title: 'URL',
             name: 'link',
+            title: 'Link',
             type: 'object',
             fields: [
-              {
-                title: 'URL',
-                name: 'href',
-                type: 'url',
-              }
+              {name: 'href', title: 'URL', type: 'url', validation: (Rule) => Rule.uri({scheme: ['http', 'https', 'mailto', 'tel']})},
+              {name: 'blank', title: 'Open in new tab', type: 'boolean', initialValue: false}
             ]
           }
         ]
@@ -41,10 +38,8 @@ export default defineType({
     }),
     defineArrayMember({
       type: 'image',
-      options: {hotspot: true}
-    }),
-    defineArrayMember({
-      type: 'code'
+      options: {hotspot: true},
+      fields: [{name: 'alt', title: 'Alt Text', type: 'string'}]
     })
   ]
 })

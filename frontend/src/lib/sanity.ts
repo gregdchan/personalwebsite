@@ -1,11 +1,15 @@
 import { createClient } from '@sanity/client';
 import type { DesignToken } from '$lib/types/designToken';
 
+const projectId = import.meta.env.VITE_SANITY_PROJECT_ID!;
+const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
+
 export const client = createClient({
-  projectId: 'smxz6rsz',
-  dataset: 'production',
+  projectId,
+  dataset,
   apiVersion: '2024-01-01',
-  useCdn: true
+  useCdn: import.meta.env.PROD, // no CDN in dev to avoid stale reads
+  perspective: 'published'
 });
 
 // Minimal queries (avoid fancy projections to keep it robust)
@@ -14,7 +18,6 @@ export async function getNavigation(): Promise<any | null> {
     items[]{
       text,
       link,
-      // Canonical href for all shapes
       "href": select(
         defined(link.external) => link.external,
         defined(link.url) => link.url,
@@ -26,19 +29,23 @@ export async function getNavigation(): Promise<any | null> {
       )
     }
   }`;
-  return client.fetch(query).catch(() => null);
+  try {
+    return await client.fetch(query, {}, { perspective: 'published' });
+  } catch {
+    return null;
+  }
 }
 
 export async function getDesignTokens(): Promise<{ light: DesignToken | null; dark: DesignToken | null }> {
   const query = `{
-    "light": *[_type == "designToken" && mode == "light" && isDefault == true][0]{
+    "light": *[_type == "designToken" && mode == "light"] | order(isDefault desc, _updatedAt desc)[0]{
       _id, themeName, mode, isDefault,
       logo{alt, asset->{url}},
       colors, typography, spacing,
       lightTheme{ logo{alt, asset->{url}}, colors, typography, spacing },
       darkTheme{  logo{alt, asset->{url}}, colors, typography, spacing }
     },
-    "dark": *[_type == "designToken" && mode == "dark" && isDefault == true][0]{
+    "dark": *[_type == "designToken" && mode == "dark"] | order(isDefault desc, _updatedAt desc)[0]{
       _id, themeName, mode, isDefault,
       logo{alt, asset->{url}},
       colors, typography, spacing,
@@ -47,34 +54,55 @@ export async function getDesignTokens(): Promise<{ light: DesignToken | null; da
     }
   }`;
   try {
-    return await client.fetch(query);
+    return await client.fetch(query, {}, { perspective: 'published' });
   } catch {
     return { light: null, dark: null };
   }
 }
 
 export async function getHomepage(): Promise<any | null> {
-  const query = `*[_type == "page" && isIndexPage == true][0]{ title, description }`;
-  return client.fetch(query).catch(() => null);
+  const query = `*[_type == "page" && isIndexPage == true][0]{
+    title,
+    description,
+    "hero": sections[_type in ["hero","pictureHero","videoHero"]][0]{
+      _type,
+      "heading": coalesce(heading, title),
+      "subheading": coalesce(subheading, subtitle),
+      backgroundType,
+      backgroundImage{
+        alt,
+        asset->{ url }
+      },
+      backgroundVideo,
+      backgroundColor,
+      secondaryColor,
+      cta
+    }
+  }`;
+  try {
+    return await client.fetch(query, {}, { perspective: 'published' });
+  } catch {
+    return null;
+  }
 }
 
 export async function getPageBySlug(slug: string): Promise<any | null> {
-  const query = `*[_type == "page" && slug.current == $slug][0]{
-    title,
-    description,
-    body
-  }`;
-  return client.fetch(query, { slug }).catch(() => null);
+  const query = `*[_type == "page" && slug.current == $slug][0]{ title, description, body }`;
+  try {
+    return await client.fetch(query, { slug }, { perspective: 'published' });
+  } catch {
+    return null;
+  }
 }
 
 export async function getErrorPages(): Promise<{ notFound: any | null; generic: any | null }> {
   const query = `{
-    "notFound": *[_type == "errorPage" && key == "notFound"][0]{
-      title, message, ctaLabel, ctaHref
-    },
-    "generic": *[_type == "errorPage" && key == "generic"][0]{
-      title, message, ctaLabel, ctaHref
-    }
+    "notFound": *[_type == "errorPage" && key == "notFound"][0]{ title, message, ctaLabel, ctaHref },
+    "generic": *[_type == "errorPage" && key == "generic"][0]{ title, message, ctaLabel, ctaHref }
   }`;
-  return client.fetch(query).catch(() => ({ notFound: null, generic: null }));
+  try {
+    return await client.fetch(query, {}, { perspective: 'published' });
+  } catch {
+    return { notFound: null, generic: null };
+  }
 }

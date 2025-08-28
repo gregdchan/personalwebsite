@@ -380,46 +380,46 @@ export default defineType({
   name: 'page',
   title: 'Page',
   type: 'document',
-  groups: [
-    { name: 'content', title: 'Content' },
-    { name: 'seo', title: 'SEO & Metadata' }
-  ],
   fields: [
-    // Shared
-    defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required(), group: ['content', 'seo'] }),
-    defineField({ name: 'description', title: 'Description', type: 'text', options: { rows: 3 }, group: ['content', 'seo'] }),
-
-    // Content
-    defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: Rule => Rule.required(), group: 'content' }),
-    defineField({ name: 'mainImage', title: 'Main Image', type: 'image', options: { hotspot: true }, group: 'content', fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string' })] }),
-    defineField({ name: 'body', title: 'Body', type: 'blockContent', group: 'content' }),
-    defineField({ name: 'isIndexPage', title: 'Homepage?', type: 'boolean', initialValue: false, group: 'content' }),
+    defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: { source: 'title', maxLength: 96 },
+      validation: (Rule) => Rule.required()
+    }),
+    defineField({ name: 'description', title: 'Description', type: 'text', rows: 3 }),
+    defineField({ name: 'isIndexPage', title: 'Is Homepage', type: 'boolean', initialValue: false }),
     defineField({
       name: 'sections',
       title: 'Sections',
       type: 'array',
       of: [
-        defineArrayMember({ type: 'hero' }),
-        defineArrayMember({ type: 'pictureHero' }),
-        defineArrayMember({ type: 'videoHero' }),
-        defineArrayMember({ type: 'richText' }),
-        defineArrayMember({ type: 'featureGrid' }),
-        defineArrayMember({ type: 'imageCarousel' }),
-        defineArrayMember({ type: 'testimonialCarousel' }),
-        defineArrayMember({ type: 'faq' }),
-        defineArrayMember({ type: 'threeJsSection' }),
-        defineArrayMember({ type: 'frame' }),
-        // New resume/CV section types
-        defineArrayMember({ type: 'education' }),
-        defineArrayMember({ type: 'skills' }),
-        defineArrayMember({ type: 'experience' })
-      ],
-      options: { sortable: true, editModal: 'fullscreen' },
-      group: 'content'
-    }),
+        // Heroes
+        { type: 'hero' },
+        { type: 'pictureHero' },
+        { type: 'videoHero' },
 
-    // SEO
-    defineField({ name: 'seo', title: 'SEO Settings', type: 'seo', group: 'seo' })
+        // Content
+        { type: 'richText' },
+        { type: 'featureGrid' },
+        { type: 'imageCarousel' },
+        { type: 'faq' },
+
+        // About/skills
+        { type: 'about' },
+        { type: 'skills' },        // allow simple skills
+        { type: 'skillsCloud' },   // allow cloud-style skills
+
+        // Logos and CTA
+        { type: 'logosMarquee' },
+        { type: 'contactCta' }
+      ],
+      options: { sortable: true }
+    })
   ],
-  preview: { select: { title: 'title', subtitle: 'description', media: 'mainImage' } }
-});
+  preview: {
+    select: { title: 'title', subtitle: 'slug.current' }
+  }
+})

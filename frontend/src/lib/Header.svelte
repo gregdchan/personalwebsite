@@ -57,7 +57,10 @@
   }
 </script>
 
-<header class="bg-[var(--color-header-bg)] text-[var(--color-header-text)] shadow-sm sticky top-0 z-40">
+<header
+  class="bg-[var(--color-header-bg)] text-[var(--color-header-text)] shadow-[var(--shadow)] sticky top-0 z-40"
+  style="font-family: var(--font-header, var(--font-heading));"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <nav class="flex items-center justify-between h-16">
       <!-- Logo -->
@@ -80,7 +83,8 @@
                 <a
                   href={href(item)}
                   data-sveltekit-prefetch
-                  class="px-1 py-2 text-sm font-medium transition-colors duration-200 relative text-[var(--color-muted)] hover:text-[var(--color-foreground)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-primary)] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+                  class="px-1 py-2 text-[var(--header-font-size)] transition-colors duration-200 relative text-[var(--color-header-text)]/90 hover:text-[var(--color-header-text)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-primary)] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+                  style="font-weight: var(--header-font-weight, var(--base-font-weight, 500));"
                 >
                   {item.text}
                 </a>
@@ -90,7 +94,7 @@
         {/if}
 
         <!-- Theme toggle -->
-        <div class="pl-5 border-l border-[color:var(--color-muted)]/30">
+        <div class="pl-5 border-l border-[color:var(--color-header-text)]/20">
           <ThemeToggle />
         </div>
       </div>
@@ -100,7 +104,7 @@
         <ThemeToggle />
         
         <button
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring-2"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-header-bg)]"
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
           on:click={toggleMenu}
@@ -123,16 +127,19 @@
         </button>
       </div>
     </nav>
-    
-    <!-- Mobile menu, show/hide based on menu state -->
+
+    <!-- Mobile menu -->
     {#if mounted && navigation?.items}
       {#if isMenuOpen}
         <div
           id="mobile-menu"
-          class="md:hidden fixed inset-x-0 top-16 z-40 backdrop-blur-md shadow-lg"
+          class="md:hidden fixed inset-x-0 top-16 z-40 backdrop-blur-md shadow-[var(--shadow)]"
           style="
             background-color: color-mix(in srgb, var(--color-header-bg) 85%, transparent);
             color: var(--color-header-text);
+            font-family: var(--font-header, var(--font-heading));
+            font-size: var(--header-font-size);
+            font-weight: var(--header-font-weight, var(--base-font-weight, 500));
           "
           in:slide={{ duration: 260, easing: quintOut }}
           out:slide={{ duration: 200, easing: cubicIn }}
@@ -143,14 +150,14 @@
                 <a
                   href={href(item)}
                   data-sveltekit-prefetch
-                  class="block rounded-md px-3 py-2 text-base font-medium hover:opacity-80 focus:outline-none focus-visible:ring-2"
+                  class="block rounded-md px-3 py-2 hover:opacity-80 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-header-bg)]"
                   on:click={() => { isMenuOpen = false; }}
+                  style="font-weight: var(--header-font-weight, var(--base-font-weight, 500));"
                 >
                   {item.text}
                 </a>
               {/each}
             {/if}
-            <!-- Removed ThemeToggle from dropdown -->
           </nav>
         </div>
       {/if}

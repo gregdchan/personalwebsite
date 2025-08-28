@@ -95,12 +95,6 @@ export default defineType({
         type: 'gallery'
       }),
       defineField({
-        name: 'testimonials',
-        title: 'Testimonials',
-        type: 'array',
-        of: [defineArrayMember({type: 'testimonial'})]
-      }),
-      defineField({
         name: 'relatedProjects',
         title: 'Related Projects',
         type: 'array',

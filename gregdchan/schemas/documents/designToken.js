@@ -10,7 +10,6 @@ export default defineType({
     { name: "colors", title: "Colors" },
     { name: "typography", title: "Typography" },
     { name: "spacing", title: "Spacing" },
-    { name: "variants", title: "Light/Dark Variants" },
   ],
   fields: [
     // Theme meta
@@ -234,6 +233,57 @@ export default defineType({
             })
           ),
         }),
+        // New: Header typography
+        defineField({
+          name: "header",
+          title: "Header Typography",
+          type: "object",
+          options: { collapsible: true, collapsed: true },
+          fields: [
+            defineField({
+              name: "fontFamily",
+              title: "Header Font Family",
+              type: "string",
+              options: {
+                list: [
+                  { title: "Inherit Heading", value: "inherit" },
+                  { title: "System UI", value: "system-ui" },
+                  { title: "Inter", value: "Inter, sans-serif" },
+                  { title: "Poppins", value: "Poppins, sans-serif" },
+                  { title: "Roboto", value: "Roboto, sans-serif" },
+                  { title: "Georgia", value: "Georgia, serif" },
+                  { title: "Custom", value: "custom" },
+                ],
+              },
+            }),
+            defineField({
+              name: "customHeaderFontFamily",
+              title: "Custom Header Font (optional)",
+              type: "string",
+              hidden: ({ parent }) => !parent || parent.fontFamily !== "custom",
+            }),
+            defineField({
+              name: "fontSize",
+              title: "Header Font Size (px)",
+              type: "number",
+            }),
+            // NEW: header font weight
+            defineField({
+              name: "fontWeight",
+              title: "Header Font Weight",
+              type: "string",
+              options: {
+                list: [
+                  { title: "Light", value: "300" },
+                  { title: "Regular", value: "400" },
+                  { title: "Medium", value: "500" },
+                  { title: "Bold", value: "700" },
+                  { title: "Extra Bold", value: "800" },
+                ],
+              },
+            }),
+          ],
+        }),
       ],
     }),
 
@@ -248,393 +298,6 @@ export default defineType({
         defineField({ name: "spaceUnit", title: "Base Spacing Unit (px)", type: "number" }),
         defineField({ name: "borderRadius", title: "Border Radius (px)", type: "number" }),
         defineField({ name: "boxShadow", title: "Box Shadow", type: "string" }),
-      ],
-    }),
-
-    // Variants (same shape as top-level, used as overrides)
-    defineField({
-      name: "lightTheme",
-      title: "Light Theme Tokens",
-      type: "object",
-      group: "variants",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "logo",
-          title: "Logo (for light backgrounds)",
-          type: "image",
-          options: { hotspot: true },
-          description: "Logo to display when the light theme is active.",
-        }),
-        defineField({
-          name: "colors",
-          title: "Colors",
-          type: "object",
-          options: { collapsible: true, collapsed: true },
-          fields: [
-            defineField({
-              name: "brand",
-              title: "Brand",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "primary", title: "Primary", type: "color" }),
-                defineField({ name: "secondary", title: "Secondary", type: "color" }),
-                defineField({ name: "accent", title: "Accent", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "surfaces",
-              title: "Surfaces",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "page", title: "Page Background", type: "color" }),
-                defineField({ name: "content", title: "Content Background", type: "color" }),
-                defineField({ name: "siteHeader", title: "Site Header Background", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "text",
-              title: "Text",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "primary", title: "Primary Text", type: "color" }),
-                defineField({ name: "muted", title: "Muted Text", type: "color" }),
-                defineField({ name: "siteHeader", title: "Site Header Text", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "headings",
-              title: "Headings",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "default", title: "Default Heading Color", type: "color" }),
-                defineField({ name: "h1", title: "H1 Color (optional)", type: "color" }),
-                defineField({ name: "h2", title: "H2 Color (optional)", type: "color" }),
-                defineField({ name: "h3", title: "H3 Color (optional)", type: "color" }),
-                defineField({ name: "h4", title: "H4 Color (optional)", type: "color" }),
-                defineField({ name: "h5", title: "H5 Color (optional)", type: "color" }),
-                defineField({ name: "h6", title: "H6 Color (optional)", type: "color" }),
-              ],
-            }),
-          ],
-        }),
-        defineField({
-          name: "typography",
-          title: "Typography",
-          type: "object",
-          options: { collapsible: true, collapsed: true },
-          fields: [
-            defineField({
-              name: "bodyFontFamily",
-              title: "Body Font Family",
-              type: "string",
-              options: {
-                list: [
-                  { title: "System UI", value: "system-ui" },
-                  { title: "Inter", value: "Inter, sans-serif" },
-                  { title: "Poppins", value: "Poppins, sans-serif" },
-                  { title: "Roboto", value: "Roboto, sans-serif" },
-                  { title: "Georgia", value: "Georgia, serif" },
-                  { title: "Custom", value: "custom" },
-                ],
-              },
-            }),
-            defineField({
-              name: "customBodyFontFamily",
-              title: "Custom Body Font (optional)",
-              type: "string",
-              hidden: ({ parent }) => !parent || parent.bodyFontFamily !== "custom",
-            }),
-            defineField({
-              name: "headingFontFamily",
-              title: "Heading Font Family",
-              type: "string",
-              options: {
-                list: [
-                  { title: "Same as Body", value: "inherit" },
-                  { title: "Inter", value: "Inter, sans-serif" },
-                  { title: "Poppins", value: "Poppins, sans-serif" },
-                  { title: "Roboto", value: "Roboto, sans-serif" },
-                  { title: "Georgia", value: "Georgia, serif" },
-                  { title: "Custom", value: "custom" },
-                ],
-              },
-            }),
-            defineField({
-              name: "customHeadingFontFamily",
-              title: "Custom Heading Font (optional)",
-              type: "string",
-              hidden: ({ parent }) => !parent || parent.headingFontFamily !== "custom",
-            }),
-            defineField({ name: "baseFontSize", title: "Base Font Size (px)", type: "number" }),
-            defineField({
-              name: "baseFontWeight",
-              title: "Base Font Weight",
-              type: "string",
-              options: {
-                list: [
-                  { title: "Light", value: "300" },
-                  { title: "Regular", value: "400" },
-                  { title: "Medium", value: "500" },
-                  { title: "Bold", value: "700" },
-                ],
-              },
-            }),
-            defineField({
-              name: "levels",
-              title: "Heading Levels",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: ["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) =>
-                defineField({
-                  name: tag,
-                  title: tag.toUpperCase(),
-                  type: "object",
-                  fields: [
-                    defineField({ name: "fontSize", title: "Font Size (px)", type: "number" }),
-                    defineField({
-                      name: "fontWeight",
-                      title: "Font Weight",
-                      type: "string",
-                      options: {
-                        list: [
-                          { title: "Light", value: "300" },
-                          { title: "Regular", value: "400" },
-                          { title: "Medium", value: "500" },
-                          { title: "Bold", value: "700" },
-                          { title: "Extra Bold", value: "800" },
-                        ],
-                      },
-                    }),
-                    defineField({ name: "lineHeight", title: "Line Height", type: "number" }),
-                    defineField({ name: "letterSpacing", title: "Letter Spacing (em)", type: "number" }),
-                    defineField({
-                      name: "textTransform",
-                      title: "Text Transform",
-                      type: "string",
-                      options: {
-                        list: [
-                          { title: "None", value: "none" },
-                          { title: "Uppercase", value: "uppercase" },
-                          { title: "Lowercase", value: "lowercase" },
-                          { title: "Capitalize", value: "capitalize" },
-                        ],
-                      },
-                    }),
-                  ],
-                })
-              ),
-            }),
-          ],
-        }),
-        defineField({
-          name: "spacing",
-          title: "Spacing & Radius",
-          type: "object",
-          fields: [
-            defineField({ name: "spaceUnit", title: "Base Spacing Unit (px)", type: "number" }),
-            defineField({ name: "borderRadius", title: "Border Radius (px)", type: "number" }),
-            defineField({ name: "boxShadow", title: "Box Shadow", type: "string" }),
-          ],
-        }),
-      ],
-    }),
-
-    defineField({
-      name: "darkTheme",
-      title: "Dark Theme Tokens",
-      type: "object",
-      group: "variants",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "logo",
-          title: "Logo (for dark backgrounds)",
-          type: "image",
-          options: { hotspot: true },
-          description: "Logo to display when the dark theme is active.",
-        }),
-        // Colors/typography/spacing structure identical to lightTheme
-        // To keep the file concise, reuse the same structure as above
-        defineField({
-          name: "colors",
-          title: "Colors",
-          type: "object",
-          options: { collapsible: true, collapsed: true },
-          fields: [
-            defineField({
-              name: "brand",
-              title: "Brand",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "primary", title: "Primary", type: "color" }),
-                defineField({ name: "secondary", title: "Secondary", type: "color" }),
-                defineField({ name: "accent", title: "Accent", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "surfaces",
-              title: "Surfaces",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "page", title: "Page Background", type: "color" }),
-                defineField({ name: "content", title: "Content Background", type: "color" }),
-                defineField({ name: "siteHeader", title: "Site Header Background", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "text",
-              title: "Text",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "primary", title: "Primary Text", type: "color" }),
-                defineField({ name: "muted", title: "Muted Text", type: "color" }),
-                defineField({ name: "siteHeader", title: "Site Header Text", type: "color" }),
-              ],
-            }),
-            defineField({
-              name: "headings",
-              title: "Headings",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: [
-                defineField({ name: "default", title: "Default Heading Color", type: "color" }),
-                defineField({ name: "h1", title: "H1 Color (optional)", type: "color" }),
-                defineField({ name: "h2", title: "H2 Color (optional)", type: "color" }),
-                defineField({ name: "h3", title: "H3 Color (optional)", type: "color" }),
-                defineField({ name: "h4", title: "H4 Color (optional)", type: "color" }),
-                defineField({ name: "h5", title: "H5 Color (optional)", type: "color" }),
-                defineField({ name: "h6", title: "H6 Color (optional)", type: "color" }),
-              ],
-            }),
-          ],
-        }),
-        defineField({
-          name: "typography",
-          title: "Typography",
-          type: "object",
-          options: { collapsible: true, collapsed: true },
-          fields: [
-            defineField({
-              name: "bodyFontFamily",
-              title: "Body Font Family",
-              type: "string",
-              options: {
-                list: [
-                  { title: "System UI", value: "system-ui" },
-                  { title: "Inter", value: "Inter, sans-serif" },
-                  { title: "Poppins", value: "Poppins, sans-serif" },
-                  { title: "Roboto", value: "Roboto, sans-serif" },
-                  { title: "Georgia", value: "Georgia, serif" },
-                  { title: "Custom", value: "custom" },
-                ],
-              },
-            }),
-            defineField({
-              name: "customBodyFontFamily",
-              title: "Custom Body Font (optional)",
-              type: "string",
-              hidden: ({ parent }) => !parent || parent.bodyFontFamily !== "custom",
-            }),
-            defineField({
-              name: "headingFontFamily",
-              title: "Heading Font Family",
-              type: "string",
-              options: {
-                list: [
-                  { title: "Same as Body", value: "inherit" },
-                  { title: "Inter", value: "Inter, sans-serif" },
-                  { title: "Poppins", value: "Poppins, sans-serif" },
-                  { title: "Roboto", value: "Roboto, sans-serif" },
-                  { title: "Georgia", value: "Georgia, serif" },
-                  { title: "Custom", value: "custom" },
-                ],
-              },
-            }),
-            defineField({
-              name: "customHeadingFontFamily",
-              title: "Custom Heading Font (optional)",
-              type: "string",
-              hidden: ({ parent }) => !parent || parent.headingFontFamily !== "custom",
-            }),
-            defineField({ name: "baseFontSize", title: "Base Font Size (px)", type: "number" }),
-            defineField({
-              name: "baseFontWeight",
-              title: "Base Font Weight",
-              type: "string",
-              options: {
-                list: [
-                  { title: "Light", value: "300" },
-                  { title: "Regular", value: "400" },
-                  { title: "Medium", value: "500" },
-                  { title: "Bold", value: "700" },
-                ],
-              },
-            }),
-            defineField({
-              name: "levels",
-              title: "Heading Levels",
-              type: "object",
-              options: { collapsible: true, collapsed: true },
-              fields: ["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) =>
-                defineField({
-                  name: tag,
-                  title: tag.toUpperCase(),
-                  type: "object",
-                  fields: [
-                    defineField({ name: "fontSize", title: "Font Size (px)", type: "number" }),
-                    defineField({
-                      name: "fontWeight",
-                      title: "Font Weight",
-                      type: "string",
-                      options: {
-                        list: [
-                          { title: "Light", value: "300" },
-                          { title: "Regular", value: "400" },
-                          { title: "Medium", value: "500" },
-                          { title: "Bold", value: "700" },
-                          { title: "Extra Bold", value: "800" },
-                        ],
-                      },
-                    }),
-                    defineField({ name: "lineHeight", title: "Line Height", type: "number" }),
-                    defineField({ name: "letterSpacing", title: "Letter Spacing (em)", type: "number" }),
-                    defineField({
-                      name: "textTransform",
-                      title: "Text Transform",
-                      type: "string",
-                      options: {
-                        list: [
-                          { title: "None", value: "none" },
-                          { title: "Uppercase", value: "uppercase" },
-                          { title: "Lowercase", value: "lowercase" },
-                          { title: "Capitalize", value: "capitalize" },
-                        ],
-                      },
-                    }),
-                  ],
-                })
-              ),
-            }),
-          ],
-        }),
-        defineField({
-          name: "spacing",
-          title: "Spacing & Radius",
-          type: "object",
-          fields: [
-            defineField({ name: "spaceUnit", title: "Base Spacing Unit (px)", type: "number" }),
-            defineField({ name: "borderRadius", title: "Border Radius (px)", type: "number" }),
-            defineField({ name: "boxShadow", title: "Box Shadow", type: "string" }),
-          ],
-        }),
       ],
     }),
   ],
