@@ -1,1 +1,42 @@
-node_modules
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Yarn Berry
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build output
+build/
+dist/
+**/build/
+**/dist/
+
+# Caches
+.cache/
+**/.cache/
+
+# Test coverage
+coverage/
+**/coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Lockfiles (non-Yarn)
+package-lock.json
+pnpm-lock.yaml
+bun.lockb
