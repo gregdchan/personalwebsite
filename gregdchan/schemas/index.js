@@ -1,4 +1,5 @@
 import designToken from './documents/designToken'
+import gameConfig from './documents/gameConfig'
 
 // Documents
 import navigation from './documents/navigation'
@@ -57,6 +58,7 @@ const all = [
   validateSchema(tag),
   validateSchema(author),
   validateSchema(designToken),
+  validateSchema(gameConfig),
   validateSchema(navigation),
   validateSchema(caseStudy),
   validateSchema(category),
