@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { Page } from '../lib/types/page';
-  import ProjectsGrid from '$lib/sections/ProjectsGrid.svelte';
-  import AboutMe from '$lib/sections/AboutMe.svelte';
-  import SkillsCloud from '$lib/sections/SkillsCloud.svelte';
-  import TestimonialsDeck from '$lib/sections/TestimonialsDeck.svelte';
-  import BlogTeasers from '$lib/sections/BlogTeasers.svelte';
-  import ContactCTA from '$lib/sections/ContactCTA.svelte';
+  import ProjectsArcade from '$lib/sections/ProjectsArcade.svelte';
+  import PlayerStats from '$lib/sections/PlayerStats.svelte';
+  import HighScores from '$lib/sections/HighScores.svelte';
+  import InsertCoinContact from '$lib/sections/InsertCoinContact.svelte';
   import LogosMarquee from '$lib/sections/LogosMarquee.svelte';
   import Hero from '$lib/sections/Hero.svelte';
 
@@ -21,8 +19,6 @@
   const about = sections.find((s: any) => s?._type === 'about') ?? null;
   const skills = sections.find((s: any) => s?._type === 'skills' || s?._type === 'skillsCloud') ?? null;
   const projects = data.projects ?? [];
-  const posts = data.posts ?? [];
-  const testimonials = (data.testimonials?.length ? data.testimonials : (sections.find((s: any) => s?._type === 'testimonialCarousel')?.testimonials)) ?? [];
 </script>
 
 {#if hero}
@@ -45,20 +41,14 @@
 <!-- Logos/clients marquee -->
 <LogosMarquee logos={(sections.find((s:any)=>s?._type==='logosMarquee')?.logos) ?? []} />
 
-<!-- Projects -->
-<ProjectsGrid title="Featured Projects" items={projects} />
+<!-- Projects as Arcade Cabinets -->
+<ProjectsArcade items={projects} title="🎮 FEATURED PROJECTS 🎮" />
 
-<!-- About -->
-<AboutMe section={about} />
+<!-- About Me as Player Stats -->
+<PlayerStats section={about} />
 
-<!-- Skills cloud -->
-<SkillsCloud section={skills} />
+<!-- Skills as High Scores -->
+<HighScores section={skills} />
 
-<!-- Testimonials -->
-<TestimonialsDeck items={testimonials} />
-
-<!-- Blog -->
-<BlogTeasers items={posts} />
-
-<!-- Contact CTA -->
-<ContactCTA />
+<!-- Contact as Insert Coin -->
+<InsertCoinContact />

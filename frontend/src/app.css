@@ -1,5 +1,28 @@
 /* Load Inter, Poppins, Roboto with common weights */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&family=Poppins:wght@300;400;500;700;800&family=Roboto:wght@300;400;500;700;800&display=swap');
 
+/* Load Press Start 2P for 80s retro pixel text */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 /* Tailwind */
 @import 'tailwindcss';
+
+/* 80s Retro Color Palette - CSS Variables */
+:root {
+  --color-screen-black: #000814;
+  --color-screen-glow: #1a1f3a;
+  --color-arcade-blue: #5b9bd5;
+  --color-arcade-cyan: #00bcd4;
+  --color-arcade-orange: #ff9933;
+  --color-arcade-pink: #ff6b9d;
+  --color-arcade-yellow: #ffd700;
+  --color-arcade-purple: #9370db;
+  --color-arcade-green: #7cb342;
+  --color-cabinet-wood: #8b4513;
+  --color-screen-green: #33ff00;
+  --color-warning-red: #ff3333;
+  --color-gray-1: #e8dfd0;
+  --color-gray-2: #b8a890;
+  --color-gray-3: #665544;
+  --color-gray-4: #2a2520;
+}
