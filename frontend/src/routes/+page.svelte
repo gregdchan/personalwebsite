@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
   import type { Page } from '../lib/types/page';
   import ProjectsArcade from '$lib/sections/ProjectsArcade.svelte';
   import PlayerStats from '$lib/sections/PlayerStats.svelte';
@@ -19,6 +22,16 @@
   const about = sections.find((s: any) => s?._type === 'about') ?? null;
   const skills = sections.find((s: any) => s?._type === 'skills' || s?._type === 'skillsCloud') ?? null;
   const projects = data.projects ?? [];
+
+  // Check for first visit and redirect to game
+  onMount(() => {
+    if (browser && typeof sessionStorage !== 'undefined') {
+      const gameCompleted = sessionStorage.getItem('gameCompleted');
+      if (!gameCompleted) {
+        goto('/game');
+      }
+    }
+  });
 </script>
 
 {#if hero}
