@@ -3,11 +3,28 @@
 
 	let { blocks = [] }: { blocks: any[] } = $props();
 
+	function escapeHtml(value: string): string {
+		return value
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#39;');
+	}
+
+	function safeHref(href: string | undefined): string {
+		if (!href) return '#';
+		if (href.startsWith('/')) return href;
+		if (href.startsWith('#')) return href;
+		if (/^(https?:|mailto:|tel:)/i.test(href)) return href;
+		return '#';
+	}
+
 	function getChildren(block: any): string {
 		return (block.children || [])
 			.map((child: any) => {
 				if (!child.text) return '';
-				let text = child.text;
+				let text = escapeHtml(child.text);
 
 				const marks: string[] = child.marks || [];
 				const markDefs: any[] = block.markDefs || [];
@@ -24,7 +41,7 @@
 				if (linkMark) {
 					const def = markDefs.find((d: any) => d._key === linkMark);
 					const target = def.blank ? ' target="_blank" rel="noopener noreferrer"' : '';
-					text = `<a href="${def.href}" class="text-primary-400 underline underline-offset-2 hover:text-primary-300 transition-colors"${target}>${text}</a>`;
+					text = `<a href="${safeHref(def?.href)}" class="text-primary-400 underline underline-offset-2 hover:text-primary-300 transition-colors"${target}>${text}</a>`;
 				}
 
 				return text;

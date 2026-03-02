@@ -40,11 +40,11 @@ RUN npm install --omit=dev
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
 
-# Railway sets PORT dynamically — default to 3000 for local testing
+# Railway sets PORT dynamically — default to 8080 for local parity
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 
-EXPOSE $PORT
+EXPOSE 8080
 
 # SvelteKit with adapter-node listens on PORT env
 CMD ["node", "build"]

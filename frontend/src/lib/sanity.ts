@@ -4,16 +4,63 @@ import type { DesignToken } from '$lib/types/designToken';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'placeholder';
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
+const configuredUseCdn = import.meta.env.VITE_SANITY_USE_CDN;
+const useCdn = configuredUseCdn ? configuredUseCdn !== 'false' : true;
 
 export const client = createClient({
   projectId: projectId === 'placeholder' ? 'smxz6rsz' : projectId,
   dataset,
   apiVersion: '2024-01-01',
-  useCdn: import.meta.env.PROD,
+  useCdn,
   perspective: 'published' // previewDrafts requires a token!
 });
 
 const builder = imageUrlBuilder(client);
+const cache = new Map<string, { expires: number; value: unknown }>();
+const inflight = new Map<string, Promise<unknown>>();
+const SANITY_TIMEOUT_MS = 3000;
+const TTL_PAGE_MS = 2 * 60 * 1000;
+const TTL_META_MS = 5 * 60 * 1000;
+
+function cacheKey(scope: string, params?: unknown): string {
+  return `${scope}:${params ? JSON.stringify(params) : ''}`;
+}
+
+async function withCache<T>(key: string, ttlMs: number, load: () => Promise<T>): Promise<T> {
+  const now = Date.now();
+  const hit = cache.get(key);
+  if (hit && hit.expires > now) return hit.value as T;
+
+  const pending = inflight.get(key);
+  if (pending) return pending as Promise<T>;
+
+  const request = load()
+    .then((value) => {
+      cache.set(key, { value, expires: Date.now() + ttlMs });
+      inflight.delete(key);
+      return value;
+    })
+    .catch((err) => {
+      inflight.delete(key);
+      throw err;
+    });
+
+  inflight.set(key, request as Promise<unknown>);
+  return request;
+}
+
+async function fetchPublished<T>(
+  query: string,
+  params: Record<string, unknown> = {},
+  timeoutMs = SANITY_TIMEOUT_MS
+): Promise<T> {
+  return Promise.race([
+    client.fetch(query, params, { perspective: 'published' }),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Sanity request timed out')), timeoutMs)
+    )
+  ]) as Promise<T>;
+}
 
 export function urlFor(source: any) {
   return builder.image(source);
@@ -46,13 +93,15 @@ const SECTION_PROJECTION = `[]{
     image{alt, asset->{url, metadata{dimensions}}},
     icon{alt, asset->{url, metadata{dimensions}}}
   },
+  logos[]{
+    ...,
+    logo{alt, asset->{url, metadata{dimensions}}}
+  },
   items[]{
     ...,
     image{alt, asset->{url, metadata{dimensions}}},
     icon{alt, asset->{url, metadata{dimensions}}},
-    photo{alt, asset->{url, metadata{dimensions}}},
-    body${PORTABLE_TEXT_PROJECTION},
-    description${PORTABLE_TEXT_PROJECTION}
+    photo{alt, asset->{url, metadata{dimensions}}}
   },
   _type == "projectGrid" => {
     ...,
@@ -95,7 +144,9 @@ export async function getNavigation(): Promise<any | null> {
     }
   }`;
   try {
-    return await client.fetch(query, {}, { perspective: 'published' });
+    return await withCache(cacheKey('navigation'), TTL_META_MS, async () =>
+      fetchPublished(query)
+    );
   } catch {
     return null;
   }
@@ -119,7 +170,9 @@ export async function getDesignTokens(): Promise<{ light: DesignToken | null; da
     }
   }`;
   try {
-    return await client.fetch(query, {}, { perspective: 'published' });
+    return await withCache(cacheKey('designTokens'), TTL_META_MS, async () =>
+      fetchPublished(query)
+    );
   } catch {
     return { light: null, dark: null };
   }
@@ -137,7 +190,9 @@ export async function getHomepage(): Promise<any | null> {
     sections${SECTION_PROJECTION}
   }`;
   try {
-    return await client.fetch(query, {}, { perspective: 'published' });
+    return await withCache(cacheKey('homepage'), TTL_PAGE_MS, async () =>
+      fetchPublished(query)
+    );
   } catch {
     return null;
   }
@@ -156,7 +211,9 @@ export async function getPageBySlug(slug: string): Promise<any | null> {
     sections${SECTION_PROJECTION}
   }`;
   try {
-    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+    return await withCache(cacheKey('pageBySlug', resolvedSlug), TTL_PAGE_MS, async () =>
+      fetchPublished(query, { slug: resolvedSlug })
+    );
   } catch {
     return null;
   }
@@ -188,15 +245,15 @@ export async function getProjects(options: {
     "externalUrl": coalesce(liveUrl, url)
   }`;
 
+  const fetchParams = {
+    limit: options.limit ?? 24,
+    featuredOnly: options.featuredOnly ?? false,
+    category: options.category ?? ''
+  };
+
   try {
-    const projects = await client.fetch(
-      query,
-      {
-        limit: options.limit ?? 50,
-        featuredOnly: options.featuredOnly ?? false,
-        category: options.category ?? ''
-      },
-      { perspective: 'published' }
+    const projects = await withCache(cacheKey('projects', fetchParams), TTL_PAGE_MS, async () =>
+      fetchPublished(query, fetchParams)
     );
     return projects ?? [];
   } catch {
@@ -243,7 +300,9 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
     }
   }`;
   try {
-    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+    return await withCache(cacheKey('projectBySlug', resolvedSlug), TTL_PAGE_MS, async () =>
+      fetchPublished(query, { slug: resolvedSlug })
+    );
   } catch {
     return null;
   }
@@ -269,11 +328,10 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
     featured
   }`;
 
+  const fetchParams = { limit: options.limit ?? 24, featuredOnly: options.featuredOnly ?? false };
   try {
-    const posts = await client.fetch(
-      query,
-      { limit: options.limit ?? 20, featuredOnly: options.featuredOnly ?? false },
-      { perspective: 'published' }
+    const posts = await withCache(cacheKey('posts', fetchParams), TTL_PAGE_MS, async () =>
+      fetchPublished(query, fetchParams)
     );
     return posts ?? [];
   } catch {
@@ -302,7 +360,9 @@ export async function getPostBySlug(slug: string): Promise<any | null> {
     body${PORTABLE_TEXT_PROJECTION}
   }`;
   try {
-    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+    return await withCache(cacheKey('postBySlug', resolvedSlug), TTL_PAGE_MS, async () =>
+      fetchPublished(query, { slug: resolvedSlug })
+    );
   } catch {
     return null;
   }
@@ -314,7 +374,9 @@ export async function getErrorPages(): Promise<{ notFound: any | null; generic: 
     "generic": *[_type == "errorPage" && key == "generic"][0]{ title, message, ctaLabel, ctaHref }
   }`;
   try {
-    return await client.fetch(query, {}, { perspective: 'published' });
+    return await withCache(cacheKey('errorPages'), TTL_META_MS, async () =>
+      fetchPublished(query)
+    );
   } catch {
     return { notFound: null, generic: null };
   }
