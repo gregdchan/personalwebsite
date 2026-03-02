@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { Navigation, NavigationItem } from '$lib/types/navigation';
-	import { onMount } from 'svelte';
-	import { fade, slide } from 'svelte/transition';
 	import { Menu, X, Sun, Moon } from 'lucide-svelte';
+	import { page } from '$app/state';
 
 	let {
 		navigation = null,
@@ -17,20 +16,10 @@
 	} = $props();
 
 	let isMenuOpen = $state(false);
-	let isScrolled = $state(false);
 
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
 	}
-
-	function handleScroll() {
-		isScrolled = window.scrollY > 20;
-	}
-
-	onMount(() => {
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	});
 
 	function href(item: NavigationItem) {
 		if ((item as any)?.href) return (item as any).href;
@@ -44,116 +33,246 @@
 		return slug ? `/${slug}` : '#';
 	}
 
-	const navItems = navigation?.items ?? [
-		{ text: 'Work', link: '/work' },
-		{ text: 'About', link: '/about' },
-		{ text: 'Contact', link: '/contact' }
-	];
+	const navItems = $derived(
+		navigation?.items?.length
+			? navigation.items
+			: [
+					{ text: 'Work', link: '/work', href: '/work' },
+					{ text: 'Play', link: '/play', href: '/play' },
+					{ text: 'About', link: '/about', href: '/about' },
+					{ text: 'Contact', link: '/contact', href: '/contact' }
+				]
+	);
+
+	function isActive(item: NavigationItem) {
+		const target = href(item);
+		if (!target || target === '#') return false;
+		if (target === '/') return page.url.pathname === '/';
+		return page.url.pathname === target || page.url.pathname.startsWith(`${target}/`);
+	}
 </script>
 
-<header
-	class="fixed top-0 right-0 left-0 z-50 border-b border-white/5 backdrop-blur-md transition-all duration-300 {isScrolled
-		? 'bg-surface-900/80 py-2'
-		: 'py-4'}"
-	style="background-color: {isScrolled
-		? 'var(--color-header-bg, rgba(15, 23, 42, 0.8))'
-		: 'transparent'}; color: var(--color-header-text, inherit);"
->
-	<div class="mx-auto flex max-w-7xl items-center justify-between px-6">
-		<!-- Logo -->
-		<a href="/" class="group flex items-center gap-2">
-			<div
-				class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500 font-bold text-white shadow-lg shadow-primary-500/20 transition-transform group-hover:rotate-12"
-			>
-				G
-			</div>
-			<span class="hidden text-xl font-bold tracking-tight sm:block">Greg D. Chan</span>
-		</a>
+<header class="site-header">
+	<div class="header-inner">
+	<a href="/" class="brand" aria-label="Home">
+		{#if logoUrl}
+			<img src={logoUrl} alt="Greg D. Chan logo" class="brand-logo" />
+		{:else}
+			<div class="brand-mark">GC</div>
+		{/if}
+		<div class="brand-copy">
+			<strong>Greg D. Chan</strong>
+			<span>Design + Creative Technology</span>
+		</div>
+	</a>
 
-		<!-- Desktop Nav -->
-		<nav class="hidden items-center gap-8 md:flex">
+		<nav class="desktop-nav">
 			{#each navItems as item}
 				<a
 					href={href(item)}
-					class="group relative text-sm font-medium opacity-70 transition-opacity hover:opacity-100"
+					target={(item as any)?.target || '_self'}
+					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
+					class:active={isActive(item)}
 				>
 					{item.text}
-					<span
-						class="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary-500 transition-all group-hover:w-full"
-					></span>
 				</a>
 			{/each}
-
-			<div class="mx-2 h-4 w-[1px] bg-white/10"></div>
-
-			<!-- Theme Switcher -->
-			<button
-				onclick={onToggleTheme}
-				class="rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10"
-				aria-label="Toggle Theme"
-			>
-				{#if currentMode === 'dark'}
-					<Sun size={18} class="text-amber-400" />
-				{:else}
-					<Moon size={18} class="text-indigo-400" />
-				{/if}
-			</button>
 		</nav>
 
-		<!-- Mobile Menu Toggle -->
-		<div class="flex items-center gap-2 md:hidden">
-			<button
-				onclick={onToggleTheme}
-				class="rounded-lg p-2 transition-colors hover:bg-white/5"
-				aria-label="Toggle Theme"
-			>
+		<div class="header-actions">
+			<button onclick={onToggleTheme} aria-label="Toggle theme" class="theme-btn">
 				{#if currentMode === 'dark'}
-					<Sun size={20} class="text-amber-400" />
+					<Sun size={17} />
 				{:else}
-					<Moon size={20} class="text-indigo-400" />
+					<Moon size={17} />
 				{/if}
 			</button>
-
-			<button
-				class="rounded-lg p-2 transition-colors hover:bg-white/5"
-				onclick={toggleMenu}
-				aria-label="Toggle Menu"
-			>
+			<button class="menu-btn" onclick={toggleMenu} aria-label="Toggle menu">
 				{#if isMenuOpen}
-					<X size={24} />
+					<X size={20} />
 				{:else}
-					<Menu size={24} />
+					<Menu size={20} />
 				{/if}
 			</button>
 		</div>
 	</div>
 
-	<!-- Mobile Nav Overlay -->
 	{#if isMenuOpen}
-		<div
-			class="absolute top-full right-0 left-0 flex flex-col gap-4 border-b border-white/5 bg-surface-900 px-6 py-4 shadow-2xl md:hidden"
-			transition:slide={{ duration: 300 }}
-		>
+		<nav class="mobile-nav">
 			{#each navItems as item}
 				<a
 					href={href(item)}
-					class="py-2 text-lg font-medium opacity-80 transition-opacity hover:opacity-100"
+					target={(item as any)?.target || '_self'}
+					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
 					onclick={() => (isMenuOpen = false)}
 				>
 					{item.text}
 				</a>
 			{/each}
-		</div>
+		</nav>
 	{/if}
 </header>
 
-<div class="h-20 lg:h-24"></div>
-
-<!-- Spacer -->
+<div class="header-spacer" aria-hidden="true"></div>
 
 <style>
-	header {
-		/* Subtle glow for tech-savvy look */
-		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+	.site-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		backdrop-filter: blur(12px);
+		background: rgba(2, 6, 23, 0.6);
+		border-bottom: 1px solid var(--color-edge);
+	}
+
+	.header-inner {
+		height: 72px;
+		max-width: 1160px;
+		margin: 0 auto;
+		padding: 0 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.brand-mark {
+		display: grid;
+		place-items: center;
+		width: 38px;
+		height: 38px;
+		border-radius: 10px;
+		background: linear-gradient(140deg, #0ea5e9, #2563eb);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.07em;
+		color: white;
+		box-shadow: 0 10px 28px rgba(14, 116, 144, 0.32);
+	}
+
+	.brand-logo {
+		width: 38px;
+		height: 38px;
+		border-radius: 10px;
+		object-fit: cover;
+		border: 1px solid var(--color-edge);
+	}
+
+	.brand-copy {
+		display: none;
+		line-height: 1.1;
+	}
+
+	.brand-copy strong {
+		font-size: 0.92rem;
+		font-weight: 600;
+	}
+
+	.brand-copy span {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: 0.63rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-muted-text);
+		margin-top: 0.2rem;
+	}
+
+	.desktop-nav {
+		display: none;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.desktop-nav a {
+		text-decoration: none;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		padding: 0.42rem 0.62rem;
+		border-radius: 999px;
+		color: var(--color-muted-text);
+		border: 1px solid transparent;
+		transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+	}
+
+	.desktop-nav a:hover {
+		color: var(--color-body-text);
+		border-color: var(--color-edge);
+		background: rgba(148, 163, 184, 0.08);
+	}
+
+	.desktop-nav a.active {
+		color: white;
+		border-color: rgba(56, 189, 248, 0.4);
+		background: rgba(14, 116, 144, 0.2);
+	}
+
+	.header-actions {
+		display: flex;
+		gap: 0.45rem;
+	}
+
+	.theme-btn,
+	.menu-btn {
+		width: 34px;
+		height: 34px;
+		border-radius: 9px;
+		border: 1px solid var(--color-edge);
+		background: rgba(15, 23, 42, 0.5);
+		color: inherit;
+		display: grid;
+		place-items: center;
+	}
+
+	.mobile-nav {
+		display: grid;
+		padding: 0.4rem 1rem 1rem;
+		max-width: 1160px;
+		margin: 0 auto;
+		gap: 0.4rem;
+	}
+
+	.mobile-nav a {
+		text-decoration: none;
+		color: var(--color-body-text);
+		padding: 0.62rem 0.8rem;
+		border-radius: 0.75rem;
+		border: 1px solid var(--color-edge);
+		background: rgba(15, 23, 42, 0.45);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+	}
+
+	.header-spacer {
+		height: 72px;
+	}
+
+	@media (min-width: 760px) {
+		.brand-copy {
+			display: block;
+		}
+
+		.desktop-nav {
+			display: flex;
+		}
+
+		.menu-btn {
+			display: none;
+		}
 	}
 </style>

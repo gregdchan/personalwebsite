@@ -1,19 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @import 'tailwindcss';
-
-/* Skeleton UI Styles — must come after tailwindcss */
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton-svelte';
-
-/* Skeleton UI Theme */
 @import '@skeletonlabs/skeleton/themes/cerberus';
 
 @theme {
-  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Sora', 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Map Skeleton variables to Tailwind theme */
   --color-surface-50: oklch(var(--color-surface-50) / <alpha-value>);
   --color-surface-100: oklch(var(--color-surface-100) / <alpha-value>);
   --color-surface-200: oklch(var(--color-surface-200) / <alpha-value>);
@@ -51,19 +47,45 @@
   --color-secondary-950: oklch(var(--color-secondary-950) / <alpha-value>);
 }
 
-/* Base styles */
 :root {
-  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Sora', 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-body-text: #e6edf8;
+  --color-muted-text: rgba(203, 213, 225, 0.76);
+  --heading-color: #f8fbff;
+
+  --color-panel: rgba(15, 23, 42, 0.58);
+  --color-chip: rgba(148, 163, 184, 0.16);
+  --color-edge: rgba(148, 163, 184, 0.2);
+  --color-accent: #38bdf8;
+  --color-accent-alt: #2dd4bf;
+}
+
+html,
+body {
+  min-height: 100%;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-page-bg, oklch(var(--color-surface-950)));
-  color: var(--color-body-text, oklch(var(--color-surface-100)));
+  color: var(--color-body-text);
 }
 
-/* ─── Compatibility shims for Skeleton v3 utility classes ─── */
-/* These map the Skeleton v3 naming convention to the underlying variables */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+a {
+  color: inherit;
+}
+
 .bg-surface-50-950 {
   background-color: oklch(var(--color-surface-950) / 1);
 }
@@ -80,10 +102,9 @@ body {
   color: oklch(var(--color-surface-100) / 1);
 }
 
-/* Portable text typography */
 .portable-text strong {
   font-weight: 700;
-  color: white;
+  color: #fff;
 }
 
 .portable-text em {

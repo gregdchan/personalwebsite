@@ -5,12 +5,6 @@ import type { DesignToken } from '$lib/types/designToken';
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'placeholder';
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
 
-if (projectId === 'placeholder' || !projectId) {
-  console.error('[sanity] ERROR: VITE_SANITY_PROJECT_ID is missing or set to placeholder! Check your .env file or build settings.');
-} else {
-  console.log(`[sanity] Initializing client for project: ${projectId}, dataset: ${dataset}`);
-}
-
 export const client = createClient({
   projectId: projectId === 'placeholder' ? 'smxz6rsz' : projectId,
   dataset,
@@ -25,20 +19,77 @@ export function urlFor(source: any) {
   return builder.image(source);
 }
 
-// Minimal queries (avoid fancy projections to keep it robust)
+const IMAGE_PROJECTION = `{
+  alt,
+  asset->{url, metadata{dimensions}}
+}`;
+
+const PORTABLE_TEXT_PROJECTION = `[]{
+  ...,
+  _type == "image" => { ..., asset->{url, metadata{dimensions}} },
+  markDefs[]{ ..., _type == "link" => { href, blank } }
+}`;
+
+const SECTION_PROJECTION = `[]{
+  ...,
+  image{alt, asset->{url, metadata{dimensions}}},
+  backgroundImage{alt, asset->{url, metadata{dimensions}}},
+  posterImage{alt, asset->{url, metadata{dimensions}}},
+  mainImage{alt, asset->{url, metadata{dimensions}}},
+  photo{alt, asset->{url, metadata{dimensions}}},
+  logo{alt, asset->{url, metadata{dimensions}}},
+  companyLogo{alt, asset->{url, metadata{dimensions}}},
+  images[]{..., asset->{url, metadata{dimensions}}},
+  testimonials[]{..., photo{alt, asset->{url, metadata{dimensions}}}},
+  features[]{
+    ...,
+    image{alt, asset->{url, metadata{dimensions}}},
+    icon{alt, asset->{url, metadata{dimensions}}}
+  },
+  items[]{
+    ...,
+    image{alt, asset->{url, metadata{dimensions}}},
+    icon{alt, asset->{url, metadata{dimensions}}},
+    photo{alt, asset->{url, metadata{dimensions}}},
+    body${PORTABLE_TEXT_PROJECTION},
+    description${PORTABLE_TEXT_PROJECTION}
+  },
+  _type == "projectGrid" => {
+    ...,
+    "items": *[_type in ["project", "portfolioProject"] && defined(slug.current)]
+      | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
+      [0...coalesce(^.limit, 6)]{
+      _id,
+      _type,
+      title,
+      excerpt,
+      slug,
+      "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
+      "tags": coalesce(tags[]->title, tags[]),
+      "category": coalesce(category, categories[0]->title, portfolioType),
+      year,
+      featured
+    }
+  }
+}`;
+
+function cleanSlug(slug: string): string {
+  return (slug || '').replace(/^\/+|\/+$/g, '');
+}
+
 export async function getNavigation(): Promise<any | null> {
   const query = `*[_type == "navigation"][0]{
+    title,
     items[]{
       text,
+      target,
       link,
       "href": select(
-        link.internal->isIndexPage == true => "/",
-        defined(link.external) => link.external,
-        defined(link.url) => link.url,
+        link.linkType == "external" && defined(link.external) => link.external,
+        defined(link.internal->_type) && link.internal->_type == "blogPost" && defined(link.internal->slug.current) => "/play/" + link.internal->slug.current,
+        defined(link.internal->_type) && link.internal->_type == "page" && link.internal->isIndexPage == true => "/",
         defined(link.internal->slug.current) => "/" + link.internal->slug.current,
-        defined(link->slug.current) => "/" + link->slug.current,
-        defined(link.slug.current) => "/" + link.slug.current,
-        defined(link.slug) => "/" + link.slug,
+        defined(link.href) => link.href,
         true => null
       )
     }
@@ -76,22 +127,14 @@ export async function getDesignTokens(): Promise<{ light: DesignToken | null; da
 
 export async function getHomepage(): Promise<any | null> {
   const query = `*[_type == "page" && isIndexPage == true][0]{
+    _id,
+    _type,
     title,
     description,
-    "hero": sections[_type in ["hero","pictureHero","videoHero"]][0]{
-      _type,
-      "heading": coalesce(heading, title),
-      "subheading": coalesce(subheading, subtitle),
-      backgroundType,
-      backgroundImage{
-        alt,
-        asset->{ url }
-      },
-      backgroundVideo,
-      backgroundColor,
-      secondaryColor,
-      cta
-    }
+    slug,
+    mainImage${IMAGE_PROJECTION},
+    body${PORTABLE_TEXT_PROJECTION},
+    sections${SECTION_PROJECTION}
   }`;
   try {
     return await client.fetch(query, {}, { perspective: 'published' });
@@ -101,83 +144,166 @@ export async function getHomepage(): Promise<any | null> {
 }
 
 export async function getPageBySlug(slug: string): Promise<any | null> {
-  const cleanSlug = slug.startsWith('/') ? slug.substring(1) : slug;
-  console.log(`[sanity] Fetching page for slug: "${cleanSlug}"`);
-
-  // In DEV, we want to see drafts. In PROD, only published.
-  const useCdn = import.meta.env.PROD;
-
-  // Take the first matching document
-  const query = /* groq */ `*[_type == "page" && slug.current == $slug][0]{
+  const resolvedSlug = cleanSlug(slug);
+  const query = `*[_type == "page" && slug.current == $slug][0]{
     _id,
     _type,
     title,
     description,
-    mainImage{ alt, asset->{url} },
-    body[]{
-      ...,
-      _type == "image" => { ..., asset->{url} },
-      markDefs[]{ ..., _type == "link" => { href, blank } }
-    },
-    sections[]{
-      ...,
-      "image": coalesce(image, backgroundImage, logo, companyLogo){ alt, asset->{url} },
-      "items": coalesce(items, features, images, testimonials, skillsList, logos)[]{
-        ...,
-        "image": coalesce(image, icon, photo, logo, companyLogo){ alt, asset->{url} },
-        body[]{ ..., _type == "image" => { ..., asset->{url} } },
-        description[]{ ..., _type == "image" => { ..., asset->{url} } }
-      },
-      // Special case: inject projects for grids
-      (_type == "projectGrid" || _type == "projectsGrid") => {
-        "items": *[_type == "project"] | order(year desc, _updatedAt desc){
-          _id, title, excerpt, slug, cover{alt, asset->{url}}, tags, category, year
-        }
-      }
-    }
+    slug,
+    mainImage${IMAGE_PROJECTION},
+    body${PORTABLE_TEXT_PROJECTION},
+    sections${SECTION_PROJECTION}
   }`;
-
   try {
-    const result = await client.fetch(query, { slug: cleanSlug });
-
-    if (!result) {
-      console.warn(`[sanity] 404 - No document found with slug: "${cleanSlug}"`);
-      // Try one more time looking for the base slug without any hierarchy
-      if (cleanSlug.includes('/')) {
-        const lastPart = cleanSlug.split('/').pop();
-        return getPageBySlug(lastPart!);
-      }
-    } else {
-      console.log(`[sanity] 200 - Successfully loaded: "${result.title}"`);
-    }
-    return result;
-  } catch (e) {
-    console.error(`[sanity] Error fetching page "${cleanSlug}":`, e);
+    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+  } catch {
     return null;
   }
 }
 
-export async function getProjectBySlug(slug: string): Promise<any | null> {
-  const cleanSlug = slug.startsWith('/') ? slug.substring(1) : slug;
-  console.log(`[sanity] Fetching project for slug: "${cleanSlug}"`);
-
-  const query = /* groq */ `*[_type == "project" && slug.current == $slug][0]{
-    ...,
-    cover{ alt, asset->{url} },
-    gallery[]{ ..., asset->{url} },
-    body[]{
-      ...,
-      _type == "image" => { ..., asset->{url} },
-      markDefs[]{ ..., _type == "link" => { href, blank } }
-    },
-    client{ logo{asset->{url}}, name },
-    results[]{ ..., icon{asset->{url}} }
+export async function getProjects(options: {
+  limit?: number;
+  featuredOnly?: boolean;
+  category?: string;
+} = {}): Promise<any[]> {
+  const query = `*[
+    _type in ["project", "portfolioProject"]
+    && defined(slug.current)
+    && ($featuredOnly == false || featured == true)
+    && ($category == "" || category == $category || $category in categories[]->slug.current)
+  ] | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
+  [0...$limit]{
+    _id,
+    _type,
+    title,
+    excerpt,
+    slug,
+    "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
+    "tags": coalesce(tags[]->title, tags[]),
+    "category": coalesce(category, categories[0]->title, portfolioType),
+    year,
+    featured,
+    technologies,
+    "externalUrl": coalesce(liveUrl, url)
   }`;
 
   try {
-    return await client.fetch(query, { slug: cleanSlug });
-  } catch (e) {
-    console.error(`[sanity] Error fetching project "${cleanSlug}":`, e);
+    const projects = await client.fetch(
+      query,
+      {
+        limit: options.limit ?? 50,
+        featuredOnly: options.featuredOnly ?? false,
+        category: options.category ?? ''
+      },
+      { perspective: 'published' }
+    );
+    return projects ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getProjectBySlug(slug: string): Promise<any | null> {
+  const resolvedSlug = cleanSlug(slug);
+  const query = `*[
+    _type in ["project", "portfolioProject"]
+    && slug.current == $slug
+  ][0]{
+    _id,
+    _type,
+    title,
+    excerpt,
+    slug,
+    "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
+    "gallery": coalesce(gallery, [])[]{..., asset->{url, metadata{dimensions}}},
+    "tags": coalesce(tags[]->title, tags[]),
+    "category": coalesce(category, categories[0]->title, portfolioType),
+    "categories": coalesce(categories[]->title, []),
+    year,
+    technologies,
+    roles,
+    collaborators,
+    client,
+    goals,
+    "externalUrl": coalesce(liveUrl, url),
+    githubUrl,
+    liveUrl,
+    projectDate,
+    body${PORTABLE_TEXT_PROJECTION},
+    introduction${PORTABLE_TEXT_PROJECTION},
+    challenge${PORTABLE_TEXT_PROJECTION},
+    resultTitle,
+    resultDescription${PORTABLE_TEXT_PROJECTION},
+    caseStudySections[]{
+      title,
+      description,
+      imageA{alt, asset->{url, metadata{dimensions}}},
+      imageB{alt, asset->{url, metadata{dimensions}}}
+    }
+  }`;
+  try {
+    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+  } catch {
+    return null;
+  }
+}
+
+export async function getPosts(options: { limit?: number; featuredOnly?: boolean } = {}): Promise<any[]> {
+  const query = `*[
+    _type in ["post", "blogPost"]
+    && defined(slug.current)
+    && ($featuredOnly == false || featured == true)
+  ] | order(coalesce(publishedAt, _updatedAt) desc)
+  [0...$limit]{
+    _id,
+    _type,
+    title,
+    excerpt,
+    slug,
+    "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
+    publishedAt,
+    "authorName": author->name,
+    "categories": coalesce(categories[]->title, []),
+    "tags": coalesce(tags[]->title, tags[]),
+    featured
+  }`;
+
+  try {
+    const posts = await client.fetch(
+      query,
+      { limit: options.limit ?? 20, featuredOnly: options.featuredOnly ?? false },
+      { perspective: 'published' }
+    );
+    return posts ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getPostBySlug(slug: string): Promise<any | null> {
+  const resolvedSlug = cleanSlug(slug);
+  const query = `*[
+    _type in ["post", "blogPost"]
+    && slug.current == $slug
+  ][0]{
+    _id,
+    _type,
+    title,
+    excerpt,
+    slug,
+    "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
+    publishedAt,
+    updatedAt,
+    "authorName": author->name,
+    "categories": coalesce(categories[]->title, []),
+    "tags": coalesce(tags[]->title, tags[]),
+    seo,
+    body${PORTABLE_TEXT_PROJECTION}
+  }`;
+  try {
+    return await client.fetch(query, { slug: resolvedSlug }, { perspective: 'published' });
+  } catch {
     return null;
   }
 }

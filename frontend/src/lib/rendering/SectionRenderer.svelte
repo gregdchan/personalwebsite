@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Hero from '$lib/sections/Hero.svelte';
 	import TechHero from '$lib/sections/TechHero.svelte';
 	import PictureHero from '$lib/sections/PictureHero.svelte';
 	import VideoHero from '$lib/sections/VideoHero.svelte';
@@ -45,7 +44,7 @@
 	};
 </script>
 
-{#each sections as section (section._key || Math.random().toString())}
+{#each sections as section, index (section._key || `${section._type}-${index}`)}
 	{@const Component = sectionMap[section._type] || UnknownSection}
 	<div id={section._type}>
 		<Component {section} />

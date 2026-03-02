@@ -11,8 +11,6 @@
 	// If passed via SectionRenderer, 'section' will contain the data
 	const displayTitle = section?.heading || section?.title || title;
 	const displayItems = section?.items || section?.projects || items;
-
-	let hoveredIndex = $state(-1);
 </script>
 
 <section id="projects" class="py-24 lg:py-32">
@@ -38,12 +36,10 @@
 		</div>
 
 		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-			{#each displayItems as project, i}
+			{#each displayItems as project}
 				<a
-					href={`/${project.slug?.current || project.slug || project.title.toLowerCase().replace(/\s+/g, '-')}`}
+					href={`/work/${project.slug?.current || project.slug || project.title.toLowerCase().replace(/\s+/g, '-')}`}
 					class="group relative block overflow-hidden rounded-2xl border border-white/5 bg-surface-800/30 shadow-2xl transition-transform hover:-translate-y-2"
-					onmouseenter={() => (hoveredIndex = i)}
-					onmouseleave={() => (hoveredIndex = -1)}
 				>
 					<!-- Project Image / Mockup Placeholder -->
 					<div class="relative aspect-[16/10] overflow-hidden bg-surface-700">
@@ -51,6 +47,8 @@
 							<img
 								src={(project.cover || project.image).asset.url}
 								alt={project.title}
+								loading="lazy"
+								decoding="async"
 								class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
 							/>
 						{:else}

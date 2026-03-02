@@ -25,7 +25,7 @@
 
   function handleProjectOpen(detail: { project: any }) {
     const project = detail.project;
-    window.location.href = `/${project.slug?.current || project.slug}`;
+    window.location.href = `/work/${project.slug?.current || project.slug}`;
   }
 </script>
 

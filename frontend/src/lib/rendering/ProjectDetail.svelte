@@ -8,185 +8,413 @@
 	const excerpt = project?.excerpt || '';
 	const cover = project?.cover?.asset?.url;
 	const body = project?.body || [];
+	const intro = project?.introduction || [];
+	const challenge = project?.challenge || [];
+	const resultDescription = project?.resultDescription || [];
 	const tags = project?.tags || [];
 	const year = project?.year;
-	const client = project?.client;
-	const results = project?.results || [];
 	const gallery = project?.gallery || [];
+	const caseStudySections = project?.caseStudySections || [];
+	const technologies = project?.technologies || [];
+	const roles = project?.roles || [];
+	const collaborators = project?.collaborators || [];
+	const liveUrl = project?.externalUrl || project?.liveUrl || project?.url;
+
+	const clientLabel =
+		typeof project?.client === 'string'
+			? project.client
+			: project?.client?.name || project?.client?.title || null;
+
+	const contentBlocks =
+		intro.length > 0 || challenge.length > 0 || resultDescription.length > 0
+			? [
+					{ heading: 'Introduction', blocks: intro },
+					{ heading: 'Challenge', blocks: challenge },
+					{ heading: project?.resultTitle || 'Result', blocks: resultDescription }
+				].filter((section) => section.blocks?.length > 0)
+			: [];
 </script>
 
-<div class="project-detail animate-fade-in pb-20">
-	<!-- Hero Section -->
-	<header class="relative h-[60vh] min-h-[500px] w-full overflow-hidden bg-surface-900">
+<article class="project-detail">
+	<header class="hero">
 		{#if cover}
-			<img
-				src={cover}
-				alt={title}
-				class="h-full w-full object-cover opacity-50 grayscale transition-all duration-1000 hover:grayscale-0"
-			/>
+			<img src={cover} alt={title} class="hero-image" />
 		{/if}
-		<div
-			class="absolute inset-0 bg-gradient-to-t from-surface-950 via-surface-950/40 to-transparent"
-		></div>
-
-		<div class="absolute inset-0 flex items-end">
-			<div class="container mx-auto max-w-7xl px-6 pb-16 lg:px-16">
-				<a
-					href="/work"
-					class="mb-8 inline-flex items-center gap-2 text-sm font-medium text-surface-400 transition-colors hover:text-primary-500"
-				>
-					<ArrowLeft size={16} /> Back to Work
-				</a>
-				<div class="mb-4 flex flex-wrap items-center gap-3">
-					{#each tags as tag}
-						<span
-							class="rounded-full border border-primary-500/20 bg-primary-500/10 px-3 py-1 font-mono text-xs tracking-widest text-primary-400 uppercase"
-							>{tag}</span
-						>
-					{/each}
-					{#if year}
-						<span class="font-mono text-xs tracking-widest text-surface-500 uppercase">{year}</span>
-					{/if}
-				</div>
-				<h1 class="mb-4 text-5xl font-black tracking-tighter text-white lg:text-7xl">{title}</h1>
-				{#if excerpt}
-					<p class="max-w-2xl text-xl leading-relaxed font-medium text-surface-300">{excerpt}</p>
+		<div class="hero-overlay"></div>
+		<div class="hero-copy">
+			<a href="/work" class="back-link"><ArrowLeft size={16} /> Back to Work</a>
+			<div class="meta-line">
+				{#if project?.category}
+					<span>{project.category}</span>
+				{/if}
+				{#if year}
+					<span>{year}</span>
 				{/if}
 			</div>
+			<h1>{title}</h1>
+			{#if excerpt}
+				<p>{excerpt}</p>
+			{/if}
 		</div>
 	</header>
 
-	<!-- Main Content Info -->
-	<div class="container mx-auto max-w-7xl px-6 pt-16 lg:px-16">
-		<div class="grid gap-16 lg:grid-cols-[1fr_350px]">
-			<!-- Body Content -->
-			<div>
-				{#if body.length > 0}
-					<div class="prose prose-invert prose-lg max-w-none">
-						<PortableText blocks={body} />
-					</div>
-				{:else}
-					<div class="rounded-2xl border border-white/5 bg-white/5 p-12 text-center">
-						<p class="text-surface-500">Case study content coming soon...</p>
-					</div>
-				{/if}
+	<div class="content-shell">
+		<div class="content-main">
+			{#if body.length > 0}
+				<section class="content-block">
+					<PortableText blocks={body} />
+				</section>
+			{/if}
 
-				<!-- Results/KPIs -->
-				{#if results.length > 0}
-					<div class="mt-16 grid gap-6 sm:grid-cols-2">
-						{#each results as res}
-							<div class="rounded-2xl border border-white/5 bg-white/5 p-6">
-								<div
-									class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500/10 text-primary-500"
-								>
-									{#if res.icon?.asset?.url}
-										<img src={res.icon.asset.url} alt="" class="h-6 w-6" />
-									{:else}
-										<div class="h-2 w-2 rounded-full bg-current"></div>
+			{#each contentBlocks as block}
+				<section class="content-block">
+					<h2>{block.heading}</h2>
+					<PortableText blocks={block.blocks} />
+				</section>
+			{/each}
+
+			{#if caseStudySections.length > 0}
+				<section class="content-block">
+					<h2>Case Study</h2>
+					<div class="split-gallery">
+						{#each caseStudySections as section}
+							<article class="case-card">
+								<h3>{section.title}</h3>
+								{#if section.description}
+									<p>{section.description}</p>
+								{/if}
+								<div class="case-media">
+									{#if section.imageA?.asset?.url}
+										<img src={section.imageA.asset.url} alt={section.imageA?.alt || section.title} />
+									{/if}
+									{#if section.imageB?.asset?.url}
+										<img src={section.imageB.asset.url} alt={section.imageB?.alt || section.title} />
 									{/if}
 								</div>
-								<h4 class="mb-2 text-lg font-bold text-white">{res.title}</h4>
-								<p class="text-sm leading-relaxed text-surface-400">{res.text}</p>
-							</div>
+							</article>
 						{/each}
 					</div>
+				</section>
+			{/if}
+		</div>
+
+		<aside class="content-aside">
+			<section>
+				<h3>Overview</h3>
+				{#if clientLabel}
+					<p><strong>Client</strong> {clientLabel}</p>
 				{/if}
-			</div>
+				{#if roles.length > 0}
+					<p><strong>Roles</strong> {roles.join(', ')}</p>
+				{/if}
+				{#if collaborators.length > 0}
+					<p><strong>Collaborators</strong> {collaborators.join(', ')}</p>
+				{/if}
+			</section>
 
-			<!-- Sidebar Info -->
-			<aside class="space-y-12">
-				<!-- Project Meta -->
-				<div class="space-y-8 rounded-2xl border border-white/5 bg-surface-800/30 p-8 pt-6">
-					{#if client}
-						<div>
-							<h4
-								class="mb-3 font-mono text-xs font-bold tracking-widest text-surface-500 uppercase"
-							>
-								Client
-							</h4>
-							<div class="flex items-center gap-3">
-								{#if client.logo?.asset?.url}
-									<img src={client.logo.asset.url} alt={client.name} class="h-8 w-auto grayscale" />
-								{/if}
-								<span class="text-lg font-semibold text-white">{client.name}</span>
-							</div>
-						</div>
-					{/if}
-
-					<div>
-						<h4 class="mb-3 font-mono text-xs font-bold tracking-widest text-surface-500 uppercase">
-							Links
-						</h4>
-						<div class="flex flex-col gap-3">
-							{#if project.externalUrl}
-								<a
-									href={project.externalUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="flex items-center gap-2 text-primary-400 hover:text-primary-300"
-								>
-									Visit Live Site <ExternalLink size={16} />
-								</a>
-							{/if}
-							{#if project.githubUrl}
-								<a
-									href={project.githubUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="flex items-center gap-2 text-surface-300 hover:text-white"
-								>
-									View Source on GitHub <Github size={16} />
-								</a>
-							{/if}
-						</div>
+			{#if technologies.length > 0}
+				<section>
+					<h3>Stack</h3>
+					<div class="tag-row">
+						{#each technologies as tech}
+							<small>{tech}</small>
+						{/each}
 					</div>
+				</section>
+			{/if}
 
-					{#if project.technologies}
-						<div>
-							<h4
-								class="mb-3 font-mono text-xs font-bold tracking-widest text-surface-500 uppercase"
-							>
-								Stack
-							</h4>
-							<div class="flex flex-wrap gap-2">
-								{#each project.technologies as tech}
-									<span class="rounded bg-white/5 px-2 py-1 text-xs text-surface-300">{tech}</span>
-								{/each}
-							</div>
-						</div>
+			{#if tags.length > 0}
+				<section>
+					<h3>Tags</h3>
+					<div class="tag-row">
+						{#each tags as tag}
+							<small>{tag}</small>
+						{/each}
+					</div>
+				</section>
+			{/if}
+
+			<section>
+				<h3>Links</h3>
+				<div class="link-row">
+					{#if liveUrl}
+						<a href={liveUrl} target="_blank" rel="noopener noreferrer"
+							>Live Site <ExternalLink size={14} /></a
+						>
+					{/if}
+					{#if project?.githubUrl}
+						<a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
+							>Source <Github size={14} /></a
+						>
 					{/if}
 				</div>
-
-				<!-- Gallery -->
-				{#if gallery.length > 0}
-					<div class="space-y-4">
-						<h4 class="px-2 font-mono text-xs font-bold tracking-widest text-surface-500 uppercase">
-							Gallery
-						</h4>
-						<div class="grid gap-4">
-							{#each gallery as img}
-								<img
-									src={img.asset.url}
-									alt={img.alt || title}
-									class="w-full rounded-xl border border-white/5 shadow-lg"
-								/>
-							{/each}
-						</div>
-					</div>
-				{/if}
-			</aside>
-		</div>
+			</section>
+		</aside>
 	</div>
-</div>
+
+	{#if gallery.length > 0}
+		<section class="gallery-strip">
+			<h2>Gallery</h2>
+			<div class="gallery-grid">
+				{#each gallery as image}
+					{#if image?.asset?.url}
+						<img
+							src={image.asset.url}
+							alt={image.alt || title}
+							loading="lazy"
+							decoding="async"
+						/>
+					{/if}
+				{/each}
+			</div>
+		</section>
+	{/if}
+</article>
 
 <style>
 	.project-detail {
+		padding-bottom: 4.5rem;
+	}
+
+	.hero {
+		position: relative;
+		min-height: min(70vh, 680px);
+		overflow: hidden;
+		border-bottom: 1px solid var(--color-edge);
+	}
+
+	.hero-image {
+		position: absolute;
+		inset: 0;
 		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0.42;
 	}
-	:global(.prose h2) {
-		@apply mt-12 mb-6 text-3xl font-bold text-white;
+
+	.hero-overlay {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(180deg, rgba(3, 7, 18, 0.18) 0%, rgba(3, 7, 18, 0.9) 78%);
 	}
-	:global(.prose p) {
-		@apply mb-6 leading-relaxed text-surface-300;
+
+	.hero-copy {
+		position: relative;
+		z-index: 1;
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 2.4rem 1.25rem 2.4rem;
+		display: grid;
+		align-content: end;
+		min-height: min(70vh, 680px);
+	}
+
+	.back-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--color-muted-text);
+		width: fit-content;
+	}
+
+	.back-link:hover {
+		color: var(--color-accent);
+	}
+
+	.meta-line {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1.2rem;
+	}
+
+	.meta-line span {
+		padding: 0.2rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.65rem;
+		font-family: var(--font-mono);
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+		background: rgba(15, 23, 42, 0.5);
+		border: 1px solid rgba(148, 163, 184, 0.24);
+	}
+
+	h1 {
+		margin: 0.8rem 0 0.65rem;
+		font-size: clamp(2.2rem, 6vw, 4.8rem);
+		line-height: 0.96;
+		max-width: 16ch;
+	}
+
+	.hero-copy p {
+		margin: 0;
+		max-width: 62ch;
+		font-size: clamp(1rem, 1.4vw, 1.2rem);
+		color: var(--color-muted-text);
+		line-height: 1.6;
+	}
+
+	.content-shell {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 1.8rem 1.25rem 0;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.content-block {
+		padding: 1.1rem;
+		border: 1px solid var(--color-edge);
+		border-radius: 1rem;
+		background: var(--color-panel);
+	}
+
+	.content-block h2 {
+		font-size: 1.16rem;
+		margin: 0 0 0.85rem;
+	}
+
+	.content-aside {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.content-aside section {
+		padding: 1rem;
+		border-radius: 1rem;
+		background: var(--color-panel);
+		border: 1px solid var(--color-edge);
+	}
+
+	.content-aside h3 {
+		margin: 0 0 0.6rem;
+		font-size: 0.93rem;
+	}
+
+	.content-aside p {
+		margin: 0.35rem 0;
+		line-height: 1.5;
+		font-size: 0.95rem;
+		color: var(--color-muted-text);
+	}
+
+	.content-aside strong {
+		font-size: 0.68rem;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+		font-family: var(--font-mono);
+		margin-right: 0.35rem;
+		color: var(--color-body-text);
+	}
+
+	.tag-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+
+	.tag-row small {
+		padding: 0.2rem 0.45rem;
+		background: var(--color-chip);
+		border-radius: 999px;
+		font-size: 0.64rem;
+		font-family: var(--font-mono);
+	}
+
+	.link-row {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+
+	.link-row a {
+		text-decoration: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.88rem;
+		color: var(--color-body-text);
+	}
+
+	.link-row a:hover {
+		color: var(--color-accent);
+	}
+
+	.split-gallery {
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.case-card {
+		padding: 0.85rem;
+		border-radius: 0.8rem;
+		border: 1px solid var(--color-edge);
+		background: rgba(15, 23, 42, 0.35);
+	}
+
+	.case-card h3 {
+		margin: 0;
+		font-size: 1rem;
+	}
+
+	.case-card p {
+		margin: 0.45rem 0 0.7rem;
+		line-height: 1.5;
+		color: var(--color-muted-text);
+	}
+
+	.case-media {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem;
+	}
+
+	.case-media img {
+		width: 100%;
+		height: 140px;
+		object-fit: cover;
+		border-radius: 0.6rem;
+		border: 1px solid var(--color-edge);
+	}
+
+	.gallery-strip {
+		max-width: 1100px;
+		margin: 1.6rem auto 0;
+		padding: 0 1.25rem;
+	}
+
+	.gallery-strip h2 {
+		font-size: 1.15rem;
+		margin: 0 0 0.7rem;
+	}
+
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		gap: 0.8rem;
+	}
+
+	.gallery-grid img {
+		width: 100%;
+		height: 220px;
+		object-fit: cover;
+		border-radius: 0.9rem;
+		border: 1px solid var(--color-edge);
+		background: var(--color-panel);
+	}
+
+	@media (min-width: 960px) {
+		.content-shell {
+			grid-template-columns: minmax(0, 1fr) 290px;
+		}
+
+		.content-main {
+			display: grid;
+			gap: 1rem;
+		}
 	}
 </style>

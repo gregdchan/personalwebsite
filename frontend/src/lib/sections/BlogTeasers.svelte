@@ -1,12 +1,12 @@
 <script lang="ts">
   let { items = [] }: { items?: any[] } = $props();
-  function href(p:any){ return p?.slug?.current ? `/blog/${p.slug.current}` : '#' }
+  function href(p:any){ return p?.slug?.current ? `/play/${p.slug.current}` : '#' }
 </script>
 
 <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
   <div class="mb-6 flex items-end justify-between">
     <h2 class="text-2xl font-semibold text-[color:var(--heading-color)]">From the blog</h2>
-    <a href="/blog" class="text-sm text-[var(--color-primary)] hover:opacity-80 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-body-bg)] rounded px-2 py-1">All posts</a>
+    <a href="/play" class="text-sm text-[var(--color-primary)] hover:opacity-80 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-body-bg)] rounded px-2 py-1">All posts</a>
   </div>
   {#if !items?.length}
     <p class="text-[var(--color-body-text)]/70">Add “post” docs in Sanity to populate this section.</p>

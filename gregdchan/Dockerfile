@@ -16,20 +16,17 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: Production ────────────────────────────────────
-FROM node:20-alpine
+# Production runtime
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install sirv-cli (more robust and lighter than 'serve' for Railway)
+# Install sirv-cli to serve the static build
 RUN npm install -g sirv-cli
 
-# Copy the built static studio from builder
+# Copy built studio from builder
 COPY --from=builder /app/dist ./dist
 
-# Railway sets PORT dynamically
-ENV PORT=3333
-
-EXPOSE $PORT
-
-# Sirv is better at handling the dynamic PORT on various platforms
-CMD sirv dist --port $PORT --single --host 0.0.0.0
+# Railway injects $PORT at runtime. bind to 0.0.0.0 so it's reachable.
+# We don't hardcode PORT here to avoid overriding Railway's settings.
+CMD sirv dist --port ${PORT:-3333} --host 0.0.0.0 --single --verbose
