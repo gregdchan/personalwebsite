@@ -107,7 +107,7 @@ const SECTION_PROJECTION = `[]{
     ...,
     "items": *[_type in ["project", "portfolioProject"] && defined(slug.current)]
       | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
-      [0...coalesce(^.limit, 6)]{
+      [0...24]{
       _id,
       _type,
       title,
@@ -126,6 +126,26 @@ function cleanSlug(slug: string): string {
   return (slug || '').replace(/^\/+|\/+$/g, '');
 }
 
+function canonicalNavHref(href: unknown): string | null {
+  if (typeof href !== 'string' || !href) return null;
+  if (/^https?:\/\//i.test(href)) return href;
+
+  const normalized = href.startsWith('/') ? href : `/${href}`;
+  if (normalized === '/about-me') return '/about';
+  return normalized;
+}
+
+function normalizeNavigation(nav: any): any {
+  if (!nav || !Array.isArray(nav.items)) return nav;
+  return {
+    ...nav,
+    items: nav.items.map((item: any) => {
+      const canonicalHref = canonicalNavHref(item?.href);
+      return canonicalHref ? { ...item, href: canonicalHref } : item;
+    })
+  };
+}
+
 export async function getNavigation(): Promise<any | null> {
   const query = `*[_type == "navigation"][0]{
     title,
@@ -136,13 +156,15 @@ export async function getNavigation(): Promise<any | null> {
       "href": select(
         lower(text) == "work" => "/work",
         lower(text) == "play" => "/play",
-        lower(text) == "about" => "/about",
+        lower(text) == "about" || lower(text) == "about me" => "/about",
         lower(text) == "contact" => "/contact",
         link.linkType == "external" && defined(link.external) => link.external,
         defined(link.internal->_type) && link.internal->_type in ["project", "portfolioProject"] && defined(link.internal->slug.current) => "/work/" + link.internal->slug.current,
         defined(link.internal->_type) && link.internal->_type == "blogPost" && defined(link.internal->slug.current) => "/play/" + link.internal->slug.current,
         defined(link.internal->_type) && link.internal->_type == "post" && defined(link.internal->slug.current) => "/play/" + link.internal->slug.current,
+        defined(link.internal->_type) && link.internal->_type == "page" && (link.internal->slug.current == "about" || link.internal->slug.current == "about-me") => "/about",
         defined(link.internal->_type) && link.internal->_type == "page" && link.internal->isIndexPage == true => "/",
+        defined(link.href) && link.href == "/about-me" => "/about",
         defined(link.internal->slug.current) => "/" + link.internal->slug.current,
         defined(link.href) => link.href,
         true => null
@@ -150,9 +172,10 @@ export async function getNavigation(): Promise<any | null> {
     }
   }`;
   try {
-    return await withCache(cacheKey('navigation'), TTL_META_MS, async () =>
+    const navigation = await withCache(cacheKey('navigation'), TTL_META_MS, async () =>
       fetchPublished(query)
     );
+    return normalizeNavigation(navigation);
   } catch {
     return null;
   }

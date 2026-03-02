@@ -10,11 +10,17 @@
 
 	// If passed via SectionRenderer, 'section' will contain the data
 	const displayTitle = section?.heading || section?.title || title;
+	const sectionLimit = $derived.by(() => {
+		const raw = Number(section?.limit);
+		return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : null;
+	});
 	const displayItems = $derived(() => {
 		const fromSectionItems = Array.isArray(section?.items) ? section.items : null;
 		const fromSectionProjects = Array.isArray(section?.projects) ? section.projects : null;
 		const fromProps = Array.isArray(items) ? items : [];
-		return fromSectionItems || fromSectionProjects || fromProps;
+		const baseItems = fromSectionItems || fromSectionProjects || fromProps;
+		const limit = sectionLimit();
+		return limit ? baseItems.slice(0, limit) : baseItems;
 	});
 </script>
 
@@ -43,7 +49,7 @@
 		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
 			{#each displayItems() as project}
 				<a
-					href={`/work/${project.slug?.current || project.slug || project.title.toLowerCase().replace(/\s+/g, '-')}`}
+					href={`/work/${project.slug?.current || project.slug || String(project.title || '').toLowerCase().replace(/\s+/g, '-')}`}
 					class="group relative block overflow-hidden rounded-2xl border border-white/5 bg-surface-800/30 shadow-2xl transition-transform hover:-translate-y-2"
 				>
 					<!-- Project Image / Mockup Placeholder -->

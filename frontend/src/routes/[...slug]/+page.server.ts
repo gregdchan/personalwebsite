@@ -12,14 +12,6 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	let page = await getPageBySlug(requestedSlug);
 
-	// Handle legacy about slug mismatch during migration.
-	if (!page && requestedSlug === 'about') {
-		page = await getPageBySlug('about-me');
-	}
-	if (!page && requestedSlug === 'about-me') {
-		page = await getPageBySlug('about');
-	}
-
 	if (page) return { page };
 	throw error(404, { message: `Route not found: ${requestedSlug}` });
 };

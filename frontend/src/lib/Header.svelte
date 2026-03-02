@@ -33,13 +33,19 @@
 		return slug ? `/${slug}` : '#';
 	}
 
+	function canonicalizePath(path: string) {
+		if (!path || path === '#') return path;
+		if (path === '/about-me' || path === 'about-me') return '/about';
+		return path;
+	}
+
 	function routeHref(item: NavigationItem) {
 		const label = (item?.text || '').toLowerCase().trim();
 		if (label === 'work') return '/work';
 		if (label === 'play') return '/play';
-		if (label === 'about') return '/about';
+		if (label === 'about' || label === 'about me') return '/about';
 		if (label === 'contact') return '/contact';
-		return href(item);
+		return canonicalizePath(href(item));
 	}
 
 	const navItems = $derived(
