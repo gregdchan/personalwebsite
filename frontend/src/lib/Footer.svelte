@@ -52,8 +52,8 @@
 		padding: 3rem 0 2rem;
 		margin-top: auto;
 		background:
-			linear-gradient(180deg, rgba(7, 14, 30, 0.25) 0%, rgba(6, 11, 23, 0.9) 100%),
-			radial-gradient(circle at 12% 120%, rgba(30, 64, 175, 0.2), transparent 48%);
+			linear-gradient(180deg, color-mix(in oklab, var(--color-panel) 35%, transparent) 0%, var(--color-panel) 100%),
+			radial-gradient(circle at 12% 120%, color-mix(in oklab, var(--color-accent) 22%, transparent), transparent 48%);
 	}
 
 	.footer-inner {
@@ -108,7 +108,7 @@
 		padding: 0.5rem 0.65rem;
 		border-radius: 0.65rem;
 		border: 1px solid var(--color-edge);
-		background: rgba(15, 23, 42, 0.3);
+		background: var(--color-control-bg);
 		color: var(--color-muted-text);
 	}
 
@@ -146,7 +146,7 @@
 		display: grid;
 		place-items: center;
 		border: 1px solid var(--color-edge);
-		background: rgba(15, 23, 42, 0.4);
+		background: var(--color-control-bg);
 		color: var(--color-muted-text);
 	}
 

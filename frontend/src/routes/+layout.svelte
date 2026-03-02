@@ -13,12 +13,16 @@
 	let currentMode = $state('dark');
 	let dynamicStyles = $derived(tokenToStyles((tokens as any)?.[currentMode]));
 
+	function applyTheme(mode: string) {
+		if (typeof window === 'undefined') return;
+		document.documentElement.classList.toggle('dark', mode === 'dark');
+		document.documentElement.setAttribute('data-theme-mode', mode);
+		localStorage.setItem('theme', mode);
+	}
+
 	function toggleTheme() {
 		currentMode = currentMode === 'dark' ? 'light' : 'dark';
-		if (typeof window !== 'undefined') {
-			document.documentElement.classList.toggle('dark', currentMode === 'dark');
-			localStorage.setItem('theme', currentMode);
-		}
+		applyTheme(currentMode);
 	}
 
 	onMount(() => {
@@ -28,7 +32,7 @@
 		} else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
 			currentMode = 'light';
 		}
-		document.documentElement.classList.toggle('dark', currentMode === 'dark');
+		applyTheme(currentMode);
 	});
 </script>
 
@@ -62,9 +66,9 @@
 		position: relative;
 		isolation: isolate;
 		background:
-			radial-gradient(circle at 8% 12%, rgba(30, 64, 175, 0.23), transparent 42%),
-			radial-gradient(circle at 88% 10%, rgba(14, 116, 144, 0.26), transparent 38%),
-			linear-gradient(180deg, #040712 0%, #060d1b 52%, #04070f 100%);
+			radial-gradient(circle at 8% 12%, var(--app-bg-radial-a), transparent 42%),
+			radial-gradient(circle at 88% 10%, var(--app-bg-radial-b), transparent 38%),
+			linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-mid) 52%, var(--app-bg-bottom) 100%);
 		color: var(--color-body-text, #e5e7eb);
 	}
 
@@ -81,7 +85,7 @@
 		height: 460px;
 		left: -90px;
 		top: 14%;
-		background: rgba(30, 64, 175, 0.26);
+		background: var(--app-glow-a);
 	}
 
 	.aurora-b {
@@ -89,7 +93,7 @@
 		height: 390px;
 		right: -100px;
 		bottom: 12%;
-		background: rgba(14, 116, 144, 0.28);
+		background: var(--app-glow-b);
 	}
 
 	.noise-layer {
@@ -110,7 +114,7 @@
 
 	:global(body) {
 		margin: 0;
-		background: #030712;
+		background: var(--app-body-bg, #030712);
 		color: var(--color-body-text, #e5e7eb);
 		font-family: var(--font-sans, sans-serif);
 		text-rendering: optimizeLegibility;

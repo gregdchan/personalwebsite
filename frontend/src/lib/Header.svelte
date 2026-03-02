@@ -123,7 +123,7 @@
 		right: 0;
 		z-index: 100;
 		backdrop-filter: blur(12px);
-		background: rgba(2, 6, 23, 0.6);
+		background: var(--color-header-surface);
 		border-bottom: 1px solid var(--color-edge);
 	}
 
@@ -231,7 +231,7 @@
 		height: 34px;
 		border-radius: 9px;
 		border: 1px solid var(--color-edge);
-		background: rgba(15, 23, 42, 0.5);
+		background: var(--color-control-bg);
 		color: inherit;
 		display: grid;
 		place-items: center;
@@ -251,7 +251,7 @@
 		padding: 0.62rem 0.8rem;
 		border-radius: 0.75rem;
 		border: 1px solid var(--color-edge);
-		background: rgba(15, 23, 42, 0.45);
+		background: var(--color-control-bg);
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
 		letter-spacing: 0.09em;
