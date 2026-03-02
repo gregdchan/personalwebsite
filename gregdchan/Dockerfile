@@ -6,8 +6,7 @@ WORKDIR /app
 # Copy package files (including lockfile if it exists)
 COPY package.json package-lock.json* ./
 
-# Install all dependencies (including devDeps needed for build)
-# Using npm install instead of npm ci for better resilience in all environments
+# Using npm install instead of npm ci for better resilience
 RUN npm install
 
 # Copy source code
@@ -21,16 +20,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install a lightweight static file server
-RUN npm install -g serve
+# Install sirv-cli (more robust and lighter than 'serve' for Railway)
+RUN npm install -g sirv-cli
 
 # Copy the built static studio from builder
 COPY --from=builder /app/dist ./dist
 
-# Railway sets PORT dynamically — default to 3333 for local testing
+# Railway sets PORT dynamically
 ENV PORT=3333
 
 EXPOSE $PORT
 
-# Serve the static dist folder on Railway's dynamic port
-CMD ["sh", "-c", "serve dist -l $PORT --single"]
+# Sirv is better at handling the dynamic PORT on various platforms
+CMD sirv dist --port $PORT --single --host 0.0.0.0

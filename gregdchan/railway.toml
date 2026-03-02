@@ -3,7 +3,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "serve dist -l $PORT --single"
+# Using sirv via the Dockerfile CMD instead of overriding it here.
+# Railway will default to the CMD in the Dockerfile if startCommand is removed.
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
