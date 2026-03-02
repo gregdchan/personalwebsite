@@ -2,7 +2,15 @@
 	import { fade, fly } from 'svelte/transition';
 	import { ArrowUpRight } from 'lucide-svelte';
 
-	let { items = [], title = 'Selected Projects' }: { items: any[]; title: string } = $props();
+	let {
+		items = [],
+		title = 'Selected Projects',
+		section = null
+	}: { items?: any[]; title?: string; section?: any } = $props();
+
+	// If passed via SectionRenderer, 'section' will contain the data
+	const displayTitle = section?.heading || section?.title || title;
+	const displayItems = section?.items || section?.projects || items;
 
 	let hoveredIndex = $state(-1);
 </script>
@@ -16,7 +24,7 @@
 				>
 					Portfolio
 				</div>
-				<h2 class="text-4xl font-bold tracking-tight lg:text-5xl">{title}</h2>
+				<h2 class="text-4xl font-bold tracking-tight lg:text-5xl">{displayTitle}</h2>
 			</div>
 
 			<div class="hidden md:block">
@@ -30,7 +38,7 @@
 		</div>
 
 		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-			{#each items as project, i}
+			{#each displayItems as project, i}
 				<a
 					href={`/${project.slug?.current || project.slug || project.title.toLowerCase().replace(/\s+/g, '-')}`}
 					class="group relative block overflow-hidden rounded-2xl border border-white/5 bg-surface-800/30 shadow-2xl transition-transform hover:-translate-y-2"

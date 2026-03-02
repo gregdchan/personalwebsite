@@ -1,10 +1,18 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
-import { getPageBySlug } from '$lib/sanity';
+import { getPageBySlug, getProjectBySlug } from '$lib/sanity';
 
 export const load: PageServerLoad = async ({ params }) => {
-  const slug = params.slug; // e.g. "about" or "blog/post"
+  const slug = params.slug;
+
+  // 1. Try to fetch as a Page
   const page = await getPageBySlug(slug);
-  if (!page) throw error(404, 'Not found');
-  return { page };
+  if (page) return { page, type: 'page' };
+
+  // 2. Try to fetch as a Project
+  const project = await getProjectBySlug(slug);
+  if (project) return { page: project, type: 'project' };
+
+  // 3. Neither found
+  throw error(404, { message: `Route not found: ${slug}` });
 };

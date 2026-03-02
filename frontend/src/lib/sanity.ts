@@ -5,14 +5,18 @@ import type { DesignToken } from '$lib/types/designToken';
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'placeholder';
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
 
-// Guard: if projectId is missing at build time, createClient would throw.
-// Using a fallback so module initialisation never crashes the SSR renderer.
+if (projectId === 'placeholder' || !projectId) {
+  console.error('[sanity] ERROR: VITE_SANITY_PROJECT_ID is missing or set to placeholder! Check your .env file or build settings.');
+} else {
+  console.log(`[sanity] Initializing client for project: ${projectId}, dataset: ${dataset}`);
+}
+
 export const client = createClient({
-  projectId,
+  projectId: projectId === 'placeholder' ? 'smxz6rsz' : projectId,
   dataset,
   apiVersion: '2024-01-01',
   useCdn: import.meta.env.PROD,
-  perspective: 'published'
+  perspective: 'published' // previewDrafts requires a token!
 });
 
 const builder = imageUrlBuilder(client);
@@ -97,9 +101,16 @@ export async function getHomepage(): Promise<any | null> {
 }
 
 export async function getPageBySlug(slug: string): Promise<any | null> {
-  // Deep query — resolves all nested assets, blockContent, and sub-arrays
+  const cleanSlug = slug.startsWith('/') ? slug.substring(1) : slug;
+  console.log(`[sanity] Fetching page for slug: "${cleanSlug}"`);
+
+  // In DEV, we want to see drafts. In PROD, only published.
+  const useCdn = import.meta.env.PROD;
+
+  // Take the first matching document
   const query = /* groq */ `*[_type == "page" && slug.current == $slug][0]{
     _id,
+    _type,
     title,
     description,
     mainImage{ alt, asset->{url} },
@@ -110,49 +121,63 @@ export async function getPageBySlug(slug: string): Promise<any | null> {
     },
     sections[]{
       ...,
-      // Image fields on section objects
-      backgroundImage{ alt, asset->{url} },
-      posterImage{ alt, asset->{url} },
-      image{ alt, asset->{url} },
-      companyLogo{ asset->{url} },
-      logo{ asset->{url} },
-
-      // Rich body content inside sections (about, richText, experience, etc.)
-      body[]{
+      "image": coalesce(image, backgroundImage, logo, companyLogo){ alt, asset->{url} },
+      "items": coalesce(items, features, images, testimonials, skillsList, logos)[]{
         ...,
-        _type == "image" => { ..., asset->{url} },
-        markDefs[]{ ..., _type == "link" => { href, blank } }
+        "image": coalesce(image, icon, photo, logo, companyLogo){ alt, asset->{url} },
+        body[]{ ..., _type == "image" => { ..., asset->{url} } },
+        description[]{ ..., _type == "image" => { ..., asset->{url} } }
       },
-      description[]{
-        ...,
-        _type == "image" => { ..., asset->{url} },
-        markDefs[]{ ..., _type == "link" => { href, blank } }
-      },
-      introduction[]{
-        ...,
-        markDefs[]{ ..., _type == "link" => { href, blank } }
-      },
-
-      // Feature grid items
-      features[]{ ..., icon{ alt, asset->{url} } },
-
-      // Image carousel
-      images[]{ ..., asset->{url} },
-
-      // Testimonials
-      testimonials[]{ ..., photo{ alt, asset->{url} } },
-
-      // Logos marquee
-      logos[]{ ..., asset->{url} },
-
-      // Skills list (skills + skillsCloud)
-      skillsList[]{ skill, proficiency }
+      // Special case: inject projects for grids
+      (_type == "projectGrid" || _type == "projectsGrid") => {
+        "items": *[_type == "project"] | order(year desc, _updatedAt desc){
+          _id, title, excerpt, slug, cover{alt, asset->{url}}, tags, category, year
+        }
+      }
     }
   }`;
+
   try {
-    return await client.fetch(query, { slug }, { perspective: 'published' });
+    const result = await client.fetch(query, { slug: cleanSlug });
+
+    if (!result) {
+      console.warn(`[sanity] 404 - No document found with slug: "${cleanSlug}"`);
+      // Try one more time looking for the base slug without any hierarchy
+      if (cleanSlug.includes('/')) {
+        const lastPart = cleanSlug.split('/').pop();
+        return getPageBySlug(lastPart!);
+      }
+    } else {
+      console.log(`[sanity] 200 - Successfully loaded: "${result.title}"`);
+    }
+    return result;
   } catch (e) {
-    console.error('[sanity] getPageBySlug error:', e);
+    console.error(`[sanity] Error fetching page "${cleanSlug}":`, e);
+    return null;
+  }
+}
+
+export async function getProjectBySlug(slug: string): Promise<any | null> {
+  const cleanSlug = slug.startsWith('/') ? slug.substring(1) : slug;
+  console.log(`[sanity] Fetching project for slug: "${cleanSlug}"`);
+
+  const query = /* groq */ `*[_type == "project" && slug.current == $slug][0]{
+    ...,
+    cover{ alt, asset->{url} },
+    gallery[]{ ..., asset->{url} },
+    body[]{
+      ...,
+      _type == "image" => { ..., asset->{url} },
+      markDefs[]{ ..., _type == "link" => { href, blank } }
+    },
+    client{ logo{asset->{url}}, name },
+    results[]{ ..., icon{asset->{url}} }
+  }`;
+
+  try {
+    return await client.fetch(query, { slug: cleanSlug });
+  } catch (e) {
+    console.error(`[sanity] Error fetching project "${cleanSlug}":`, e);
     return null;
   }
 }

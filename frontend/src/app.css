@@ -9,21 +9,74 @@
 /* Skeleton UI Theme */
 @import '@skeletonlabs/skeleton/themes/cerberus';
 
+@theme {
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Map Skeleton variables to Tailwind theme */
+  --color-surface-50: oklch(var(--color-surface-50) / <alpha-value>);
+  --color-surface-100: oklch(var(--color-surface-100) / <alpha-value>);
+  --color-surface-200: oklch(var(--color-surface-200) / <alpha-value>);
+  --color-surface-300: oklch(var(--color-surface-300) / <alpha-value>);
+  --color-surface-400: oklch(var(--color-surface-400) / <alpha-value>);
+  --color-surface-500: oklch(var(--color-surface-500) / <alpha-value>);
+  --color-surface-600: oklch(var(--color-surface-600) / <alpha-value>);
+  --color-surface-700: oklch(var(--color-surface-700) / <alpha-value>);
+  --color-surface-800: oklch(var(--color-surface-800) / <alpha-value>);
+  --color-surface-900: oklch(var(--color-surface-900) / <alpha-value>);
+  --color-surface-950: oklch(var(--color-surface-950) / <alpha-value>);
+
+  --color-primary-50: oklch(var(--color-primary-50) / <alpha-value>);
+  --color-primary-100: oklch(var(--color-primary-100) / <alpha-value>);
+  --color-primary-200: oklch(var(--color-primary-200) / <alpha-value>);
+  --color-primary-300: oklch(var(--color-primary-300) / <alpha-value>);
+  --color-primary-400: oklch(var(--color-primary-400) / <alpha-value>);
+  --color-primary-500: oklch(var(--color-primary-500) / <alpha-value>);
+  --color-primary-600: oklch(var(--color-primary-600) / <alpha-value>);
+  --color-primary-700: oklch(var(--color-primary-700) / <alpha-value>);
+  --color-primary-800: oklch(var(--color-primary-800) / <alpha-value>);
+  --color-primary-900: oklch(var(--color-primary-900) / <alpha-value>);
+  --color-primary-950: oklch(var(--color-primary-950) / <alpha-value>);
+
+  --color-secondary-50: oklch(var(--color-secondary-50) / <alpha-value>);
+  --color-secondary-100: oklch(var(--color-secondary-100) / <alpha-value>);
+  --color-secondary-200: oklch(var(--color-secondary-200) / <alpha-value>);
+  --color-secondary-300: oklch(var(--color-secondary-300) / <alpha-value>);
+  --color-secondary-400: oklch(var(--color-secondary-400) / <alpha-value>);
+  --color-secondary-500: oklch(var(--color-secondary-500) / <alpha-value>);
+  --color-secondary-600: oklch(var(--color-secondary-600) / <alpha-value>);
+  --color-secondary-700: oklch(var(--color-secondary-700) / <alpha-value>);
+  --color-secondary-800: oklch(var(--color-secondary-800) / <alpha-value>);
+  --color-secondary-900: oklch(var(--color-secondary-900) / <alpha-value>);
+  --color-secondary-950: oklch(var(--color-secondary-950) / <alpha-value>);
+}
+
+/* Base styles */
 :root {
   --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-page-bg, oklch(var(--color-surface-950)));
+  color: var(--color-body-text, oklch(var(--color-surface-100)));
 }
 
 /* ─── Compatibility shims for Skeleton v3 utility classes ─── */
-/* Tailwind v4 doesn't auto-generate these — define them manually */
+/* These map the Skeleton v3 naming convention to the underlying variables */
 .bg-surface-50-950 {
   background-color: oklch(var(--color-surface-950) / 1);
 }
 
+.dark .bg-surface-50-950 {
+  background-color: oklch(var(--color-surface-950) / 1);
+}
+
 .text-surface-900-100 {
+  color: oklch(var(--color-surface-100) / 1);
+}
+
+.dark .text-surface-900-100 {
   color: oklch(var(--color-surface-100) / 1);
 }
 

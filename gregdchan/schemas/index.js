@@ -12,6 +12,7 @@ import author from './documents/author'
 import page from './documents/page'
 import project from './documents/project'
 import post from './documents/post'
+import errorPage from './objects/errorPage'
 
 // Objects
 import blockContent from './objects/blockContent'
@@ -44,9 +45,17 @@ import about from './sections/about'
 import logosMarquee from './sections/logosMarquee'
 import contactCta from './sections/contactCta'
 import skillsCloud from './sections/skillsCloud' // NEW
+import projectGrid from './objects/projectGrid'
 
 const validateSchema = (schema) => {
-  if (!schema || !schema.name) throw new Error('Invalid schema object')
+  if (!schema) {
+    console.error('[sanity] ERROR: A schema object is undefined. Check your imports in index.js');
+    return { name: 'error', type: 'object', fields: [] };
+  }
+  if (!schema.name) {
+    console.error('[sanity] ERROR: Schema is missing a name property:', schema);
+    return { ...schema, name: 'unnamed_error' };
+  }
   return schema
 }
 
@@ -65,6 +74,7 @@ const all = [
   validateSchema(portfolioProject),
   validateSchema(project),
   validateSchema(post),
+  validateSchema(errorPage),
 
   // Objects
   validateSchema(blockContent),
@@ -91,6 +101,7 @@ const all = [
   validateSchema(logosMarquee),
   validateSchema(contactCta),
   validateSchema(skillsCloud), // NEW
+  validateSchema(projectGrid),
 
   // Additional objects
   validateSchema(callToAction),
