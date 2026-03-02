@@ -69,17 +69,19 @@
 
 <header class="site-header">
 	<div class="header-inner">
-	<a href="/" class="brand" aria-label="Home">
-		{#if logoUrl}
-			<img src={logoUrl} alt="Greg D. Chan logo" class="brand-logo" />
-		{:else}
-			<div class="brand-mark">GC</div>
-		{/if}
-		<div class="brand-copy">
-			<strong>Greg D. Chan</strong>
-			<span>Design + Creative Technology</span>
-		</div>
-	</a>
+		<a href="/" class="brand" aria-label="Home">
+			{#if logoUrl}
+				<img src={logoUrl} alt="Greg D. Chan logo" class="brand-logo" />
+			{:else}
+				<div class="brand-mark">GC</div>
+			{/if}
+			{#if !logoUrl}
+				<div class="brand-copy">
+					<strong>Greg D. Chan</strong>
+					<span>Design + Creative Technology</span>
+				</div>
+			{/if}
+		</a>
 
 		<nav class="desktop-nav">
 			{#each navItems as item}
@@ -177,11 +179,17 @@
 	}
 
 	.brand-logo {
-		width: 38px;
-		height: 38px;
-		border-radius: 10px;
-		object-fit: cover;
-		border: 1px solid var(--color-edge);
+		display: block;
+		width: auto;
+		height: 26px;
+		max-width: min(42vw, 180px);
+		object-fit: contain;
+		filter: grayscale(1) brightness(0);
+	}
+
+	:global(:root[data-theme-mode='dark']) .brand-logo,
+	:global(:root.dark) .brand-logo {
+		filter: grayscale(1) brightness(0) invert(1);
 	}
 
 	.brand-copy {

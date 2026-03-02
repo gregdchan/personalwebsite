@@ -9,9 +9,12 @@
 
 	const navigation = data?.navigation;
 	const tokens = data?.tokens;
+	const LOGO_URL =
+		'https://cdn.sanity.io/images/smxz6rsz/production/cffa41f6cfe0c1d511f2555b7cc1b5afa1279881-431x74.webp';
 
 	let currentMode = $state('dark');
 	let dynamicStyles = $derived(tokenToStyles((tokens as any)?.[currentMode]));
+	let logoUrl = $derived(LOGO_URL);
 
 	function applyTheme(mode: string) {
 		if (typeof window === 'undefined') return;
@@ -49,7 +52,7 @@
 	<div class="aurora aurora-b"></div>
 	<div class="noise-layer"></div>
 
-	<Header {navigation} {currentMode} onToggleTheme={toggleTheme} logoUrl={null} />
+	<Header {navigation} {currentMode} onToggleTheme={toggleTheme} {logoUrl} />
 
 	<main class="site-main">
 		{@render children()}

@@ -128,7 +128,40 @@ export default defineType({
         preview: { select: { title: 'title' } }
       }]
     }),
-    defineField({ name: 'projectDate', title: 'Project Date', type: 'date' })
+    defineField({ name: 'projectDate', title: 'Project Date', type: 'date' }),
+
+    // Design content fields
+    defineField({ name: 'palette', title: 'Color Palette', type: 'projectPalette' }),
+    defineField({
+      name: 'designProcess',
+      title: 'Design Process',
+      type: 'array',
+      of: [{ type: 'designProcessStep' }]
+    }),
+    defineField({
+      name: 'designPrinciples',
+      title: 'Design Principles',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'designPrinciple' }] }]
+    }),
+    defineField({
+      name: 'beforeAfterComparisons',
+      title: 'Before / After Comparisons',
+      type: 'array',
+      of: [{ type: 'beforeAfterComparison' }]
+    }),
+    defineField({
+      name: 'metrics',
+      title: 'Metrics & Outcomes',
+      type: 'array',
+      of: [{ type: 'projectMetric' }]
+    }),
+    defineField({
+      name: 'infographics',
+      title: 'Infographics',
+      type: 'array',
+      of: [{ type: 'infographicBlock' }]
+    })
   ],
   preview: {
     select: {

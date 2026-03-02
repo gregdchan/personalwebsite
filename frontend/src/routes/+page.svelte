@@ -5,125 +5,89 @@
 
 	const page = data?.page ?? {};
 	const projects = Array.isArray(data?.projects) ? data.projects : [];
-	const posts = Array.isArray(data?.posts) ? data.posts : [];
+	const featuredProjects = projects.slice(0, 6);
 
-	const featuredProjects = projects.slice(0, 5);
-	const leadProject = featuredProjects[0] ?? null;
-	const secondaryProjects = featuredProjects.slice(1);
-	const latestPosts = posts.slice(0, 3);
+	const portraitUrl = page?.mainImage?.asset?.url || '/images/headshot.webp';
+	const portraitAlt = page?.mainImage?.alt || 'Portrait of Greg D. Chan';
 
-	const heroTitle = page?.title || 'Designing digital products with clarity, soul, and measurable impact.';
-	const heroDescription =
-		page?.description ||
-		'I help teams shape product direction, craft polished interfaces, and ship resilient front-end experiences.';
+	const profileTitle = 'Product Design & Creative Technology';
+	const introLine =
+		'Design technologist building AI-powered tools, product experiences, and creative systems that turn ideas into useful software.';
 
-	const capabilities = [
+	const practicePoints = [
 		{
-			title: 'Product Strategy',
-			description:
-				'Clarifying priorities, framing opportunities, and translating business goals into user-centered product decisions.'
+			title: 'Design Practice',
+			copy: 'I combine design thinking with modern innovation to move from ambiguity to clear product direction, useful features, and high-craft execution.'
 		},
 		{
-			title: 'Experience Design',
-			description:
-				'Designing information architecture, user flows, and interfaces that feel intentional from first click to completion.'
+			title: 'Perspective',
+			copy: 'My perspective blends systems thinking, interaction design, and emerging AI capabilities to create products that feel human while performing at scale.'
 		},
 		{
-			title: 'Creative Technology',
-			description:
-				'Building modern, performant front-ends with design systems and thoughtful interaction patterns that scale.'
+			title: 'Approach',
+			copy: 'I work across strategy, design, and implementation so ideas are not just imagined, but shipped with clarity, quality, and measurable outcomes.'
 		}
-	];
-
-	const process = [
-		{
-			title: 'Discover',
-			copy: 'Audit the current state, identify friction, and align around what success should look like.'
-		},
-		{
-			title: 'Design',
-			copy: 'Prototype and iterate rapidly, balancing visual polish with feasibility and accessibility.'
-		},
-		{
-			title: 'Deliver',
-			copy: 'Ship intentionally with strong implementation quality, clear QA, and measurable post-launch outcomes.'
-		}
-	];
-
-	const timeline = [
-		'14+ years building digital experiences across higher education, startups, and creative teams.',
-		'Founded and launched initiatives blending design, technology, and social impact.',
-		'Focused today on product storytelling, scalable systems, and high-craft interaction design.'
 	];
 </script>
 
-<div class="home-structure">
-	<section class="hero">
-		<div class="shell hero-grid">
-			<p class="eyebrow">Greg D. Chan · Product Design & Creative Technology</p>
-			<h1>{heroTitle}</h1>
-			<p class="lead">{heroDescription}</p>
-			<div class="hero-cta">
-				<a href="/work">View case studies</a>
-				<a href="/about">About</a>
+<div class="home-page">
+	<section class="intro">
+		<div class="shell intro-wrap">
+			<div class="intro-row">
+				<figure class="portrait-wrap" use:reveal={{ delay: 25 }}>
+					<img src={portraitUrl} alt={portraitAlt} class="portrait" loading="eager" decoding="async" />
+				</figure>
+				<div class="intro-copy" use:reveal={{ delay: 70 }}>
+					<p class="eyebrow">{profileTitle}</p>
+					<h1>Hi, I'm Greg.</h1>
+					<p class="intro-line">{introLine}</p>
+					<div class="hero-cta">
+						<a href="/work">View case studies</a>
+						<a href="/about">About</a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
 
-	<section class="featured-work">
+	<section class="case-studies">
 		<div class="shell">
-			<div class="section-head work-head" use:reveal={{ delay: 20 }}>
-				<div>
-					<p>Selected Work</p>
-					<h2>Case studies designed for outcomes, not decoration.</h2>
+			<div class="practice" use:reveal={{ delay: 25 }}>
+				<div class="practice-head">
+					<p>Practice & Perspective</p>
+					<h2>Design thinking grounded in modern innovation.</h2>
 				</div>
-				<a class="work-all-link" href="/work">All case studies</a>
+				<div class="practice-grid">
+					{#each practicePoints as item, index}
+						<article class="practice-card" use:reveal={{ delay: 70 + index * 55 }}>
+							<h3>{item.title}</h3>
+							<p>{item.copy}</p>
+						</article>
+					{/each}
+				</div>
 			</div>
 
-			{#if leadProject}
-				<a
-					class="work-lead"
-					href={`/work/${leadProject?.slug?.current || leadProject?.slug}`}
-					use:reveal={{ delay: 90 }}
-				>
-					<div class="work-image-wrap lead-media">
-						{#if leadProject?.cover?.asset?.url}
-							<img
-								src={leadProject.cover.asset.url}
-								alt={leadProject.cover?.alt || leadProject.title}
-								loading="lazy"
-								decoding="async"
-							/>
-						{:else}
-							<div class="work-image-fallback">{leadProject?.title?.charAt(0) || 'P'}</div>
-						{/if}
-					</div>
-					<div class="work-copy lead-copy">
-						<div class="work-meta">
-							<span>Featured Case Study</span>
-							{#if leadProject?.category}<span>{leadProject.category}</span>{/if}
-							{#if leadProject?.year}<span>{leadProject.year}</span>{/if}
-						</div>
-						<h3>{leadProject?.title}</h3>
-						{#if leadProject?.excerpt}
-							<p>{leadProject.excerpt}</p>
-						{/if}
-						<div class="work-cta-row">
-							<strong>Read full case study →</strong>
-						</div>
-					</div>
-				</a>
-			{/if}
-
-			{#if secondaryProjects.length > 0}
-				<div class="work-grid">
-					{#each secondaryProjects as project, index}
+			<div class="section-head work-head" use:reveal={{ delay: 20 }}>
+				<div>
+					<p>Case Studies</p>
+					<h2>Bold, image-first work with clear outcomes.</h2>
+				</div>
+				<a href="/work">View case studies</a>
+			</div>
+			{#if featuredProjects.length === 0}
+				<div class="empty-state" use:reveal={{ delay: 90 }}>
+					<h3>No case studies published yet.</h3>
+					<p>Publish `project` or `portfolioProject` documents in Sanity to populate this section.</p>
+				</div>
+			{:else}
+				<div class="case-grid">
+					{#each featuredProjects as project, index}
 						<a
-							class="work-card"
+							class="case-card"
 							href={`/work/${project?.slug?.current || project?.slug}`}
-							use:reveal={{ delay: 150 + index * 60 }}
+							use:reveal={{ delay: 90 + index * 50 }}
 						>
-							<div class="work-image-wrap">
+							<div class="case-media">
 								{#if project?.cover?.asset?.url}
 									<img
 										src={project.cover.asset.url}
@@ -132,19 +96,20 @@
 										decoding="async"
 									/>
 								{:else}
-									<div class="work-image-fallback">{project?.title?.charAt(0) || 'P'}</div>
+									<div class="case-image-fallback">{project?.title?.charAt(0) || 'P'}</div>
 								{/if}
 							</div>
-							<div class="work-copy">
-								<div class="work-meta">
-									<span>Case {String(index + 2).padStart(2, '0')}</span>
+							<div class="case-copy">
+								<div class="case-meta">
+									<span>Case Study</span>
 									{#if project?.category}<span>{project.category}</span>{/if}
+									{#if project?.year}<span>{project.year}</span>{/if}
 								</div>
 								<h3>{project?.title}</h3>
 								{#if project?.excerpt}
 									<p>{project.excerpt}</p>
 								{/if}
-								<strong>Open project →</strong>
+								<strong>Read individual case study -></strong>
 							</div>
 						</a>
 					{/each}
@@ -152,108 +117,33 @@
 			{/if}
 		</div>
 	</section>
-
-	<section class="capabilities">
-		<div class="shell">
-			<div class="section-head compact">
-				<p>Capabilities</p>
-				<h2>How I help teams move from ambiguity to shipped product.</h2>
-			</div>
-			<div class="cap-grid">
-				{#each capabilities as item}
-					<article>
-						<h3>{item.title}</h3>
-						<p>{item.description}</p>
-					</article>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<section class="process">
-		<div class="shell process-grid">
-			<div>
-				<p class="eyebrow">Approach</p>
-				<h2>A practical process rooted in craft and collaboration.</h2>
-			</div>
-			<div class="steps">
-				{#each process as step}
-					<article>
-						<h3>{step.title}</h3>
-						<p>{step.copy}</p>
-					</article>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<section class="timeline">
-		<div class="shell">
-			<div class="section-head compact">
-				<p>Experience</p>
-				<h2>Context that shapes the work.</h2>
-			</div>
-			<ul>
-				{#each timeline as item}
-					<li>{item}</li>
-				{/each}
-			</ul>
-		</div>
-	</section>
-
-	{#if latestPosts.length > 0}
-		<section class="writing">
-			<div class="shell">
-				<div class="section-head compact">
-					<p>From Play</p>
-					<h2>Thoughts on process, systems, and design execution.</h2>
-				</div>
-				<div class="post-grid">
-					{#each latestPosts as post}
-						<a class="post" href={`/play/${post?.slug?.current || post?.slug}`}>
-							<h3>{post?.title}</h3>
-							{#if post?.excerpt}<p>{post.excerpt}</p>{/if}
-						</a>
-					{/each}
-				</div>
-			</div>
-		</section>
-	{/if}
 </div>
 
 <style>
-	.home-structure {
+	.home-page {
 		padding-bottom: 5rem;
 	}
 
-	.reveal-in {
-		opacity: 0;
-		translate: 0 18px;
-		transition: opacity 480ms ease, translate 560ms cubic-bezier(0.22, 1, 0.36, 1);
-		will-change: opacity, translate;
-	}
-
-	.reveal-in.is-visible {
-		opacity: 1;
-		translate: 0 0;
-	}
-
 	.shell {
-		max-width: 1120px;
+		max-width: 1180px;
 		margin: 0 auto;
 		padding: 0 1.25rem;
 	}
 
 	section {
-		padding: 2.6rem 0;
+		padding: 2.8rem 0;
 	}
 
 	section + section {
 		border-top: 1px solid color-mix(in oklab, var(--color-edge) 58%, transparent);
 	}
 
-	.hero {
-		padding-top: 3.2rem;
+	.intro {
+		padding-top: 5.5rem;
+		padding-bottom: 4.25rem;
+		min-height: clamp(560px, 78vh, 860px);
+		display: grid;
+		align-items: center;
 	}
 
 	.eyebrow,
@@ -266,32 +156,60 @@
 		color: var(--color-accent-alt);
 	}
 
-	.hero h1 {
-		margin: 0.75rem 0 0.95rem;
-		font-size: clamp(2.35rem, 6.2vw, 5.2rem);
-		line-height: 0.93;
-		max-width: 13ch;
+	.intro-row {
+		display: grid;
+		grid-template-columns: minmax(170px, 300px) minmax(0, 1fr);
+		align-items: center;
+		gap: clamp(2rem, 5vw, 4.25rem);
 	}
 
-	.lead {
+	.portrait-wrap {
 		margin: 0;
-		max-width: 60ch;
-		font-size: clamp(1rem, 1.5vw, 1.16rem);
-		line-height: 1.7;
+		max-width: 300px;
+	}
+
+	.portrait {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		object-fit: cover;
+		border-radius: 999px;
+		filter: saturate(0) contrast(1.05);
+		border: 1px solid color-mix(in oklab, var(--color-edge) 70%, transparent);
+		box-shadow: 0 16px 36px color-mix(in oklab, black 14%, transparent);
+	}
+
+	.intro-copy h1 {
+		margin: 0.65rem 0 0;
+		color: var(--color-body-text);
+		font-family: var(--font-heading);
+		font-size: clamp(3rem, 9vw, 6.4rem);
+		line-height: 0.9;
+		font-weight: 900;
+		letter-spacing: 0.02em;
+		max-width: 12ch;
+	}
+
+	.intro-line {
+		margin: 1.35rem 0 0;
+		max-width: 64ch;
+		font-size: clamp(1.08rem, 1.85vw, 1.38rem);
+		line-height: 1.74;
 		color: var(--color-muted-text);
 	}
 
 	.hero-cta {
-		margin-top: 1.35rem;
+		margin-top: 1.8rem;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.55rem;
+		gap: 0.72rem;
 	}
 
-	.hero-cta a {
+	.hero-cta a,
+	.work-head a {
 		text-decoration: none;
-		padding: 0.54rem 0.86rem;
-		border-radius: 0.74rem;
+		padding: 0.56rem 0.9rem;
+		border-radius: 0.76rem;
 		border: 1px solid var(--color-edge);
 		background: var(--color-control-bg);
 		font-family: var(--font-mono);
@@ -300,20 +218,58 @@
 		text-transform: uppercase;
 	}
 
-	.hero-cta a:hover {
+	.hero-cta a:hover,
+	.work-head a:hover {
 		border-color: var(--color-accent);
 		color: var(--color-accent);
 	}
 
-	.section-head h2 {
-		margin: 0.48rem 0 0;
-		font-size: clamp(1.35rem, 2.2vw, 2rem);
-		max-width: 26ch;
-		line-height: 1.2;
+	.case-studies {
+		padding-top: 3.1rem;
 	}
 
-	.section-head.compact h2 {
-		max-width: 36ch;
+	.practice {
+		margin-bottom: 2.2rem;
+	}
+
+	.practice-head h2 {
+		margin: 0.48rem 0 0;
+		font-size: clamp(1.42rem, 2.35vw, 2.15rem);
+		line-height: 1.18;
+		max-width: 28ch;
+	}
+
+	.practice-grid {
+		margin-top: 1rem;
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.practice-card {
+		padding: 1rem;
+		border-radius: 0.9rem;
+		border: 1px solid color-mix(in oklab, var(--color-edge) 65%, transparent);
+		background:
+			linear-gradient(
+				145deg,
+				color-mix(in oklab, var(--color-panel) 95%, transparent),
+				color-mix(in oklab, var(--color-control-bg) 70%, transparent)
+			);
+	}
+
+	.practice-card h3 {
+		margin: 0;
+		font-size: 0.92rem;
+		font-family: var(--font-mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-accent-alt);
+	}
+
+	.practice-card p {
+		margin: 0.58rem 0 0;
+		line-height: 1.65;
+		color: var(--color-muted-text);
 	}
 
 	.work-head {
@@ -323,72 +279,47 @@
 		align-items: end;
 	}
 
-	.work-all-link {
-		text-decoration: none;
-		font-family: var(--font-mono);
-		font-size: 0.68rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--color-muted-text);
-		padding-bottom: 0.35rem;
+	.section-head h2 {
+		margin: 0.45rem 0 0;
+		font-size: clamp(1.42rem, 2.35vw, 2.2rem);
+		max-width: 24ch;
+		line-height: 1.18;
 	}
 
-	.work-all-link:hover {
-		color: var(--color-accent);
-	}
-
-	.work-lead {
-		margin-top: 1.2rem;
+	.case-grid {
+		margin-top: 1.65rem;
 		display: grid;
-		gap: 1rem;
+		gap: 1.45rem;
+	}
+
+	.case-card {
+		display: block;
 		text-decoration: none;
 		color: inherit;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 82%, transparent);
-		border-radius: 1rem;
-		padding: 0.8rem;
+		border: 1px solid color-mix(in oklab, var(--color-edge) 76%, transparent);
+		border-radius: 1.15rem;
+		padding: 0.9rem;
 		background: color-mix(in oklab, var(--color-panel) 88%, transparent);
 		transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
 	}
 
-	.work-lead:hover {
+	.case-card:hover {
 		transform: translateY(-3px);
-		border-color: color-mix(in oklab, var(--color-accent) 68%, transparent);
-		box-shadow: 0 16px 38px color-mix(in oklab, black 12%, transparent);
+		border-color: color-mix(in oklab, var(--color-accent) 65%, transparent);
+		box-shadow: 0 18px 38px color-mix(in oklab, black 12%, transparent);
 	}
 
-	.work-grid {
-		margin-top: 0.95rem;
-		display: grid;
-		gap: 0.8rem;
-	}
-
-	.work-card {
-		display: grid;
-		gap: 0.75rem;
-		text-decoration: none;
-		color: inherit;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 74%, transparent);
-		border-radius: 0.9rem;
-		padding: 0.68rem;
-		background: color-mix(in oklab, var(--color-panel) 84%, transparent);
-		transition: border-color 180ms ease, transform 180ms ease;
-	}
-
-	.work-card:hover {
-		border-color: color-mix(in oklab, var(--color-accent) 62%, transparent);
-		transform: translateY(-2px);
-	}
-
-	.work-image-wrap {
-		border-radius: 0.8rem;
+	.case-media {
+		border-radius: 0.94rem;
 		overflow: hidden;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 70%, transparent);
 		background: var(--color-panel);
-		aspect-ratio: 16 / 10;
-		box-shadow: 0 10px 28px color-mix(in oklab, black 11%, transparent);
+		aspect-ratio: 4 / 3;
+		min-height: clamp(240px, 52vw, 390px);
+		box-shadow: 0 16px 36px color-mix(in oklab, black 12%, transparent);
 	}
 
-	.work-image-wrap img {
+	.case-media img {
 		display: block;
 		width: 100%;
 		height: 100%;
@@ -396,25 +327,25 @@
 		filter: saturate(0.98) contrast(1.03);
 	}
 
-	.lead-media {
-		aspect-ratio: 16 / 9;
-	}
-
-	.work-image-fallback {
+	.case-image-fallback {
 		display: grid;
 		place-items: center;
 		height: 100%;
-		font-size: 3rem;
+		font-size: 3.2rem;
 		color: color-mix(in oklab, var(--color-accent) 42%, var(--color-muted-text));
 	}
 
-	.work-meta {
+	.case-copy {
+		padding: 0.95rem 0.2rem 0.25rem;
+	}
+
+	.case-meta {
 		display: flex;
 		gap: 0.45rem;
 		flex-wrap: wrap;
 	}
 
-	.work-meta span {
+	.case-meta span {
 		font-family: var(--font-mono);
 		font-size: 0.63rem;
 		letter-spacing: 0.08em;
@@ -422,22 +353,22 @@
 		color: var(--color-muted-text);
 	}
 
-	.work-copy h3 {
-		margin: 0.45rem 0 0.35rem;
-		font-size: clamp(1.18rem, 2vw, 1.55rem);
+	.case-copy h3 {
+		margin: 0.62rem 0 0.46rem;
+		font-size: clamp(1.4rem, 2.2vw, 2.05rem);
 		line-height: 1.2;
 	}
 
-	.work-copy p {
+	.case-copy p {
 		margin: 0;
-		line-height: 1.65;
+		line-height: 1.68;
 		color: var(--color-muted-text);
 		max-width: 62ch;
 	}
 
-	.work-copy strong {
+	.case-copy strong {
 		display: inline-block;
-		margin-top: 0.6rem;
+		margin-top: 0.72rem;
 		font-family: var(--font-mono);
 		font-size: 0.68rem;
 		letter-spacing: 0.08em;
@@ -445,161 +376,115 @@
 		color: var(--color-accent);
 	}
 
-	.work-cta-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.cap-grid {
-		margin-top: 1rem;
-		display: grid;
-		gap: 0.7rem;
-	}
-
-	.cap-grid article {
-		padding: 0.95rem;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 60%, transparent);
-		border-radius: 0.8rem;
+	.empty-state {
+		margin-top: 1.5rem;
+		padding: 1.1rem;
+		border-radius: 0.9rem;
+		border: 1px solid color-mix(in oklab, var(--color-edge) 64%, transparent);
 		background: color-mix(in oklab, var(--color-panel) 86%, transparent);
 	}
 
-	.cap-grid h3 {
+	.empty-state h3 {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 1.05rem;
 	}
 
-	.cap-grid p {
-		margin: 0.45rem 0 0;
+	.empty-state p {
+		margin: 0.55rem 0 0;
+		font-size: 0.9rem;
 		color: var(--color-muted-text);
 		line-height: 1.6;
-	}
-
-	.process-grid {
-		display: grid;
-		gap: 1rem;
-	}
-
-	.process h2 {
-		margin: 0.6rem 0 0;
-		font-size: clamp(1.35rem, 2.2vw, 2rem);
-		max-width: 26ch;
-		line-height: 1.2;
-	}
-
-	.steps {
-		display: grid;
-		gap: 0.7rem;
-	}
-
-	.steps article {
-		padding: 0.95rem;
-		border-radius: 0.8rem;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 60%, transparent);
-		background: color-mix(in oklab, var(--color-panel) 86%, transparent);
-	}
-
-	.steps h3 {
-		margin: 0;
-		font-size: 1rem;
-	}
-
-	.steps p {
-		margin: 0.42rem 0 0;
-		color: var(--color-muted-text);
-		line-height: 1.6;
-	}
-
-	.timeline ul {
-		margin: 1rem 0 0;
-		padding: 0;
-		list-style: none;
-		display: grid;
-		gap: 0.6rem;
-	}
-
-	.timeline li {
-		padding: 0.85rem 0.95rem;
-		border-radius: 0.7rem;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 58%, transparent);
-		background: color-mix(in oklab, var(--color-panel) 84%, transparent);
-		line-height: 1.6;
-	}
-
-	.post-grid {
-		margin-top: 1rem;
-		display: grid;
-		gap: 0.7rem;
-	}
-
-	.post {
-		text-decoration: none;
-		color: inherit;
-		padding: 0.95rem;
-		border-radius: 0.8rem;
-		border: 1px solid color-mix(in oklab, var(--color-edge) 60%, transparent);
-		background: color-mix(in oklab, var(--color-panel) 86%, transparent);
-	}
-
-	.post:hover {
-		border-color: var(--color-accent);
-	}
-
-	.post h3 {
-		margin: 0;
-		font-size: 1.02rem;
-	}
-
-	.post p {
-		margin: 0.45rem 0 0;
-		color: var(--color-muted-text);
-		line-height: 1.55;
 	}
 
 	@media (min-width: 900px) {
-		.work-lead {
-			grid-template-columns: 320px minmax(0, 1fr);
-			align-items: center;
-			padding: 0.95rem;
+		.practice-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
 
-		.work-grid {
+		.case-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 
-		.work-card {
-			grid-template-columns: 160px minmax(0, 1fr);
-			align-items: center;
-			padding: 0.7rem;
+		.case-card:first-child {
+			grid-column: 1 / -1;
 		}
 
-		.work-card .work-image-wrap {
-			aspect-ratio: 4 / 3;
+		.case-card:first-child .case-media {
+			aspect-ratio: 16 / 9;
+			min-height: clamp(320px, 46vw, 560px);
 		}
 
-		.cap-grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+		.case-card:not(:first-child) .case-media {
+			min-height: clamp(250px, 24vw, 360px);
 		}
 
-		.process-grid {
-			grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+		.case-card:first-child .case-copy h3 {
+			font-size: clamp(1.55rem, 2.5vw, 2.35rem);
+		}
+	}
+
+	@media (max-width: 900px) {
+		.intro-row {
+			grid-template-columns: 1fr;
 			align-items: start;
 		}
 
-		.post-grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+		.portrait-wrap {
+			max-width: 190px;
+		}
+
+		.case-media {
+			aspect-ratio: 16 / 11;
+			min-height: clamp(250px, 56vw, 430px);
 		}
 	}
 
 	@media (max-width: 740px) {
+		.intro {
+			padding-top: 3.6rem;
+			padding-bottom: 2.6rem;
+			min-height: auto;
+		}
+
 		.work-head {
 			display: grid;
-			gap: 0.45rem;
+			gap: 0.5rem;
 			align-items: start;
 		}
 
-		.work-all-link {
-			padding-bottom: 0;
+		.work-head a {
+			width: fit-content;
+		}
+	}
+
+	@media (max-width: 620px) {
+		.intro-copy h1 {
+			font-size: clamp(2.35rem, 13vw, 3.4rem);
+			line-height: 0.95;
+		}
+
+		.case-copy h3 {
+			font-size: 1.45rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.home-page {
+			padding-bottom: 4rem;
+		}
+
+		.shell {
+			padding: 0 1rem;
+		}
+
+		.hero-cta {
+			gap: 0.45rem;
+		}
+
+		.hero-cta a,
+		.work-head a {
+			padding: 0.5rem 0.74rem;
+			font-size: 0.62rem;
 		}
 	}
 </style>

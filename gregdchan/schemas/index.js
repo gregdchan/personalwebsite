@@ -30,6 +30,15 @@ import pictureHero from './objects/pictureHero'
 import imageWithAlt from './objects/imageWithAlt'
 import cta from './objects/cta'
 
+// Design content schemas
+import projectColorSwatch from './objects/projectColorSwatch'
+import projectPalette from './objects/projectPalette'
+import designProcessStep from './objects/designProcessStep'
+import beforeAfterComparison from './objects/beforeAfterComparison'
+import projectMetric from './objects/projectMetric'
+import infographicBlock from './objects/infographicBlock'
+import designPrinciple from './documents/designPrinciple'
+
 // Resume/CV schemas
 import education from './objects/education'
 import skills from './objects/skills'
@@ -75,6 +84,7 @@ const all = [
   validateSchema(project),
   validateSchema(post),
   validateSchema(errorPage),
+  validateSchema(designPrinciple),
 
   // Objects
   validateSchema(blockContent),
@@ -102,6 +112,14 @@ const all = [
   validateSchema(contactCta),
   validateSchema(skillsCloud), // NEW
   validateSchema(projectGrid),
+
+  // Design content objects
+  validateSchema(projectColorSwatch),
+  validateSchema(projectPalette),
+  validateSchema(designProcessStep),
+  validateSchema(beforeAfterComparison),
+  validateSchema(projectMetric),
+  validateSchema(infographicBlock),
 
   // Additional objects
   validateSchema(callToAction),

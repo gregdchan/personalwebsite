@@ -1,12 +1,11 @@
 import type { PageServerLoad } from './$types';
-import { getHomepage, getPosts, getProjects } from '$lib/sanity';
+import { getHomepage, getProjects } from '$lib/sanity';
 
 export const load: PageServerLoad = async () => {
-  const [page, projects, posts] = await Promise.all([
+  const [page, projects] = await Promise.all([
     getHomepage(),
-    getProjects({ limit: 6, featuredOnly: false }),
-    getPosts({ limit: 3, featuredOnly: false })
+    getProjects({ limit: 6, featuredOnly: false })
   ]);
 
-  return { page, projects, posts };
+  return { page, projects };
 };
