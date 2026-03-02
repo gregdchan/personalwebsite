@@ -3,7 +3,7 @@
 
   let { section = {} }: { section?: any } = $props();
   let i = $state(0);
-  const items = section?.testimonials || [];
+  const items = Array.isArray(section?.testimonials) ? section.testimonials : [];
   const autoplay = section?.autoplay ?? true;
   const interval = Math.max(section?.interval ?? 7000, 2000);
   let timer: any;

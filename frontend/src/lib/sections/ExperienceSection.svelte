@@ -5,7 +5,7 @@
 
 	const heading = section?.heading || '';
 	const subheading = section?.subheading || '';
-	const description = section?.description || [];
+	const description = Array.isArray(section?.description) ? section.description : [];
 
 	// Format dates
 	function formatDate(dateStr: string | undefined) {

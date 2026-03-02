@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PortableText from '$lib/rendering/PortableText.svelte';
-	import { ArrowLeft, ExternalLink, Github } from 'lucide-svelte';
+	import AppIcon from '$lib/components/icons/AppIcon.svelte';
 
 	let { project = {} }: { project: any } = $props();
 
@@ -42,7 +42,7 @@
 		{/if}
 		<div class="hero-overlay"></div>
 		<div class="hero-copy">
-			<a href="/work" class="back-link"><ArrowLeft size={16} /> Back to Work</a>
+			<a href="/work" class="back-link"><AppIcon name="arrow-left" size={16} /> Back to Work</a>
 			<div class="meta-line">
 				{#if project?.category}
 					<span>{project.category}</span>
@@ -136,18 +136,18 @@
 
 			<section>
 				<h3>Links</h3>
-				<div class="link-row">
-					{#if liveUrl}
-						<a href={liveUrl} target="_blank" rel="noopener noreferrer"
-							>Live Site <ExternalLink size={14} /></a
-						>
-					{/if}
-					{#if project?.githubUrl}
-						<a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
-							>Source <Github size={14} /></a
-						>
-					{/if}
-				</div>
+						<div class="link-row">
+							{#if liveUrl}
+								<a href={liveUrl} target="_blank" rel="noopener noreferrer"
+									>Live Site <AppIcon name="external-link" size={14} /></a
+								>
+							{/if}
+							{#if project?.githubUrl}
+								<a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
+									>Source <AppIcon name="github" size={14} /></a
+								>
+							{/if}
+						</div>
 			</section>
 		</aside>
 	</div>

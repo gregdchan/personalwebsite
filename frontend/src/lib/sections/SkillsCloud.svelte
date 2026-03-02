@@ -1,6 +1,10 @@
 <script lang="ts">
   let { section = {} }: { section?: any } = $props();
-  const skills = section?.skillsList ?? section?.skills ?? ['Svelte', 'TypeScript', 'Tailwind', 'Node', 'Sanity', 'Three.js'];
+  const skills = Array.isArray(section?.skillsList)
+    ? section.skillsList
+    : Array.isArray(section?.skills)
+      ? section.skills
+      : ['Svelte', 'TypeScript', 'Tailwind', 'Node', 'Sanity', 'Three.js'];
 </script>
 
 <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">

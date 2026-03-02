@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Navigation, NavigationItem } from '$lib/types/navigation';
-	import { Menu, X, Sun, Moon } from 'lucide-svelte';
+	import AppIcon from '$lib/components/icons/AppIcon.svelte';
 	import { page } from '$app/state';
 
 	let {
@@ -33,6 +33,15 @@
 		return slug ? `/${slug}` : '#';
 	}
 
+	function routeHref(item: NavigationItem) {
+		const label = (item?.text || '').toLowerCase().trim();
+		if (label === 'work') return '/work';
+		if (label === 'play') return '/play';
+		if (label === 'about') return '/about';
+		if (label === 'contact') return '/contact';
+		return href(item);
+	}
+
 	const navItems = $derived(
 		navigation?.items?.length
 			? navigation.items
@@ -45,7 +54,7 @@
 	);
 
 	function isActive(item: NavigationItem) {
-		const target = href(item);
+		const target = routeHref(item);
 		if (!target || target === '#') return false;
 		if (target === '/') return page.url.pathname === '/';
 		return page.url.pathname === target || page.url.pathname.startsWith(`${target}/`);
@@ -69,7 +78,7 @@
 		<nav class="desktop-nav">
 			{#each navItems as item}
 				<a
-					href={href(item)}
+					href={routeHref(item)}
 					target={(item as any)?.target || '_self'}
 					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
 					class:active={isActive(item)}
@@ -82,16 +91,16 @@
 		<div class="header-actions">
 			<button onclick={onToggleTheme} aria-label="Toggle theme" class="theme-btn">
 				{#if currentMode === 'dark'}
-					<Sun size={17} />
+					<AppIcon name="sun" size={17} />
 				{:else}
-					<Moon size={17} />
+					<AppIcon name="moon" size={17} />
 				{/if}
 			</button>
 			<button class="menu-btn" onclick={toggleMenu} aria-label="Toggle menu">
 				{#if isMenuOpen}
-					<X size={20} />
+					<AppIcon name="x" size={20} />
 				{:else}
-					<Menu size={20} />
+					<AppIcon name="menu" size={20} />
 				{/if}
 			</button>
 		</div>
@@ -101,7 +110,7 @@
 		<nav class="mobile-nav">
 			{#each navItems as item}
 				<a
-					href={href(item)}
+					href={routeHref(item)}
 					target={(item as any)?.target || '_self'}
 					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
 					onclick={() => (isMenuOpen = false)}

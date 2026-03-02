@@ -1,7 +1,7 @@
 <script lang="ts">
   let { section = {} }: { section?: any } = $props();
   const cols = Math.min(Math.max(section?.columns ?? 3, 1), 4);
-  const items = section?.features || [];
+  const items = Array.isArray(section?.features) ? section.features : [];
 </script>
 
 <section class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

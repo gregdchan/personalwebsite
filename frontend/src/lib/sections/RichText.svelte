@@ -1,6 +1,6 @@
 <script lang="ts">
   let { section = {} }: { section?: any } = $props();
-  const blocks = section?.body || [];
+  const blocks = Array.isArray(section?.body) ? section.body : [];
 </script>
 
 <section class="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 prose prose-invert:prose-invert">

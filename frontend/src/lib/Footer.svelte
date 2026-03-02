@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Github, Linkedin, Mail } from 'lucide-svelte';
+	import AppIcon from '$lib/components/icons/AppIcon.svelte';
 
 	const year = new Date().getFullYear();
 </script>
@@ -28,7 +28,7 @@
 			<p>© {year} Greg D. Chan</p>
 			<div class="socials">
 				<a href="https://github.com/gregdchan" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-					<Github size={17} />
+					<AppIcon name="github" size={17} />
 				</a>
 				<a
 					href="https://linkedin.com/in/gregdchan"
@@ -36,10 +36,10 @@
 					rel="noopener noreferrer"
 					aria-label="LinkedIn"
 				>
-					<Linkedin size={17} />
+					<AppIcon name="linkedin" size={17} />
 				</a>
 				<a href="mailto:gdc@example.com" aria-label="Email">
-					<Mail size={17} />
+					<AppIcon name="mail" size={17} />
 				</a>
 			</div>
 		</div>

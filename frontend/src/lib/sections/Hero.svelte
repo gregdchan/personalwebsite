@@ -4,7 +4,11 @@
 	const type = section?._type || 'hero';
 	const heading = section?.heading || section?.title || 'Welcome';
 	const subheading = section?.subheading || section?.subtitle || section?.description || '';
-	const actions = section?.actions || section?.cta ? [section?.cta] : [];
+	const actions = Array.isArray(section?.actions)
+		? section.actions
+		: section?.cta
+			? [section.cta]
+			: [];
 	const img = section?.backgroundImage?.asset?.url || section?.image?.asset?.url;
 	const poster = section?.posterImage?.asset?.url;
 	const vid = section?.videoUrl || section?.backgroundVideo;

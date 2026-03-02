@@ -3,7 +3,9 @@
 
 	const heading = section?.heading || 'Skills';
 	const subheading = section?.subheading || '';
-	const skillsList: { skill: string; proficiency: number }[] = section?.skillsList || [];
+	const skillsList: { skill: string; proficiency: number }[] = Array.isArray(section?.skillsList)
+		? section.skillsList
+		: [];
 </script>
 
 <div class="rounded-2xl border border-white/5 bg-surface-800/30 p-6">

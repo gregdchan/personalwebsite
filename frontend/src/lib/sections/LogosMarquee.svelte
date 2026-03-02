@@ -1,6 +1,6 @@
 <script lang="ts">
   let { logos = [] }: { logos?: any[] } = $props(); // [{ image{asset{url},alt}, url? }]
-  const list = logos?.filter(Boolean) || [];
+  const list = (Array.isArray(logos) ? logos : []).filter(Boolean);
 </script>
 
 {#if list.length}

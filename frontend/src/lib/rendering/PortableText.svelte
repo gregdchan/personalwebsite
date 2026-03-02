@@ -52,14 +52,15 @@
 	// Group list items into list blocks
 	function groupBlocks(rawBlocks: any[]) {
 		const result: any[] = [];
+		const source = Array.isArray(rawBlocks) ? rawBlocks : [];
 		let i = 0;
-		while (i < rawBlocks.length) {
-			const block = rawBlocks[i];
+		while (i < source.length) {
+			const block = source[i];
 			if (block._type === 'block' && block.listItem) {
 				const listType = block.listItem; // 'bullet' | 'number'
 				const items: any[] = [];
-				while (i < rawBlocks.length && rawBlocks[i].listItem === listType) {
-					items.push(rawBlocks[i]);
+				while (i < source.length && source[i].listItem === listType) {
+					items.push(source[i]);
 					i++;
 				}
 				result.push({ _type: 'list', listType, items });

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import { ArrowUpRight } from 'lucide-svelte';
+	import AppIcon from '$lib/components/icons/AppIcon.svelte';
 
 	let {
 		items = [],
@@ -10,7 +10,12 @@
 
 	// If passed via SectionRenderer, 'section' will contain the data
 	const displayTitle = section?.heading || section?.title || title;
-	const displayItems = section?.items || section?.projects || items;
+	const displayItems = $derived(() => {
+		const fromSectionItems = Array.isArray(section?.items) ? section.items : null;
+		const fromSectionProjects = Array.isArray(section?.projects) ? section.projects : null;
+		const fromProps = Array.isArray(items) ? items : [];
+		return fromSectionItems || fromSectionProjects || fromProps;
+	});
 </script>
 
 <section id="projects" class="py-24 lg:py-32">
@@ -30,13 +35,13 @@
 					href="/work"
 					class="flex items-center gap-2 font-medium text-primary-500 hover:underline"
 				>
-					View all work <ArrowUpRight size={18} />
+					View all work <AppIcon name="arrow-up-right" size={18} />
 				</a>
 			</div>
 		</div>
 
 		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-			{#each displayItems as project}
+			{#each displayItems() as project}
 				<a
 					href={`/work/${project.slug?.current || project.slug || project.title.toLowerCase().replace(/\s+/g, '-')}`}
 					class="group relative block overflow-hidden rounded-2xl border border-white/5 bg-surface-800/30 shadow-2xl transition-transform hover:-translate-y-2"
@@ -86,7 +91,7 @@
 							<div
 								class="-translate-y-2 rounded-lg bg-white/5 p-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
 							>
-								<ArrowUpRight size={20} />
+								<AppIcon name="arrow-up-right" size={20} />
 							</div>
 						</div>
 						<p class="line-clamp-2 text-sm text-surface-400">

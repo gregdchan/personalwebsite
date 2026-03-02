@@ -20,6 +20,7 @@
 	import UnknownSection from '$lib/sections/UnknownSection.svelte';
 
 	let { sections = [] }: { sections: any[] } = $props();
+	const safeSections = $derived(Array.isArray(sections) ? sections : []);
 
 	// Map of section types to components
 	const sectionMap: Record<string, any> = {
@@ -44,7 +45,7 @@
 	};
 </script>
 
-{#each sections as section, index (section._key || `${section._type}-${index}`)}
+{#each safeSections as section, index (section._key || `${section._type}-${index}`)}
 	{@const Component = sectionMap[section._type] || UnknownSection}
 	<div id={section._type}>
 		<Component {section} />

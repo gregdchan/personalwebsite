@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { ArrowRight, Terminal } from 'lucide-svelte';
+	import AppIcon from '$lib/components/icons/AppIcon.svelte';
 
 	let { section = {} }: { section: any } = $props();
 
@@ -12,7 +12,7 @@
 		section?.description ||
 		'Product designer & engineer crafting modern interfaces with SvelteKit, specialized in social impact and inclusive design.';
 
-	const actions = section?.actions || [
+	const actions = (Array.isArray(section?.actions) ? section.actions : null) || [
 		{ text: 'View projects', url: '#projects', primary: true },
 		{ text: 'About Greg', url: '/about' }
 	];
@@ -33,7 +33,7 @@
 				<div
 					class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-3 py-1 font-mono text-xs tracking-widest text-primary-500 uppercase"
 				>
-					<Terminal size={14} /> Design Technologist
+					<AppIcon name="terminal" size={14} /> Design Technologist
 				</div>
 
 				<h1 class="mb-8 text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl lg:text-7xl">
@@ -54,7 +54,7 @@
 						>
 							{action.text}
 							{#if action.primary}
-								<ArrowRight size={18} />
+								<AppIcon name="arrow-right" size={18} />
 							{/if}
 						</a>
 					{/each}

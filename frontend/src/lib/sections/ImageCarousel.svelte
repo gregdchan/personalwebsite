@@ -1,7 +1,9 @@
 <script lang="ts">
 	let { section = {} }: { section?: any } = $props();
 	let i = $state(0);
-	const imgs = (section?.images || []).map((im: any) => im?.asset?.url || im?.url).filter(Boolean);
+	const imgs = (Array.isArray(section?.images) ? section.images : [])
+		.map((im: any) => im?.asset?.url || im?.url)
+		.filter(Boolean);
 	let timer: any;
 	const autoplay = section?.autoplay ?? false;
 	const interval = Math.max(section?.interval ?? 5000, 1500);
