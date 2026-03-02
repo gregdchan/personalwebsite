@@ -1,4 +1,4 @@
-# Multi-stage build for production
+# ── Stage 1: Build ──────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -6,34 +6,30 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install all dependencies (including devDeps needed for build)
 RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build Sanity Studio
+# Build Sanity Studio (outputs to ./dist)
 RUN npm run build
 
-# Production image
+# ── Stage 2: Production ────────────────────────────────────
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install a lightweight static file server
+RUN npm install -g serve
 
-# Install production dependencies only
-RUN npm ci --production
-
-# Copy built Sanity Studio from builder
+# Copy the built static studio from builder
 COPY --from=builder /app/dist ./dist
 
-# Expose port (Railway will set PORT env var)
-EXPOSE 3333
+# Railway sets PORT dynamically — default to 3333 for local testing
+ENV PORT=3333
 
-# Set NODE_ENV
-ENV NODE_ENV=production
+EXPOSE $PORT
 
-# Start Sanity Studio
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "3333"]
+# Serve the static dist folder on Railway's dynamic port
+CMD ["sh", "-c", "serve dist -l $PORT --single"]

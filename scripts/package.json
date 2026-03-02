@@ -1,0 +1,18 @@
+{
+  "name": "wp-to-sanity-migration",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate": "node wp-to-sanity.mjs"
+  },
+  "dependencies": {
+    "@sanity/client": "^7.0.0",
+    "xml2js": "^0.6.2",
+    "node-fetch": "^3.3.2",
+    "htmlparser2": "^9.1.0",
+    "dom-serializer": "^2.0.0",
+    "domhandler": "^5.0.3",
+    "domutils": "^3.1.0"
+  }
+}

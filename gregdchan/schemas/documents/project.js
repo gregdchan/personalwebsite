@@ -71,7 +71,64 @@ export default defineType({
       type: 'number',
       description: 'Year project was completed'
     }),
-    defineField({ name: 'body', title: 'Body', type: 'blockContent' })
+    defineField({ name: 'body', title: 'Body', type: 'blockContent' }),
+
+    // ACF Case Study Fields (migrated from WordPress)
+    defineField({ name: 'client', title: 'Client', type: 'string' }),
+    defineField({
+      name: 'collaborators',
+      title: 'Collaborators',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' }
+    }),
+    defineField({
+      name: 'roles',
+      title: 'Roles',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' }
+    }),
+    defineField({
+      name: 'portfolioType',
+      title: 'Portfolio Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Case Study', value: 'Casestudy' },
+          { title: 'Research', value: 'Research' },
+          { title: 'Portfolio', value: 'Portfolio' }
+        ]
+      }
+    }),
+    defineField({ name: 'goals', title: 'Goals', type: 'text' }),
+    defineField({ name: 'introduction', title: 'Introduction', type: 'blockContent' }),
+    defineField({ name: 'challenge', title: 'Challenge', type: 'blockContent' }),
+    defineField({ name: 'resultTitle', title: 'Result Title', type: 'string' }),
+    defineField({ name: 'resultDescription', title: 'Result Description', type: 'blockContent' }),
+    defineField({
+      name: 'gallery',
+      title: 'Gallery',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true }, fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string' })] }]
+    }),
+    defineField({
+      name: 'caseStudySections',
+      title: 'Case Study Sections',
+      type: 'array',
+      of: [{
+        type: 'object',
+        name: 'caseStudySection',
+        fields: [
+          defineField({ name: 'title', title: 'Title', type: 'string' }),
+          defineField({ name: 'description', title: 'Description', type: 'text' }),
+          defineField({ name: 'imageA', title: 'Image A', type: 'image', options: { hotspot: true } }),
+          defineField({ name: 'imageB', title: 'Image B', type: 'image', options: { hotspot: true } })
+        ],
+        preview: { select: { title: 'title' } }
+      }]
+    }),
+    defineField({ name: 'projectDate', title: 'Project Date', type: 'date' })
   ],
   preview: {
     select: {

@@ -3,14 +3,9 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm run start -- --host 0.0.0.0 --port $PORT"
+startCommand = "serve dist -l $PORT --single"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-
-# Environment variables (set these in Railway dashboard)
-# SANITY_STUDIO_PROJECT_ID - Your Sanity project ID
-# SANITY_STUDIO_DATASET - Your Sanity dataset (usually "production")
-# SANITY_STUDIO_API_VERSION - API version (e.g., "2024-01-01")
 
 [healthcheck]
 path = "/"
