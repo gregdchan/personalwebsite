@@ -3,11 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (including lockfile if it exists)
+# Explicitly copy it because .gitignore was previously blocking it!
+COPY package.json package-lock.json* ./
 
-# Install all dependencies (including devDeps needed for build)
-RUN npm ci
+# Using npm install instead of npm ci for better resilience in all environments
+# Especially if the lockfile was missing from the build context!
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -17,6 +19,7 @@ ARG VITE_API_URL
 ARG PUBLIC_SANITY_PROJECT_ID
 ARG PUBLIC_SANITY_DATASET
 
+# Ensure these are available at build time
 ENV VITE_API_URL=$VITE_API_URL
 ENV PUBLIC_SANITY_PROJECT_ID=$PUBLIC_SANITY_PROJECT_ID
 ENV PUBLIC_SANITY_DATASET=$PUBLIC_SANITY_DATASET
@@ -30,8 +33,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files and install prod-only deps
-COPY package*.json ./
-RUN npm ci --omit=dev
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev
 
 # Copy the built app from the builder stage
 COPY --from=builder /app/build ./build
@@ -43,5 +46,5 @@ ENV PORT=3000
 
 EXPOSE $PORT
 
-# adapter-node reads HOST + PORT from env automatically
+# SvelteKit with adapter-node listens on PORT env
 CMD ["node", "build"]

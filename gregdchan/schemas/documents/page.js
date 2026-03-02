@@ -392,6 +392,12 @@ export default defineType({
     defineField({ name: 'description', title: 'Description', type: 'text', rows: 3 }),
     defineField({ name: 'isIndexPage', title: 'Is Homepage', type: 'boolean', initialValue: false }),
     defineField({
+      name: 'mainImage',
+      title: 'Main Image',
+      type: 'mainImage'
+    }),
+    defineField({ name: 'body', title: 'Body', type: 'blockContent' }),
+    defineField({
       name: 'sections',
       title: 'Sections',
       type: 'array',

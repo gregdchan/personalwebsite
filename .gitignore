@@ -37,6 +37,5 @@ pnpm-debug.log*
 *.log
 
 # Lockfiles (non-Yarn)
-package-lock.json
 pnpm-lock.yaml
 bun.lockb

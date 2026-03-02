@@ -3,11 +3,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (including lockfile if it exists)
+COPY package.json package-lock.json* ./
 
 # Install all dependencies (including devDeps needed for build)
-RUN npm ci
+# Using npm install instead of npm ci for better resilience in all environments
+RUN npm install
 
 # Copy source code
 COPY . .
