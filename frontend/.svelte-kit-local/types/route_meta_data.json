@@ -1,0 +1,34 @@
+{
+	"/": [
+		"src/routes/+page.server.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/about-me": [
+		"src/routes/about-me/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/game": [
+		"src/routes/+layout.server.ts"
+	],
+	"/play": [
+		"src/routes/play/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/play/[slug]": [
+		"src/routes/play/[slug]/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/work": [
+		"src/routes/work/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/work/[slug]": [
+		"src/routes/work/[slug]/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/[...slug]": [
+		"src/routes/[...slug]/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	]
+}
