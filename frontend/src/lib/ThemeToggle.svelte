@@ -21,7 +21,7 @@
     type="button"
     aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     class="theme-toggle inline-flex items-center justify-center w-10 h-10 p-2 rounded-full focus:outline-none focus-visible:ring-2 focus:ring-blue-500"
-    on:click={handleToggle}
+    onclick={handleToggle}
   >
     {#if $theme === 'dark'}
       <!-- Sun icon for dark mode (click to switch to light) -->

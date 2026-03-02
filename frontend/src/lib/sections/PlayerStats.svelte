@@ -5,7 +5,7 @@
   import { fly, fade, scale } from 'svelte/transition';
   import { urlFor } from '$lib/sanity';
 
-  export let section: any = null;
+  let { section = null }: { section?: any } = $props();
 
   // Default data if no section provided
   const profile = section || {

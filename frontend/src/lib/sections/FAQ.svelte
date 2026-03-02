@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   const items = section?.items || [];
 </script>
 

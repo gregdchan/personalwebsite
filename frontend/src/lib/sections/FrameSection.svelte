@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   // Try common field names; fallback to content/html
   const src = section?.url || section?.src;
   const html = section?.html || section?.content;

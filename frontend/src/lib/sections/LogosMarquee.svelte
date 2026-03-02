@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let logos: any[] = []; // [{ image{asset{url},alt}, url? }]
+  let { logos = [] }: { logos?: any[] } = $props(); // [{ image{asset{url},alt}, url? }]
   const list = logos?.filter(Boolean) || [];
 </script>
 

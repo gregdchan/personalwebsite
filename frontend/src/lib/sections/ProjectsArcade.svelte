@@ -4,8 +4,7 @@
   import { quintOut } from 'svelte/easing';
   import ArcadeCabinet from '$lib/components/ArcadeCabinet.svelte';
 
-  export let items: any[] = [];
-  export let title: string = '🎮 FEATURED PROJECTS 🎮';
+  let { items = [], title = '🎮 FEATURED PROJECTS 🎮' }: { items: any[]; title: string } = $props();
 
   let filterTag = $state('all');
 
@@ -24,9 +23,8 @@
     return items.filter(item => item.category === filterTag);
   });
 
-  function handleProjectOpen(event: CustomEvent) {
-    const project = event.detail.project;
-    // Navigate to project detail page
+  function handleProjectOpen(detail: { project: any }) {
+    const project = detail.project;
     window.location.href = `/${project.slug?.current || project.slug}`;
   }
 </script>
@@ -64,7 +62,7 @@
           <ArcadeCabinet
             {project}
             {index}
-            on:open={handleProjectOpen}
+            onopen={handleProjectOpen}
           />
         </div>
       {/each}

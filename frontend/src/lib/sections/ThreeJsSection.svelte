@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   // Placeholder: integrate your three.js scene here (e.g., threlte)
 </script>
 

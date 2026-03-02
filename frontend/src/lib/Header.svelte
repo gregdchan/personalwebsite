@@ -1,44 +1,25 @@
 <script lang="ts">
   import type { Navigation, NavigationItem } from '$lib/types/navigation';
   import { onMount } from 'svelte';
-  import { slide, fade } from 'svelte/transition';
-  import { quintOut, cubicIn } from 'svelte/easing';
-  import ThemeToggle from './ThemeToggle.svelte';
-  
-  export let navigation: Navigation | null = null;
-  export let logoUrl: string | null = null;
-  
-  let isMenuOpen = false;
-  let mounted = false;
-  
+  import { fade, slide } from 'svelte/transition';
+  import { Menu, X, Sun, Moon, Laptop } from 'lucide-svelte';
+
+  let { navigation = null, logoUrl = null }: { navigation: Navigation | null; logoUrl: string | null } = $props();
+
+  let isMenuOpen = $state(false);
+  let isScrolled = $state(false);
+
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
-  
-  // Close menu when clicking outside or pressing escape
+
+  function handleScroll() {
+    isScrolled = window.scrollY > 20;
+  }
+
   onMount(() => {
-    mounted = true;
-    
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('nav') && isMenuOpen) {
-        isMenuOpen = false;
-      }
-    };
-    
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isMenuOpen) {
-        isMenuOpen = false;
-      }
-    };
-    
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-    
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   });
 
   function href(item: NavigationItem) {
@@ -55,112 +36,79 @@
       link.slug;
     return slug ? `/${slug}` : '#';
   }
+
+  const navItems = navigation?.items ?? [
+    { text: 'Work', link: '/work' },
+    { text: 'About', link: '/about' },
+    { text: 'Contact', link: '/contact' }
+  ];
 </script>
 
-<header
-  class="bg-[var(--color-header-bg)] text-[var(--color-header-text)] shadow-[var(--shadow)] sticky top-0 z-40"
-  style="font-family: var(--font-header, var(--font-heading));"
+<header 
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/5 backdrop-blur-md {isScrolled ? 'bg-surface-900/80 py-3' : 'py-4'}"
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <nav class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <div class="flex-shrink-0">
-        <a href="/" aria-label="Home" data-sveltekit-prefetch class="flex items-center">
-          {#if logoUrl}
-            <img src={logoUrl} alt="Logo" class="h-8 w-auto" />
-          {:else}
-            <span class="text-lg font-bold">Site</span>
-          {/if}
-        </a>
+  <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+    <!-- Logo -->
+    <a href="/" class="group flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center font-bold text-white transition-transform group-hover:rotate-12">
+        G
       </div>
+      <span class="font-bold text-xl tracking-tight hidden sm:block">Greg D. Chan</span>
+    </a>
 
-      <!-- Desktop nav -->
-      <div class="hidden md:flex md:items-center md:space-x-6">
-        {#if navigation?.items}
-          <ul class="flex space-x-6">
-            {#each navigation.items as item}
-              <li>
-                <a
-                  href={href(item)}
-                  data-sveltekit-prefetch
-                  class="px-1 py-2 text-[var(--header-font-size)] transition-colors duration-200 relative text-[var(--color-header-text)]/90 hover:text-[var(--color-header-text)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-primary)] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
-                  style="font-weight: var(--header-font-weight, var(--base-font-weight, 500));"
-                >
-                  {item.text}
-                </a>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-
-        <!-- Theme toggle -->
-        <div class="pl-5 border-l border-[color:var(--color-header-text)]/20">
-          <ThemeToggle />
-        </div>
-      </div>
-
-      <!-- Mobile button -->
-      <div class="flex items-center md:hidden">
-        <ThemeToggle />
-        
-        <button
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-header-bg)]"
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-menu"
-          on:click={toggleMenu}
-          aria-label="Toggle menu"
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-8">
+      {#each navItems as item}
+        <a 
+          href={href(item)} 
+          class="text-sm font-medium opacity-70 hover:opacity-100 transition-opacity relative group"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 text-[color:var(--color-header-text)]"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            {#if isMenuOpen}
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            {:else}
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            {/if}
-          </svg>
-        </button>
-      </div>
+          {item.text}
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 transition-all group-hover:w-full"></span>
+        </a>
+      {/each}
+      
+      <!-- Theme Switcher could go here if needed, but let's stick to Dark by default for "Tech Savvy" -->
     </nav>
 
-    <!-- Mobile menu -->
-    {#if mounted && navigation?.items}
+    <!-- Mobile Menu Toggle -->
+    <button 
+      class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+      onclick={toggleMenu}
+      aria-label="Toggle Menu"
+    >
       {#if isMenuOpen}
-        <div
-          id="mobile-menu"
-          class="md:hidden fixed inset-x-0 top-16 z-40 backdrop-blur-md shadow-[var(--shadow)]"
-          style="
-            background-color: color-mix(in srgb, var(--color-header-bg) 85%, transparent);
-            color: var(--color-header-text);
-            font-family: var(--font-header, var(--font-heading));
-            font-size: var(--header-font-size);
-            font-weight: var(--header-font-weight, var(--base-font-weight, 500));
-          "
-          in:slide={{ duration: 260, easing: quintOut }}
-          out:slide={{ duration: 200, easing: cubicIn }}
-        >
-          <nav class="px-4 py-4 space-y-2">
-            {#if navigation?.items}
-              {#each navigation.items as item}
-                <a
-                  href={href(item)}
-                  data-sveltekit-prefetch
-                  class="block rounded-md px-3 py-2 hover:opacity-80 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-header-bg)]"
-                  on:click={() => { isMenuOpen = false; }}
-                  style="font-weight: var(--header-font-weight, var(--base-font-weight, 500));"
-                >
-                  {item.text}
-                </a>
-              {/each}
-            {/if}
-          </nav>
-        </div>
+        <X size={24} />
+      {:else}
+        <Menu size={24} />
       {/if}
-    {/if}
+    </button>
   </div>
+
+  <!-- Mobile Nav Overlay -->
+  {#if isMenuOpen}
+    <div 
+      class="md:hidden absolute top-full left-0 right-0 bg-surface-900 border-b border-white/5 py-4 px-6 flex flex-col gap-4 shadow-2xl"
+      transition:slide={{ duration: 300 }}
+    >
+      {#each navItems as item}
+        <a 
+          href={href(item)} 
+          class="text-lg font-medium py-2"
+          onclick={() => isMenuOpen = false}
+        >
+          {item.text}
+        </a>
+      {/each}
+    </div>
+  {/if}
 </header>
+
+<div class="h-20 lg:h-24"></div> <!-- Spacer -->
+
+<style>
+  header {
+    /* Subtle glow for tech-savvy look */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+</style>

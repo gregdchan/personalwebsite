@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   const bg = section?.backgroundImage?.asset?.url || section?.backgroundImage?.url;
   const alt = section?.backgroundImage?.alt || section?.title || 'Hero background';
   const zoom = section?.hoverZoom ?? 1.1;

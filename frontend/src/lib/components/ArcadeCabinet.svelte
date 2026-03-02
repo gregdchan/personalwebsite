@@ -2,13 +2,9 @@
   import { spring, tweened } from 'svelte/motion';
   import { scale, fly, fade } from 'svelte/transition';
   import { quintOut, elasticOut } from 'svelte/easing';
-  import { createEventDispatcher } from 'svelte';
   import { urlFor } from '$lib/sanity';
 
-  export let project: any;
-  export let index: number = 0;
-
-  const dispatch = createEventDispatcher();
+  let { project, index = 0, onopen }: { project: any; index?: number; onopen?: (detail: { project: any }) => void } = $props();
 
   // Spring for hover scale
   const hoverScale = spring(1, {
@@ -36,7 +32,7 @@
   }
 
   function handleClick() {
-    dispatch('open', { project });
+    onopen?.({ project });
   }
 
   // Get cover image URL

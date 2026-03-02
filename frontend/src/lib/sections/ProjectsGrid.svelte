@@ -1,6 +1,5 @@
 <script lang="ts">
-  export let title: string = 'Featured Projects';
-  export let items: any[] = [];
+  let { title = 'Featured Projects', items = [] }: { title?: string; items?: any[] } = $props();
   function href(p:any){ return p?.slug?.current ? `/work/${p.slug.current}` : '#' }
 </script>
 

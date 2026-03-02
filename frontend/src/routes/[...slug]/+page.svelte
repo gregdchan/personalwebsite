@@ -14,13 +14,15 @@
   import FrameSection from '$lib/sections/FrameSection.svelte';
   import UnknownSection from '$lib/sections/UnknownSection.svelte';
 
-  export let data: {
-    page: {
-      title?: string;
-      description?: string;
-      sections?: any[];
-    }
-  };
+  let { data }: {
+    data: {
+      page: {
+        title?: string;
+        description?: string;
+        sections?: any[];
+      };
+    };
+  } = $props();
 
   const componentMap: Record<string, any> = {
     hero: Hero,

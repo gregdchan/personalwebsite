@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
 
   const type = section?._type || 'hero';
   const heading = section?.heading || section?.title || 'Welcome';

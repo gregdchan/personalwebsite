@@ -3,14 +3,12 @@
   import { scale, fly } from 'svelte/transition';
   import { elasticOut } from 'svelte/easing';
 
-  export let contacts = [
+  let { contacts = [
     { type: 'email', icon: '📧', label: 'EMAIL', url: 'mailto:hello@gregdchan.com' },
     { type: 'linkedin', icon: '💼', label: 'LINKEDIN', url: 'https://linkedin.com' },
     { type: 'github', icon: '💻', label: 'GITHUB', url: 'https://github.com' },
     { type: 'twitter', icon: '🐦', label: 'TWITTER', url: 'https://twitter.com' }
-  ];
-
-  export let title = 'INSERT COIN TO START';
+  ], title = 'INSERT COIN TO START' }: { contacts?: any[]; title?: string } = $props();
 
   // Spring physics for button press
   const buttonPress = spring(

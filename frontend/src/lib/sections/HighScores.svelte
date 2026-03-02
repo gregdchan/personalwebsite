@@ -3,7 +3,7 @@
   import { fly, blur, fade } from 'svelte/transition';
   import { onMount } from 'svelte';
 
-  export let section: any = null;
+  let { section = null }: { section?: any } = $props();
 
   // Default skills if no section provided
   const defaultSkills = [

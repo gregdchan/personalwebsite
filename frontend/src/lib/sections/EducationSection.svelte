@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
 </script>
 
 <section class="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">

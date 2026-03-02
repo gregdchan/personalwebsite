@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   const skills = section?.skillsList ?? section?.skills ?? ['Svelte', 'TypeScript', 'Tailwind', 'Node', 'Sanity', 'Three.js'];
 </script>
 

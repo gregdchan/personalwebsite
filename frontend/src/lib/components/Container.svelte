@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let size: 'sm' | 'md' | 'lg' | 'xl' | '2xl' = 'lg';
+  let { size = 'lg' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' } = $props();
   const widths = {
     sm: 'max-w-screen-sm',
     md: 'max-w-screen-md',

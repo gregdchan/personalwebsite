@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let section: any = {};
+  let { section = {} }: { section?: any } = $props();
   const cols = Math.min(Math.max(section?.columns ?? 3, 1), 4);
   const items = section?.features || [];
 </script>

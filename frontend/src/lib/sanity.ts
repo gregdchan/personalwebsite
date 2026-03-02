@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
 import type { DesignToken } from '$lib/types/designToken';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID!;
@@ -11,6 +12,12 @@ export const client = createClient({
   useCdn: import.meta.env.PROD, // no CDN in dev to avoid stale reads
   perspective: 'published'
 });
+
+const builder = imageUrlBuilder(client);
+
+export function urlFor(source: any) {
+  return builder.image(source);
+}
 
 // Minimal queries (avoid fancy projections to keep it robust)
 export async function getNavigation(): Promise<any | null> {
