@@ -167,13 +167,13 @@
 		width: 38px;
 		height: 38px;
 		border-radius: 10px;
-		background: linear-gradient(140deg, #0ea5e9, #2563eb);
+		background: linear-gradient(140deg, var(--color-accent), var(--color-accent-alt));
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
 		font-weight: 700;
 		letter-spacing: 0.07em;
 		color: white;
-		box-shadow: 0 10px 28px rgba(14, 116, 144, 0.32);
+		box-shadow: 0 10px 28px color-mix(in oklab, var(--color-accent) 32%, transparent);
 	}
 
 	.brand-logo {
@@ -230,9 +230,9 @@
 	}
 
 	.desktop-nav a.active {
-		color: white;
-		border-color: rgba(56, 189, 248, 0.4);
-		background: rgba(14, 116, 144, 0.2);
+		color: var(--color-on-accent);
+		border-color: color-mix(in oklab, var(--color-accent-alt) 55%, transparent);
+		background: color-mix(in oklab, var(--color-accent) 56%, transparent);
 	}
 
 	.header-actions {

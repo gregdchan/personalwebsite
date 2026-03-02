@@ -52,52 +52,62 @@
   --font-heading: 'Sora', 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-accent: #0284c7;
-  --color-accent-alt: #0f766e;
+  --color-primary: #FF8B3D;
+  --color-secondary: #F59E0B;
+  --color-accent: #FF8B3D;
+  --color-accent-alt: #F59E0B;
+  --color-on-accent: #2a1507;
 
-  --app-bg-top: #f7fafc;
-  --app-bg-mid: #f3f6fc;
-  --app-bg-bottom: #ecf3ff;
-  --app-bg-radial-a: rgba(14, 116, 144, 0.15);
-  --app-bg-radial-b: rgba(30, 64, 175, 0.13);
-  --app-glow-a: rgba(56, 189, 248, 0.2);
-  --app-glow-b: rgba(45, 212, 191, 0.2);
-  --app-body-bg: #edf3fb;
+  --app-bg-top: #fffbf7;
+  --app-bg-mid: #fff5e9;
+  --app-bg-bottom: #fee8cf;
+  --app-bg-radial-a: rgba(255, 139, 61, 0.14);
+  --app-bg-radial-b: rgba(245, 158, 11, 0.12);
+  --app-glow-a: rgba(255, 139, 61, 0.16);
+  --app-glow-b: rgba(245, 158, 11, 0.14);
+  --app-body-bg: #fff8ef;
 
-  --color-body-text: #0f172a;
-  --color-muted-text: rgba(30, 41, 59, 0.7);
-  --heading-color: #020617;
+  --color-body-text: #24160d;
+  --color-muted-text: rgba(74, 49, 32, 0.72);
+  --heading-color: #1a0f08;
 
-  --color-panel: rgba(255, 255, 255, 0.74);
-  --color-chip: rgba(148, 163, 184, 0.2);
-  --color-edge: rgba(100, 116, 139, 0.3);
-  --color-header-surface: rgba(248, 250, 252, 0.72);
-  --color-control-bg: rgba(226, 232, 240, 0.58);
+  --color-panel: rgba(255, 248, 238, 0.82);
+  --color-chip: rgba(245, 158, 11, 0.13);
+  --color-edge: rgba(151, 92, 41, 0.24);
+  --color-header-surface: rgba(255, 251, 245, 0.86);
+  --color-control-bg: rgba(255, 241, 221, 0.74);
+  --about-slab-top: #fef4e5;
+  --about-slab-bottom: #f9e6cd;
 }
 
 :root[data-theme-mode='dark'],
 :root.dark {
-  --color-accent: #38bdf8;
-  --color-accent-alt: #2dd4bf;
+  --color-primary: #FF8B3D;
+  --color-secondary: #F59E0B;
+  --color-accent: #FF8B3D;
+  --color-accent-alt: #F59E0B;
+  --color-on-accent: #fff4e8;
 
-  --app-bg-top: #040712;
-  --app-bg-mid: #060d1b;
-  --app-bg-bottom: #04070f;
-  --app-bg-radial-a: rgba(30, 64, 175, 0.23);
-  --app-bg-radial-b: rgba(14, 116, 144, 0.26);
-  --app-glow-a: rgba(30, 64, 175, 0.26);
-  --app-glow-b: rgba(14, 116, 144, 0.28);
-  --app-body-bg: #030712;
+  --app-bg-top: #090603;
+  --app-bg-mid: #0e0905;
+  --app-bg-bottom: #050302;
+  --app-bg-radial-a: rgba(255, 139, 61, 0.2);
+  --app-bg-radial-b: rgba(245, 158, 11, 0.16);
+  --app-glow-a: rgba(255, 139, 61, 0.22);
+  --app-glow-b: rgba(245, 158, 11, 0.2);
+  --app-body-bg: #020201;
 
-  --color-body-text: #e6edf8;
-  --color-muted-text: rgba(203, 213, 225, 0.76);
-  --heading-color: #f8fbff;
+  --color-body-text: #faecd9;
+  --color-muted-text: rgba(238, 212, 183, 0.72);
+  --heading-color: #fff6e8;
 
-  --color-panel: rgba(15, 23, 42, 0.58);
-  --color-chip: rgba(148, 163, 184, 0.16);
-  --color-edge: rgba(148, 163, 184, 0.2);
-  --color-header-surface: rgba(2, 6, 23, 0.6);
-  --color-control-bg: rgba(15, 23, 42, 0.5);
+  --color-panel: rgba(23, 14, 9, 0.74);
+  --color-chip: rgba(255, 139, 61, 0.18);
+  --color-edge: rgba(245, 158, 11, 0.28);
+  --color-header-surface: rgba(9, 6, 4, 0.8);
+  --color-control-bg: rgba(30, 20, 13, 0.74);
+  --about-slab-top: #20140d;
+  --about-slab-bottom: #16100b;
 }
 
 html,
@@ -141,7 +151,7 @@ a {
 
 .portable-text strong {
   font-weight: 700;
-  color: #fff;
+  color: var(--heading-color);
 }
 
 .portable-text em {

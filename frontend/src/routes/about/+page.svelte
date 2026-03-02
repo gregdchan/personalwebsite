@@ -184,7 +184,7 @@
 
 	.intro-copy h1 {
 		margin: 0;
-		color: rgba(224, 227, 235, 0.94);
+		color: var(--color-body-text);
 		font-family: var(--font-heading);
 		font-size: clamp(2.4rem, 7vw, 4.75rem);
 		line-height: 0.95;
@@ -202,14 +202,20 @@
 		font-size: 0.74rem;
 		line-height: 1.65;
 		letter-spacing: 0.03em;
-		color: rgba(229, 231, 235, 0.86);
+		color: var(--color-muted-text);
 	}
 
 	.resume-slab {
-		background: linear-gradient(180deg, #eceff4 0%, #e6e8ef 100%);
+		background:
+			linear-gradient(180deg, var(--about-slab-top) 0%, var(--about-slab-bottom) 100%),
+			radial-gradient(
+				circle at 10% 20%,
+				color-mix(in oklab, var(--color-accent) 18%, transparent),
+				transparent 42%
+			);
 		padding: clamp(2.5rem, 5vw, 4rem) 0;
-		color: #161923;
-		border-top: 1px solid rgba(255, 255, 255, 0.12);
+		color: var(--color-body-text);
+		border-top: 1px solid color-mix(in oklab, var(--color-accent-alt) 40%, transparent);
 	}
 
 	.resume-grid {
@@ -224,6 +230,8 @@
 		line-height: 1;
 		font-weight: 800;
 		letter-spacing: -0.02em;
+		color: color-mix(in oklab, var(--color-accent-alt) 72%, white);
+		text-shadow: none;
 	}
 
 	.resume-col h2.stacked {
@@ -233,19 +241,20 @@
 	.resume-item {
 		margin-top: 0.85rem;
 		padding-top: 0.85rem;
-		border-top: 1px solid rgba(22, 25, 35, 0.1);
+		border-top: 1px solid color-mix(in oklab, var(--color-accent-alt) 22%, transparent);
 	}
 
 	.resume-item h3 {
 		margin: 0;
 		font-size: 0.98rem;
 		font-weight: 700;
+		color: color-mix(in oklab, var(--color-body-text) 94%, white);
 	}
 
 	.resume-item p {
 		margin: 0.3rem 0 0;
 		font-size: 0.82rem;
-		color: #4b5565;
+		color: var(--color-muted-text);
 	}
 
 	.toolkit-list {
@@ -258,16 +267,18 @@
 	.toolkit-list span {
 		display: inline-block;
 		padding: 0.3rem 0.5rem;
-		border: 1px solid rgba(22, 25, 35, 0.2);
+		border: 1px solid color-mix(in oklab, var(--color-accent) 38%, transparent);
 		border-radius: 0.3rem;
 		font-size: 0.72rem;
 		letter-spacing: 0.02em;
 		font-family: var(--font-mono);
+		background: var(--color-control-bg);
+		color: color-mix(in oklab, var(--color-accent-alt) 70%, white);
 	}
 
 	.experience-col {
 		padding-left: clamp(0.75rem, 2vw, 1.5rem);
-		border-left: 2px solid rgba(94, 161, 97, 0.42);
+		border-left: 2px solid color-mix(in oklab, var(--color-accent-alt) 52%, transparent);
 	}
 
 	.experience-description {
@@ -278,7 +289,7 @@
 		margin: 0;
 		font-size: 0.8rem;
 		line-height: 1.5;
-		color: #4b5565;
+		color: var(--color-muted-text);
 	}
 
 	@media (max-width: 900px) {
@@ -295,11 +306,11 @@
 			grid-template-columns: 1fr;
 		}
 
-		.experience-col {
-			border-left: 0;
-			padding-left: 0;
-			border-top: 2px solid rgba(94, 161, 97, 0.42);
-			padding-top: 1.2rem;
+			.experience-col {
+				border-left: 0;
+				padding-left: 0;
+				border-top: 2px solid color-mix(in oklab, var(--color-accent-alt) 52%, transparent);
+				padding-top: 1.2rem;
+			}
 		}
-	}
-</style>
+	</style>
