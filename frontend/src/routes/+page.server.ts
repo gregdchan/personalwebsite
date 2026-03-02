@@ -17,7 +17,7 @@ const PAGE_Q = /* groq */ `*[_type == "page" && isIndexPage == true][0]{
 }`;
 
 const PROJECTS_Q = /* groq */ `*[_type == "project"] | order(_updatedAt desc)[0..7]{
-  _id, title, excerpt, slug, cover{alt, asset->{url}}, tags
+  _id, title, excerpt, slug, cover{alt, asset->{url}}, tags, category
 }`;
 const POSTS_Q = /* groq */ `*[_type == "post"] | order(_updatedAt desc)[0..3]{
   _id, title, excerpt, slug, cover{alt, asset->{url}} }`;

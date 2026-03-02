@@ -39,9 +39,9 @@
 				>
 					<!-- Project Image / Mockup Placeholder -->
 					<div class="relative aspect-[16/10] overflow-hidden bg-surface-700">
-						{#if project.image?.asset?.url}
+						{#if (project.cover || project.image)?.asset?.url}
 							<img
-								src={project.image.asset.url}
+								src={(project.cover || project.image).asset.url}
 								alt={project.title}
 								class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
 							/>
@@ -69,7 +69,7 @@
 							<div>
 								<span
 									class="mb-2 block font-mono text-xs font-bold tracking-widest text-primary-500 uppercase"
-									>{project.category || 'Website'}</span
+									>{project.category || 'Portfolio'}</span
 								>
 								<h3
 									class="text-xl font-semibold text-white transition-colors group-hover:text-primary-400"
@@ -84,8 +84,7 @@
 							</div>
 						</div>
 						<p class="line-clamp-2 text-sm text-surface-400">
-							{project.description ||
-								'Experimental design technologists at interaction and inclusive experiences.'}
+							{project.excerpt || project.description || 'View project details and outcome.'}
 						</p>
 					</div>
 				</a>

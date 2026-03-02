@@ -2,7 +2,7 @@
 
 @import 'tailwindcss';
 
-/* Skeleton UI Styles */
+/* Skeleton UI Styles — must come after tailwindcss */
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton-svelte';
 
@@ -17,3 +17,22 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ─── Compatibility shims for Skeleton v3 utility classes ─── */
+/* Tailwind v4 doesn't auto-generate these — define them manually */
+.bg-surface-50-950 {
+  background-color: oklch(var(--color-surface-950) / 1);
+}
+
+.text-surface-900-100 {
+  color: oklch(var(--color-surface-100) / 1);
+}
+
+/* Portable text typography */
+.portable-text strong {
+  font-weight: 700;
+  color: white;
+}
+
+.portable-text em {
+  font-style: italic;
+}

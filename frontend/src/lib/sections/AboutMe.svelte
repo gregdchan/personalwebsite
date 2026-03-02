@@ -1,29 +1,46 @@
 <script lang="ts">
-  let { section = {} }: { section?: any } = $props();
+	import PortableText from '$lib/rendering/PortableText.svelte';
+
+	let { section = {} }: { section?: any } = $props();
+
+	const heading = section?.heading || 'About Me';
+	const body = section?.body || [];
+	const image = section?.image;
 </script>
 
-<section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
-  <div class="grid gap-8 md:grid-cols-[1.1fr,1fr] items-center">
-    <div>
-      <h2 class="text-2xl font-semibold text-[color:var(--heading-color)]">{section?.heading || 'About me'}</h2>
-      {#if section?.body}
-        <div class="prose prose-invert:prose-invert mt-4 max-w-none text-[var(--color-body-text)]/90">
-          {#each section.body as blk}
-            {#if blk._type === 'block'}
-              <p>{blk.children?.[0]?.text}</p>
-            {/if}
-          {/each}
-        </div>
-      {:else}
-        <p class="mt-4 text-[var(--color-body-text)]/80">Designer/engineer focused on UI, accessibility, and performance.</p>
-      {/if}
-    </div>
-    <div class="relative overflow-hidden rounded-xl ring-1 ring-black/5 dark:ring-white/10">
-      {#if section?.image?.asset?.url}
-        <img src={section.image.asset.url} alt={section.image?.alt || 'Portrait'} class="h-80 w-full object-cover" />
-      {:else}
-        <div class="h-80 grid place-items-center bg-[var(--color-body-text)]/5 text-[var(--color-body-text)]/60">Portrait</div>
-      {/if}
-    </div>
-  </div>
+<section class="py-20 lg:py-28">
+	<div class="mx-auto max-w-7xl px-6 lg:px-16">
+		<div class="grid items-start gap-16 lg:grid-cols-[1fr_400px]">
+			<!-- Text Content -->
+			<div>
+				<div
+					class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-3 py-1 font-mono text-xs tracking-widest text-primary-500 uppercase"
+				>
+					About
+				</div>
+				<h2 class="mb-8 text-3xl font-bold tracking-tight lg:text-4xl">
+					{heading}
+				</h2>
+
+				{#if body.length > 0}
+					<PortableText blocks={body} />
+				{:else}
+					<p class="text-surface-400">No content yet — add some in Sanity.</p>
+				{/if}
+			</div>
+
+			<!-- Image -->
+			{#if image?.asset?.url}
+				<div
+					class="relative overflow-hidden rounded-2xl border border-white/5 shadow-2xl lg:sticky lg:top-28"
+				>
+					<img
+						src={image.asset.url}
+						alt={image.alt || heading}
+						class="aspect-[3/4] w-full object-cover"
+					/>
+				</div>
+			{/if}
+		</div>
+	</div>
 </section>

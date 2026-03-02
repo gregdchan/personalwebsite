@@ -12,5 +12,3 @@ export const load: PageServerLoad = async () => {
 
   return { navigation, tokens, errorPages };
 };
-
-content: ['./src/**/*.{html,js,svelte,ts}']

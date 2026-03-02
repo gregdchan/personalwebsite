@@ -1,21 +1,41 @@
 <script lang="ts">
-  let { section = {} }: { section?: any } = $props();
-  const list = section?.skillsList || [];
+	let { section = {} }: { section?: any } = $props();
+
+	const heading = section?.heading || 'Skills';
+	const subheading = section?.subheading || '';
+	const skillsList: { skill: string; proficiency: number }[] = section?.skillsList || [];
 </script>
 
-<section class="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-  <div class="rounded-lg p-6 ring-1 ring-black/5 dark:ring-white/10">
-    <h3 class="font-semibold">{section.heading}</h3>
-    {#if section.subheading}<p class="text-sm text-[var(--color-body-text)]/70">{section.subheading}</p>{/if}
-    <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {#each list as item}
-        <li class="flex items-center justify-between rounded bg-[var(--color-surface,transparent)] px-3 py-2">
-          <span>{item.skill}</span>
-          {#if item.proficiency !== undefined}
-            <span class="text-sm text-[var(--color-body-text)]/70">{item.proficiency}%</span>
-          {/if}
-        </li>
-      {/each}
-    </ul>
-  </div>
-</section>
+<div class="rounded-2xl border border-white/5 bg-surface-800/30 p-6">
+	{#if heading}
+		<h3 class="mb-1 text-base font-bold text-white">{heading}</h3>
+	{/if}
+	{#if subheading}
+		<p class="mb-4 text-sm text-surface-400">{subheading}</p>
+	{/if}
+
+	{#if skillsList.length > 0}
+		<ul class="space-y-3">
+			{#each skillsList as item}
+				<li>
+					<div class="mb-1 flex justify-between text-xs">
+						<span class="font-medium text-surface-200">{item.skill}</span>
+						{#if item.proficiency}
+							<span class="text-surface-500">{item.proficiency}%</span>
+						{/if}
+					</div>
+					{#if item.proficiency}
+						<div class="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+							<div
+								class="h-full rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 transition-all duration-700"
+								style="width: {item.proficiency}%"
+							></div>
+						</div>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		<p class="text-sm text-surface-500">No skills listed yet.</p>
+	{/if}
+</div>
