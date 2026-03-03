@@ -4,6 +4,7 @@
 	import Footer from '$lib/Footer.svelte';
 	import { onMount } from 'svelte';
 	import { tokenToStyles } from '$lib/utils/design';
+	import { updated } from '$app/stores';
 
 	let { data, children } = $props();
 
@@ -36,6 +37,13 @@
 			currentMode = 'light';
 		}
 		applyTheme(currentMode);
+	});
+
+	// When a new version is deployed, reload so stale chunk references are refreshed
+	$effect(() => {
+		if ($updated) {
+			window.location.reload();
+		}
 	});
 </script>
 

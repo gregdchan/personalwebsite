@@ -21,7 +21,11 @@ const config = {
   kit: {
     adapter: adapter({
       out: 'build'
-    })
+    }),
+    version: {
+      name: process.env.RAILWAY_DEPLOYMENT_ID || Date.now().toString(),
+      pollInterval: 60000
+    }
   }
 };
 

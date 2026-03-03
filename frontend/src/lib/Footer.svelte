@@ -48,7 +48,7 @@
 					</a>
 				</li>
 				<li>
-					<a href="mailto:gdc@example.com" aria-label="Send email">
+					<a href="mailto:gregdchan@gmail.com" aria-label="Send email">
 						<AppIcon name="mail" size={17} />
 					</a>
 				</li>
