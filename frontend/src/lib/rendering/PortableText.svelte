@@ -1,6 +1,8 @@
 <script lang="ts">
 	/** A full Portable Text renderer for Sanity blockContent arrays. */
 
+	import InfographicBlock from '$lib/components/InfographicBlock.svelte';
+
 	let { blocks = [] }: { blocks: any[] } = $props();
 
 	function escapeHtml(value: string): string {
@@ -18,6 +20,24 @@
 		if (href.startsWith('#')) return href;
 		if (/^(https?:|mailto:|tel:)/i.test(href)) return href;
 		return '#';
+	}
+
+	/** Check if a block is entirely code-marked (a code block, not inline code) */
+	function isCodeBlock(block: any): boolean {
+		if (block._type !== 'block' || block.listItem) return false;
+		const children = block.children || [];
+		if (children.length === 0) return false;
+		return children.every((child: any) => {
+			const marks: string[] = child.marks || [];
+			return marks.includes('code');
+		});
+	}
+
+	/** Get plain text from a block's children (for code blocks) */
+	function getPlainText(block: any): string {
+		return (block.children || [])
+			.map((child: any) => child.text || '')
+			.join('');
 	}
 
 	function getChildren(block: any): string {
@@ -49,7 +69,7 @@
 			.join('');
 	}
 
-	// Group list items into list blocks
+	// Group list items and consecutive code blocks
 	function groupBlocks(rawBlocks: any[]) {
 		const result: any[] = [];
 		const source = Array.isArray(rawBlocks) ? rawBlocks : [];
@@ -57,13 +77,21 @@
 		while (i < source.length) {
 			const block = source[i];
 			if (block._type === 'block' && block.listItem) {
-				const listType = block.listItem; // 'bullet' | 'number'
+				const listType = block.listItem;
 				const items: any[] = [];
 				while (i < source.length && source[i].listItem === listType) {
 					items.push(source[i]);
 					i++;
 				}
 				result.push({ _type: 'list', listType, items });
+			} else if (isCodeBlock(block)) {
+				// Group consecutive code blocks into a single pre/code block
+				const lines: string[] = [];
+				while (i < source.length && isCodeBlock(source[i])) {
+					lines.push(getPlainText(source[i]));
+					i++;
+				}
+				result.push({ _type: 'codeBlock', lines });
 			} else {
 				result.push(block);
 				i++;
@@ -94,6 +122,8 @@
 					{/each}
 				</ol>
 			{/if}
+		{:else if block._type === 'codeBlock'}
+			<pre class="code-block"><code>{block.lines.join('\n')}</code></pre>
 		{:else if block._type === 'block'}
 			{#if block.style === 'h2'}
 				<h2 class="mt-8 text-2xl font-bold tracking-tight text-white">
@@ -121,6 +151,34 @@
 					{/if}
 				</figure>
 			{/if}
+		{:else if block._type === 'infographicBlock'}
+			<div class="my-6">
+				<InfographicBlock {block} />
+			</div>
 		{/if}
 	{/each}
 </div>
+
+<style>
+	.code-block {
+		margin: 1rem 0;
+		padding: 1rem 1.25rem;
+		border-radius: 0.75rem;
+		background: color-mix(in oklab, var(--color-panel, rgba(15, 15, 20, 0.85)) 40%, black);
+		border: 1px solid var(--color-edge, rgba(255, 255, 255, 0.08));
+		overflow-x: auto;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		line-height: 1.6;
+		color: var(--color-muted-text, rgba(200, 200, 210, 0.9));
+		white-space: pre;
+		tab-size: 2;
+	}
+
+	.code-block code {
+		background: none;
+		padding: 0;
+		border-radius: 0;
+		font-size: inherit;
+	}
+</style>

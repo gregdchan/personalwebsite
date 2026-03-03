@@ -74,6 +74,7 @@ const IMAGE_PROJECTION = `{
 const PORTABLE_TEXT_PROJECTION = `[]{
   ...,
   _type == "image" => { ..., asset->{url, metadata{dimensions}} },
+  _type == "infographicBlock" => { ..., blockType, title, caption, statValue, statLabel, chartData[], flowSteps[] },
   markDefs[]{ ..., _type == "link" => { href, blank } }
 }`;
 
@@ -326,7 +327,13 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
       description,
       imageA{alt, asset->{url, metadata{dimensions}}},
       imageB{alt, asset->{url, metadata{dimensions}}}
-    }
+    },
+    palette{ title, description, swatches[]{ _key, label, color, usage } },
+    designProcess[]{ _key, phase, customPhase, summary, methods, image{ alt, asset->{url, metadata{dimensions}} } },
+    "designPrinciples": designPrinciples[]->{ _id, title, slug, icon, summary, category },
+    beforeAfterComparisons[]{ _key, title, context, layout, before{ alt, asset->{url, metadata{dimensions}} }, after{ alt, asset->{url, metadata{dimensions}} } },
+    metrics[]{ _key, label, value, delta, context, highlight },
+    infographics[]{ _key, blockType, title, caption, statValue, statLabel, chartData[], flowSteps[] }
   }`;
   try {
     return await withCache(cacheKey('projectBySlug', resolvedSlug), TTL_PAGE_MS, async () =>

@@ -1,6 +1,13 @@
 <script lang="ts">
 	import PortableText from '$lib/rendering/PortableText.svelte';
 	import AppIcon from '$lib/components/icons/AppIcon.svelte';
+	import ImageGallerySlideshow from '$lib/components/ImageGallerySlideshow.svelte';
+	import ProjectPalette from '$lib/components/ProjectPalette.svelte';
+	import DesignProcess from '$lib/components/DesignProcess.svelte';
+	import DesignPrinciples from '$lib/components/DesignPrinciples.svelte';
+	import BeforeAfter from '$lib/components/BeforeAfter.svelte';
+	import MetricsGrid from '$lib/components/MetricsGrid.svelte';
+	import InfographicBlock from '$lib/components/InfographicBlock.svelte';
 
 	type StoryImage = {
 		src: string;
@@ -21,6 +28,13 @@
 	const collaborators = $derived(Array.isArray(project?.collaborators) ? project.collaborators : []);
 	const technologies = $derived(Array.isArray(project?.technologies) ? project.technologies : []);
 	const tags = $derived(Array.isArray(project?.tags) ? project.tags : []);
+
+	const palette = $derived(project?.palette || null);
+	const designProcess = $derived(Array.isArray(project?.designProcess) ? project.designProcess : []);
+	const designPrinciples = $derived(Array.isArray(project?.designPrinciples) ? project.designPrinciples : []);
+	const beforeAfterComparisons = $derived(Array.isArray(project?.beforeAfterComparisons) ? project.beforeAfterComparisons : []);
+	const metrics = $derived(Array.isArray(project?.metrics) ? project.metrics : []);
+	const infographics = $derived(Array.isArray(project?.infographics) ? project.infographics : []);
 
 	const clientLabel = $derived(
 		typeof project?.client === 'string'
@@ -258,19 +272,23 @@
 						{#if caseSections[index].description}
 							<p class="visual-copy">{caseSections[index].description}</p>
 						{/if}
-						<div class="visual-stack">
-							{#each caseSections[index].images as image, imageIndex (`${image.src}-${imageIndex}`)}
-								<button
-									type="button"
-									class="visual-image"
-									onclick={() => openLightbox(caseSections[index].images, imageIndex)}
-									aria-label="Open case-study image"
-								>
-									<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
-									<span class="image-open-tag">Open image</span>
-								</button>
-							{/each}
-						</div>
+						{#if caseSections[index].images.length > 1}
+							<ImageGallerySlideshow images={caseSections[index].images} {openLightbox} />
+						{:else}
+							<div class="visual-stack">
+								{#each caseSections[index].images as image, imageIndex (`${image.src}-${imageIndex}`)}
+									<button
+										type="button"
+										class="visual-image"
+										onclick={() => openLightbox(caseSections[index].images, imageIndex)}
+										aria-label="Open case-study image"
+									>
+										<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+										<span class="image-open-tag">Open image</span>
+									</button>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				{/if}
 			</section>
@@ -283,20 +301,68 @@
 					<article class="chapter-visual-block standalone">
 						{#if section.title}<h3>{section.title}</h3>{/if}
 						{#if section.description}<p class="visual-copy">{section.description}</p>{/if}
-						<div class="visual-stack">
-							{#each section.images as image, imageIndex (`${image.src}-${imageIndex}`)}
-								<button
-									type="button"
-									class="visual-image"
-									onclick={() => openLightbox(section.images, imageIndex)}
-									aria-label="Open case-study image"
-								>
-									<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
-									<span class="image-open-tag">Open image</span>
-								</button>
-							{/each}
-						</div>
+						{#if section.images.length > 1}
+							<ImageGallerySlideshow images={section.images} {openLightbox} />
+						{:else}
+							<div class="visual-stack">
+								{#each section.images as image, imageIndex (`${image.src}-${imageIndex}`)}
+									<button
+										type="button"
+										class="visual-image"
+										onclick={() => openLightbox(section.images, imageIndex)}
+										aria-label="Open case-study image"
+									>
+										<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+										<span class="image-open-tag">Open image</span>
+									</button>
+								{/each}
+							</div>
+						{/if}
 					</article>
+				{/each}
+			</section>
+		{/if}
+
+		{#if metrics.length > 0}
+			<section class="chapter" id="outcomes">
+				<h2>Outcomes</h2>
+				<MetricsGrid {metrics} />
+			</section>
+		{/if}
+
+		{#if designProcess.length > 0}
+			<section class="chapter" id="design-process">
+				<h2>Design Process</h2>
+				<DesignProcess steps={designProcess} />
+			</section>
+		{/if}
+
+		{#if palette?.swatches?.length}
+			<section class="chapter" id="color-palette">
+				<h2>Color Palette</h2>
+				<ProjectPalette {palette} />
+			</section>
+		{/if}
+
+		{#if designPrinciples.length > 0}
+			<section class="chapter" id="design-principles">
+				<h2>Design Principles</h2>
+				<DesignPrinciples principles={designPrinciples} />
+			</section>
+		{/if}
+
+		{#if beforeAfterComparisons.length > 0}
+			<section class="chapter" id="before-after">
+				<h2>Before & After</h2>
+				<BeforeAfter comparisons={beforeAfterComparisons} {openLightbox} />
+			</section>
+		{/if}
+
+		{#if infographics.length > 0}
+			<section class="chapter" id="data-insights">
+				<h2>Data & Insights</h2>
+				{#each infographics as block (block._key)}
+					<InfographicBlock {block} />
 				{/each}
 			</section>
 		{/if}
@@ -304,19 +370,7 @@
 		{#if galleryImages.length > 0}
 			<section class="chapter gallery">
 				<h2>Selected screens</h2>
-				<div class="visual-stack">
-					{#each galleryImages as image, index (`${image.src}-${index}`)}
-						<button
-							type="button"
-							class="visual-image"
-							onclick={() => openLightbox(galleryImages, index)}
-							aria-label="Open gallery image"
-						>
-							<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
-							<span class="image-open-tag">Open image</span>
-						</button>
-					{/each}
-				</div>
+				<ImageGallerySlideshow images={galleryImages} {openLightbox} />
 			</section>
 		{/if}
 
