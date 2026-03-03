@@ -1,5 +1,6 @@
 <script lang="ts">
-	type StoryImage = { src: string; alt: string; caption?: string };
+	import SanityImage from '$lib/components/SanityImage.svelte';
+	type StoryImage = { image: any; alt: string; caption?: string };
 
 	let {
 		comparisons = [],
@@ -10,9 +11,8 @@
 	} = $props();
 
 	function imageToStory(img: any, fallbackAlt: string): StoryImage | null {
-		const src = img?.asset?.url;
-		if (!src) return null;
-		return { src, alt: img?.alt || fallbackAlt };
+		if (!img?.asset && !img?.url) return null;
+		return { image: img, alt: img?.alt || fallbackAlt };
 	}
 </script>
 
@@ -21,7 +21,7 @@
 		{#each comparisons as comp, i (comp._key || i)}
 			{@const beforeImg = imageToStory(comp.before, 'Before')}
 			{@const afterImg = imageToStory(comp.after, 'After')}
-			{@const pair = [beforeImg, afterImg].filter(Boolean) as StoryImage[]}
+			{@const pair = [beforeImg, afterImg].filter((i): i is StoryImage => i !== null)}
 			<div class="comparison" class:stacked={comp.layout === 'stacked'}>
 				{#if comp.title}
 					<h4 class="comp-title">{comp.title}</h4>
@@ -39,7 +39,7 @@
 								onclick={() => openLightbox(pair, 0)}
 								aria-label="Open before image"
 							>
-								<img src={beforeImg.src} alt={beforeImg.alt} loading="lazy" decoding="async" />
+								<SanityImage image={beforeImg.image} alt={beforeImg.alt} loading="lazy" />
 							</button>
 						</div>
 					{/if}
@@ -52,7 +52,7 @@
 								onclick={() => openLightbox(pair, beforeImg ? 1 : 0)}
 								aria-label="Open after image"
 							>
-								<img src={afterImg.src} alt={afterImg.alt} loading="lazy" decoding="async" />
+								<SanityImage image={afterImg.image} alt={afterImg.alt} loading="lazy" />
 							</button>
 						</div>
 					{/if}
@@ -146,7 +146,7 @@
 		border-color: color-mix(in oklab, var(--color-accent) 54%, var(--color-edge));
 	}
 
-	.comp-img-btn img {
+	:global(.comp-img-btn .main-image) {
 		display: block;
 		width: 100%;
 		height: auto;

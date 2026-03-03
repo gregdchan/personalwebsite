@@ -12,15 +12,32 @@ export const client = createClient({
   dataset,
   apiVersion: '2024-01-01',
   useCdn,
-  perspective: 'published' // previewDrafts requires a token!
+  perspective: 'published'
 });
 
 const builder = imageUrlBuilder(client);
+
+export function urlFor(source: any) {
+  return builder.image(source);
+}
+
+/**
+ * Returns an optimized Sanity image URL with specific dimensions and auto-format.
+ */
+export function optimizedUrl(source: any, width = 1200, quality = 80) {
+  if (!source) return '';
+  try {
+    return urlFor(source).width(width).auto('format').quality(quality).url();
+  } catch (e) {
+    return '';
+  }
+}
+
 const cache = new Map<string, { expires: number; value: unknown }>();
 const inflight = new Map<string, Promise<unknown>>();
-const SANITY_TIMEOUT_MS = 3000;
-const TTL_PAGE_MS = 2 * 60 * 1000;
-const TTL_META_MS = 5 * 60 * 1000;
+const SANITY_TIMEOUT_MS = 5000;
+const TTL_PAGE_MS = 5 * 60 * 1000;
+const TTL_META_MS = 10 * 60 * 1000;
 
 function cacheKey(scope: string, params?: unknown): string {
   return `${scope}:${params ? JSON.stringify(params) : ''}`;
@@ -62,47 +79,43 @@ async function fetchPublished<T>(
   ]) as Promise<T>;
 }
 
-export function urlFor(source: any) {
-  return builder.image(source);
-}
-
 const IMAGE_PROJECTION = `{
   alt,
-  asset->{url, metadata{dimensions}}
+  asset->{url, metadata{dimensions, lqip}}
 }`;
 
 const PORTABLE_TEXT_PROJECTION = `[]{
   ...,
-  _type == "image" => { ..., asset->{url, metadata{dimensions}} },
+  _type == "image" => { ..., asset->{url, metadata{dimensions, lqip}} },
   _type == "infographicBlock" => { ..., blockType, title, caption, statValue, statLabel, chartData[], flowSteps[] },
   markDefs[]{ ..., _type == "link" => { href, blank } }
 }`;
 
 const SECTION_PROJECTION = `[]{
   ...,
-  image{alt, asset->{url, metadata{dimensions}}},
-  backgroundImage{alt, asset->{url, metadata{dimensions}}},
-  posterImage{alt, asset->{url, metadata{dimensions}}},
-  mainImage{alt, asset->{url, metadata{dimensions}}},
-  photo{alt, asset->{url, metadata{dimensions}}},
-  logo{alt, asset->{url, metadata{dimensions}}},
-  companyLogo{alt, asset->{url, metadata{dimensions}}},
-  images[]{..., asset->{url, metadata{dimensions}}},
-  testimonials[]{..., photo{alt, asset->{url, metadata{dimensions}}}},
+  image{alt, asset->{url, metadata{dimensions, lqip}}},
+  backgroundImage{alt, asset->{url, metadata{dimensions, lqip}}},
+  posterImage{alt, asset->{url, metadata{dimensions, lqip}}},
+  mainImage{alt, asset->{url, metadata{dimensions, lqip}}},
+  photo{alt, asset->{url, metadata{dimensions, lqip}}},
+  logo{alt, asset->{url, metadata{dimensions, lqip}}},
+  companyLogo{alt, asset->{url, metadata{dimensions, lqip}}},
+  images[]{..., asset->{url, metadata{dimensions, lqip}}},
+  testimonials[]{..., photo{alt, asset->{url, metadata{dimensions, lqip}}}},
   features[]{
     ...,
-    image{alt, asset->{url, metadata{dimensions}}},
-    icon{alt, asset->{url, metadata{dimensions}}}
+    image{alt, asset->{url, metadata{dimensions, lqip}}},
+    icon{alt, asset->{url, metadata{dimensions, lqip}}}
   },
   logos[]{
     ...,
-    logo{alt, asset->{url, metadata{dimensions}}}
+    logo{alt, asset->{url, metadata{dimensions, lqip}}}
   },
   items[]{
     ...,
-    image{alt, asset->{url, metadata{dimensions}}},
-    icon{alt, asset->{url, metadata{dimensions}}},
-    photo{alt, asset->{url, metadata{dimensions}}}
+    image{alt, asset->{url, metadata{dimensions, lqip}}},
+    icon{alt, asset->{url, metadata{dimensions, lqip}}},
+    photo{alt, asset->{url, metadata{dimensions, lqip}}}
   },
   _type == "projectGrid" => {
     ...,
@@ -285,7 +298,7 @@ export async function getProjects(options: {
     const projects = await withCache(cacheKey('projects', fetchParams), TTL_PAGE_MS, async () =>
       fetchPublished(query, fetchParams)
     );
-    return projects ?? [];
+    return (projects as any[]) ?? [];
   } catch {
     return [];
   }
@@ -303,7 +316,7 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
     excerpt,
     slug,
     "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
-    "gallery": coalesce(gallery, [])[]{..., asset->{url, metadata{dimensions}}},
+    "gallery": coalesce(gallery, [])[]{..., asset->{url, metadata{dimensions, lqip}}},
     "tags": coalesce(tags[]->title, tags[]),
     "category": coalesce(category, categories[0]->title, portfolioType),
     "categories": coalesce(categories[]->title, []),
@@ -325,13 +338,13 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
     caseStudySections[]{
       title,
       description,
-      imageA{alt, asset->{url, metadata{dimensions}}},
-      imageB{alt, asset->{url, metadata{dimensions}}}
+      imageA{alt, asset->{url, metadata{dimensions, lqip}}},
+      imageB{alt, asset->{url, metadata{dimensions, lqip}}}
     },
     palette{ title, description, swatches[]{ _key, label, color, usage } },
-    designProcess[]{ _key, phase, customPhase, summary, methods, image{ alt, asset->{url, metadata{dimensions}} } },
+    designProcess[]{ _key, phase, customPhase, summary, methods, image{ alt, asset->{url, metadata{dimensions, lqip}} } },
     "designPrinciples": designPrinciples[]->{ _id, title, slug, icon, summary, category },
-    beforeAfterComparisons[]{ _key, title, context, layout, before{ alt, asset->{url, metadata{dimensions}} }, after{ alt, asset->{url, metadata{dimensions}} } },
+    beforeAfterComparisons[]{ _key, title, context, layout, before{ alt, asset->{url, metadata{dimensions, lqip}} }, after{ alt, asset->{url, metadata{dimensions, lqip}} } },
     metrics[]{ _key, label, value, delta, context, highlight },
     infographics[]{ _key, blockType, title, caption, statValue, statLabel, chartData[], flowSteps[] }
   }`;
@@ -369,7 +382,7 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
     const posts = await withCache(cacheKey('posts', fetchParams), TTL_PAGE_MS, async () =>
       fetchPublished(query, fetchParams)
     );
-    return posts ?? [];
+    return (posts as any[]) ?? [];
   } catch {
     return [];
   }

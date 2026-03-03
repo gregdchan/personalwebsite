@@ -21,6 +21,10 @@
 		isMenuOpen = !isMenuOpen;
 	}
 
+	function closeMenu() {
+		isMenuOpen = false;
+	}
+
 	function href(item: NavigationItem) {
 		if ((item as any)?.href) return (item as any).href;
 		const link: any = (item as any)?.link;
@@ -65,15 +69,29 @@
 		if (target === '/') return page.url.pathname === '/';
 		return page.url.pathname === target || page.url.pathname.startsWith(`${target}/`);
 	}
+
+	function onMobileNavKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			closeMenu();
+		}
+	}
 </script>
 
 <header class="site-header">
 	<div class="header-inner">
-		<a href="/" class="brand" aria-label="Home">
+		<a href="/" class="brand" aria-label="Greg D. Chan — Home">
 			{#if logoUrl}
-				<img src={logoUrl} alt="Greg D. Chan logo" class="brand-logo" />
+				<img
+					src={logoUrl}
+					alt="Greg D. Chan"
+					class="brand-logo"
+					width="180"
+					height="26"
+					loading="eager"
+					decoding="async"
+				/>
 			{:else}
-				<div class="brand-mark">GC</div>
+				<div class="brand-mark" aria-hidden="true">GC</div>
 			{/if}
 			{#if !logoUrl}
 				<div class="brand-copy">
@@ -83,13 +101,14 @@
 			{/if}
 		</a>
 
-		<nav class="desktop-nav">
+		<nav class="desktop-nav" aria-label="Main navigation">
 			{#each navItems as item}
 				<a
 					href={routeHref(item)}
 					target={(item as any)?.target || '_self'}
 					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
 					class:active={isActive(item)}
+					aria-current={isActive(item) ? 'page' : undefined}
 				>
 					{item.text}
 				</a>
@@ -97,14 +116,26 @@
 		</nav>
 
 		<div class="header-actions">
-			<button onclick={onToggleTheme} aria-label="Toggle theme" class="theme-btn">
+			<button
+				onclick={onToggleTheme}
+				aria-label={currentMode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+				class="theme-btn"
+				type="button"
+			>
 				{#if currentMode === 'dark'}
 					<AppIcon name="sun" size={17} />
 				{:else}
 					<AppIcon name="moon" size={17} />
 				{/if}
 			</button>
-			<button class="menu-btn" onclick={toggleMenu} aria-label="Toggle menu">
+			<button
+				class="menu-btn"
+				onclick={toggleMenu}
+				aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+				aria-expanded={isMenuOpen}
+				aria-controls="mobile-nav"
+				type="button"
+			>
 				{#if isMenuOpen}
 					<AppIcon name="x" size={20} />
 				{:else}
@@ -115,13 +146,20 @@
 	</div>
 
 	{#if isMenuOpen}
-		<nav class="mobile-nav">
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<nav
+			id="mobile-nav"
+			class="mobile-nav"
+			aria-label="Mobile navigation"
+			onkeydown={onMobileNavKeydown}
+		>
 			{#each navItems as item}
 				<a
 					href={routeHref(item)}
 					target={(item as any)?.target || '_self'}
 					rel={(item as any)?.target === '_blank' ? 'noopener noreferrer' : undefined}
-					onclick={() => (isMenuOpen = false)}
+					onclick={closeMenu}
+					aria-current={isActive(item) ? 'page' : undefined}
 				>
 					{item.text}
 				</a>
@@ -140,19 +178,20 @@
 		right: 0;
 		z-index: 100;
 		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 		background: var(--color-header-surface);
 		border-bottom: 1px solid var(--color-edge);
 	}
 
 	.header-inner {
-		height: 72px;
+		height: clamp(56px, 9vw, 72px);
 		max-width: 1160px;
 		margin: 0 auto;
-		padding: 0 1rem;
+		padding: 0 clamp(0.75rem, 3vw, 1.25rem);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
+		gap: 0.75rem;
 	}
 
 	.brand {
@@ -161,6 +200,7 @@
 		gap: 0.65rem;
 		text-decoration: none;
 		color: inherit;
+		min-height: 44px;
 	}
 
 	.brand-mark {
@@ -181,7 +221,7 @@
 	.brand-logo {
 		display: block;
 		width: auto;
-		height: 26px;
+		height: clamp(20px, 3.5vw, 26px);
 		max-width: min(42vw, 180px);
 		object-fit: contain;
 		filter: grayscale(1) brightness(0);
@@ -224,11 +264,17 @@
 		font-size: 0.68rem;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		padding: 0.42rem 0.62rem;
+		padding: 0.52rem 0.72rem;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
 		border-radius: 999px;
 		color: var(--color-muted-text);
 		border: 1px solid transparent;
-		transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+		transition:
+			color 140ms ease,
+			border-color 140ms ease,
+			background 140ms ease;
 	}
 
 	.desktop-nav a:hover {
@@ -250,28 +296,58 @@
 
 	.theme-btn,
 	.menu-btn {
-		width: 34px;
-		height: 34px;
+		width: 44px;
+		height: 44px;
 		border-radius: 9px;
 		border: 1px solid var(--color-edge);
 		background: var(--color-control-bg);
 		color: inherit;
 		display: grid;
 		place-items: center;
+		cursor: pointer;
+		transition:
+			border-color 140ms ease,
+			background 140ms ease;
+	}
+
+	.theme-btn:hover,
+	.menu-btn:hover {
+		border-color: var(--color-accent);
 	}
 
 	.mobile-nav {
 		display: grid;
-		padding: 0.4rem 1rem 1rem;
+		padding: 0.4rem clamp(0.75rem, 3vw, 1.25rem) 1rem;
 		max-width: 1160px;
 		margin: 0 auto;
 		gap: 0.4rem;
+		animation: menuSlideIn 200ms ease;
+	}
+
+	@keyframes menuSlideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.mobile-nav {
+			animation: none;
+		}
 	}
 
 	.mobile-nav a {
 		text-decoration: none;
 		color: var(--color-body-text);
-		padding: 0.62rem 0.8rem;
+		padding: 0.75rem 0.9rem;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
 		border-radius: 0.75rem;
 		border: 1px solid var(--color-edge);
 		background: var(--color-control-bg);
@@ -279,10 +355,16 @@
 		font-size: 0.72rem;
 		letter-spacing: 0.09em;
 		text-transform: uppercase;
+		transition: border-color 140ms ease;
+	}
+
+	.mobile-nav a:hover,
+	.mobile-nav a[aria-current='page'] {
+		border-color: var(--color-accent);
 	}
 
 	.header-spacer {
-		height: 72px;
+		height: clamp(56px, 9vw, 72px);
 	}
 
 	@media (min-width: 760px) {

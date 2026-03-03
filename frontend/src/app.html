@@ -1,24 +1,49 @@
 <!doctype html>
 <html lang="en" data-theme="cerberus">
   <head>
-    <!-- Apply saved/system theme before hydration -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#FF8B3D" />
+    <meta name="description" content="Greg D. Chan — Design technologist building AI-powered tools, product experiences, and creative systems." />
+
+    <!-- Preconnect to critical origins for faster font/CDN loads -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+
+    <!-- Fonts: swap ensures text renders immediately with fallbacks -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      />
+    </noscript>
+
+    <!-- Apply saved/system theme before hydration to prevent flash -->
     <script>
       (function () {
         try {
-          const stored = localStorage.getItem('theme');
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const isDark = stored ? stored === 'dark' : prefersDark;
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = stored ? stored === 'dark' : prefersDark;
           document.documentElement.setAttribute('data-theme-mode', isDark ? 'dark' : 'light');
           if (isDark) document.documentElement.classList.add('dark');
           else document.documentElement.classList.remove('dark');
-        } catch {}
+        } catch (e) {}
       })();
     </script>
+
     <link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
     %sveltekit.head%
   </head>
-  <body 
+  <body
     data-sveltekit-preload-code="hover"
     data-sveltekit-preload-data="hover"
   >

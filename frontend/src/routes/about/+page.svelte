@@ -18,11 +18,16 @@
 	const body = $derived(Array.isArray(page.body) ? page.body : []);
 
 	const aboutSection = $derived(
-		allSections.find((section: any) => section?._type === 'about' && section?.image?.asset?.url) || null
+		allSections.find((section: any) => section?._type === 'about' && section?.image?.asset?.url) ||
+			null
 	);
 
-	const portraitUrl = $derived(page?.mainImage?.asset?.url || aboutSection?.image?.asset?.url || null);
-	const portraitAlt = $derived(page?.mainImage?.alt || aboutSection?.image?.alt || 'Portrait of Greg D. Chan');
+	const portraitUrl = $derived(
+		page?.mainImage?.asset?.url || aboutSection?.image?.asset?.url || null
+	);
+	const portraitAlt = $derived(
+		page?.mainImage?.alt || aboutSection?.image?.alt || 'Portrait of Greg D. Chan'
+	);
 
 	const educationFromSections = $derived(
 		allSections.filter((section: any) => section?._type === 'education')
@@ -39,8 +44,9 @@
 	);
 
 	const certificates = $derived(
-		educationFromSections.filter((item: any) => /certificate|certification|unity/i.test(item?.heading || ''))
-			.length
+		educationFromSections.filter((item: any) =>
+			/certificate|certification|unity/i.test(item?.heading || '')
+		).length
 			? educationFromSections.filter((item: any) =>
 					/certificate|certification|unity/i.test(item?.heading || '')
 				)
@@ -57,7 +63,9 @@
 			)
 	);
 
-	const toolkit = $derived(toolkitFromSections.length ? toolkitFromSections : ABOUT_FALLBACK.toolkit);
+	const toolkit = $derived(
+		toolkitFromSections.length ? toolkitFromSections : ABOUT_FALLBACK.toolkit
+	);
 
 	const extraSections = $derived(
 		allSections.filter((section: any) => {
@@ -73,17 +81,34 @@
 	}
 </script>
 
+<svelte:head>
+	<title>About Greg D. Chan — Product Design & Creative Technologist</title>
+	<meta
+		name="description"
+		content="Learn about Greg D. Chan's experience, education, and approach to product design and creative technology."
+	/>
+</svelte:head>
+
 <div class="about-page">
-	<section class="about-hero">
+	<section class="about-hero" aria-labelledby="about-heading">
 		<div class="about-wrap">
 			<div class="about-intro-row">
 				{#if portraitUrl}
 					<figure class="portrait-wrap">
-						<img src={portraitUrl} alt={portraitAlt} class="portrait" loading="eager" decoding="async" />
+						<img
+							src={portraitUrl}
+							alt={portraitAlt}
+							class="portrait"
+							loading="eager"
+							decoding="async"
+							width="220"
+							height="220"
+							fetchpriority="high"
+						/>
 					</figure>
 				{/if}
 				<div class="intro-copy">
-					<h1>Hi, I'm Greg.</h1>
+					<h1 id="about-heading">Hi, I'm Greg.</h1>
 				</div>
 			</div>
 
@@ -95,46 +120,52 @@
 		</div>
 	</section>
 
-	<section class="resume-slab">
+	<section class="resume-slab" aria-label="Resume and Toolkit">
 		<div class="about-wrap resume-grid">
 			<div class="resume-col">
-				<h2>Education</h2>
-				{#each education as item}
-					<div class="resume-item">
-						<h3>{item?.heading}</h3>
-						{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
-					</div>
-				{/each}
+				<h2 id="education-heading">Education</h2>
+				<div role="list" aria-labelledby="education-heading">
+					{#each education as item}
+						<div class="resume-item" role="listitem">
+							<h3>{item?.heading}</h3>
+							{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
+						</div>
+					{/each}
+				</div>
 
-				<h2 class="stacked">Certificates</h2>
-				{#each certificates as item}
-					<div class="resume-item">
-						<h3>{item?.heading}</h3>
-						{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
-					</div>
-				{/each}
+				<h2 class="stacked" id="certificates-heading">Certificates</h2>
+				<div role="list" aria-labelledby="certificates-heading">
+					{#each certificates as item}
+						<div class="resume-item" role="listitem">
+							<h3>{item?.heading}</h3>
+							{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
+						</div>
+					{/each}
+				</div>
 
-				<h2 class="stacked">Toolkit</h2>
-				<div class="toolkit-list">
+				<h2 class="stacked" id="toolkit-heading">Toolkit</h2>
+				<div class="toolkit-list" role="list" aria-labelledby="toolkit-heading">
 					{#each toolkit as skill}
-						<span>{skill}</span>
+						<span role="listitem">{skill}</span>
 					{/each}
 				</div>
 			</div>
 
 			<div class="resume-col experience-col">
-				<h2>Experience</h2>
-				{#each experience as item}
-					<div class="resume-item">
-						<h3>{item?.heading}</h3>
-						{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
-						{#if Array.isArray(item?.description) && item.description.length}
-							<div class="experience-description">
-								<PortableText blocks={item.description} />
-							</div>
-						{/if}
-					</div>
-				{/each}
+				<h2 id="experience-heading">Experience</h2>
+				<div role="list" aria-labelledby="experience-heading">
+					{#each experience as item}
+						<div class="resume-item" role="listitem">
+							<h3>{item?.heading}</h3>
+							{#if renderLine(item)}<p>{renderLine(item)}</p>{/if}
+							{#if Array.isArray(item?.description) && item.description.length}
+								<div class="experience-description">
+									<PortableText blocks={item.description} />
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
 			</div>
 		</div>
 	</section>
@@ -156,7 +187,7 @@
 	}
 
 	.about-hero {
-		padding: 5.5rem 0 5rem;
+		padding: clamp(3rem, 7vw, 5.5rem) 0 clamp(2.5rem, 5vw, 5rem);
 	}
 
 	.about-intro-row {
@@ -164,12 +195,13 @@
 		grid-template-columns: minmax(130px, 220px) 1fr;
 		align-items: center;
 		gap: clamp(1.5rem, 4vw, 2.75rem);
-		margin-bottom: clamp(2.25rem, 5vw, 3.5rem);
+		margin-bottom: clamp(1.5rem, 5vw, 3.5rem);
 	}
 
 	.portrait-wrap {
 		margin: 0;
 		max-width: 220px;
+		width: 100%;
 	}
 
 	.portrait {
@@ -179,14 +211,15 @@
 		object-fit: cover;
 		border-radius: 999px;
 		filter: saturate(0) contrast(1.05);
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid color-mix(in oklab, var(--color-edge) 50%, transparent);
+		box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
 	}
 
 	.intro-copy h1 {
 		margin: 0;
 		color: var(--color-body-text);
 		font-family: var(--font-heading);
-		font-size: clamp(2.4rem, 7vw, 4.75rem);
+		font-size: clamp(2.4rem, 8vw, 4.75rem);
 		line-height: 0.95;
 		font-weight: 900;
 		letter-spacing: 0.02em;
@@ -198,10 +231,10 @@
 	}
 
 	.about-copy :global(p) {
-		margin: 0 0 1rem;
-		font-size: 0.74rem;
+		margin: 0 0 1.25rem;
+		font-size: clamp(0.875rem, 1.5vw, 1.05rem);
 		line-height: 1.65;
-		letter-spacing: 0.03em;
+		letter-spacing: 0.01em;
 		color: var(--color-muted-text);
 	}
 
@@ -213,104 +246,105 @@
 				color-mix(in oklab, var(--color-accent) 18%, transparent),
 				transparent 42%
 			);
-		padding: clamp(2.5rem, 5vw, 4rem) 0;
+		padding: clamp(2.5rem, 6vw, 4.5rem) 0;
 		color: var(--color-body-text);
 		border-top: 1px solid color-mix(in oklab, var(--color-accent-alt) 40%, transparent);
 	}
 
 	.resume-grid {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: clamp(1.5rem, 4vw, 3.5rem);
+		grid-template-columns: 1fr;
+		gap: clamp(2.5rem, 6vw, 4.5rem);
 	}
 
 	.resume-col h2 {
-		margin: 0;
-		font-size: 1.95rem;
+		margin: 0 0 1.5rem;
+		font-size: clamp(1.5rem, 3.5vw, 1.95rem);
 		line-height: 1;
 		font-weight: 800;
 		letter-spacing: -0.02em;
-		color: color-mix(in oklab, var(--color-accent-alt) 72%, white);
+		color: var(--color-accent-alt);
 		text-shadow: none;
 	}
 
 	.resume-col h2.stacked {
-		margin-top: 2rem;
+		margin-top: 3rem;
 	}
 
 	.resume-item {
-		margin-top: 0.85rem;
-		padding-top: 0.85rem;
+		margin-top: 1rem;
+		padding-top: 1rem;
 		border-top: 1px solid color-mix(in oklab, var(--color-accent-alt) 22%, transparent);
+	}
+
+	.resume-item:first-child {
+		border-top: none;
+		margin-top: 0;
+		padding-top: 0;
 	}
 
 	.resume-item h3 {
 		margin: 0;
-		font-size: 0.98rem;
+		font-size: clamp(1rem, 1.8vw, 1.15rem);
 		font-weight: 700;
-		color: color-mix(in oklab, var(--color-body-text) 94%, white);
+		color: var(--heading-color);
 	}
 
 	.resume-item p {
-		margin: 0.3rem 0 0;
-		font-size: 0.82rem;
+		margin: 0.4rem 0 0;
+		font-size: clamp(0.8rem, 1.4vw, 0.92rem);
 		color: var(--color-muted-text);
+		line-height: 1.5;
 	}
 
 	.toolkit-list {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.45rem;
-		margin-top: 0.9rem;
+		gap: 0.5rem;
+		margin-top: 1rem;
 	}
 
 	.toolkit-list span {
 		display: inline-block;
-		padding: 0.3rem 0.5rem;
+		padding: 0.4rem 0.75rem;
 		border: 1px solid color-mix(in oklab, var(--color-accent) 38%, transparent);
-		border-radius: 0.3rem;
-		font-size: 0.72rem;
-		letter-spacing: 0.02em;
+		border-radius: 0.5rem;
+		font-size: 0.75rem;
 		font-family: var(--font-mono);
 		background: var(--color-control-bg);
-		color: color-mix(in oklab, var(--color-accent-alt) 70%, white);
-	}
-
-	.experience-col {
-		padding-left: clamp(0.75rem, 2vw, 1.5rem);
-		border-left: 2px solid color-mix(in oklab, var(--color-accent-alt) 52%, transparent);
+		color: var(--color-accent-alt);
 	}
 
 	.experience-description {
-		margin-top: 0.55rem;
+		margin-top: 0.75rem;
 	}
 
 	.experience-description :global(p) {
-		margin: 0;
-		font-size: 0.8rem;
-		line-height: 1.5;
+		margin: 0 0 0.5rem;
+		font-size: 0.875rem;
+		line-height: 1.6;
 		color: var(--color-muted-text);
 	}
 
-	@media (max-width: 900px) {
+	@media (min-width: 768px) {
+		.resume-grid {
+			grid-template-columns: 0.8fr 1.2fr;
+		}
+
+		.experience-col {
+			padding-left: 2.5rem;
+			border-left: 1px solid color-mix(in oklab, var(--color-accent-alt) 25%, transparent);
+		}
+	}
+
+	@media (max-width: 640px) {
 		.about-intro-row {
 			grid-template-columns: 1fr;
-			gap: 1.25rem;
+			gap: 1.5rem;
 		}
 
 		.portrait-wrap {
-			max-width: 160px;
+			max-width: 140px;
 		}
-
-		.resume-grid {
-			grid-template-columns: 1fr;
-		}
-
-			.experience-col {
-				border-left: 0;
-				padding-left: 0;
-				border-top: 2px solid color-mix(in oklab, var(--color-accent-alt) 52%, transparent);
-				padding-top: 1.2rem;
-			}
-		}
-	</style>
+	}
+</style>

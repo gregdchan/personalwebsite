@@ -1,7 +1,8 @@
 <script lang="ts">
 	import AppIcon from '$lib/components/icons/AppIcon.svelte';
+	import SanityImage from '$lib/components/SanityImage.svelte';
 
-	type SlideImage = { src: string; alt: string; caption?: string };
+	type SlideImage = { image: any; alt: string; caption?: string };
 
 	let {
 		images = [],
@@ -29,7 +30,7 @@
 		onclick={() => openLightbox(images, 0)}
 		aria-label="Open image"
 	>
-		<img src={images[0].src} alt={images[0].alt} loading="lazy" decoding="async" />
+		<SanityImage image={images[0].image} alt={images[0].alt} loading="lazy" />
 		<span class="open-tag">Open image</span>
 	</button>
 {:else if images.length > 1}
@@ -41,7 +42,7 @@
 				onclick={() => openLightbox(images, current)}
 				aria-label="Open image in lightbox"
 			>
-				<img src={images[current].src} alt={images[current].alt} loading="lazy" decoding="async" />
+				<SanityImage image={images[current].image} alt={images[current].alt} loading="lazy" />
 				<span class="open-tag">Open image</span>
 			</button>
 		</div>
@@ -72,7 +73,9 @@
 		background: color-mix(in oklab, var(--color-panel) 84%, transparent);
 		box-shadow: 0 12px 34px color-mix(in oklab, black 12%, transparent);
 		cursor: zoom-in;
-		transition: transform 220ms ease, border-color 220ms ease;
+		transition:
+			transform 220ms ease,
+			border-color 220ms ease;
 	}
 
 	.slide-single:hover,
@@ -81,8 +84,8 @@
 		border-color: color-mix(in oklab, var(--color-accent) 54%, var(--color-edge));
 	}
 
-	.slide-single img,
-	.slide-image img {
+	:global(.slide-single .main-image),
+	:global(.slide-image .main-image) {
 		display: block;
 		width: 100%;
 		height: auto;

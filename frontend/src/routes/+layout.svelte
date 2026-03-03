@@ -47,14 +47,17 @@
 	</style>
 </svelte:head>
 
+<!-- Skip Navigation for a11y keyboard users -->
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+
 <div class="site-shell">
-	<div class="aurora aurora-a"></div>
-	<div class="aurora aurora-b"></div>
-	<div class="noise-layer"></div>
+	<div class="aurora aurora-a" aria-hidden="true"></div>
+	<div class="aurora aurora-b" aria-hidden="true"></div>
+	<div class="noise-layer" aria-hidden="true"></div>
 
 	<Header {navigation} {currentMode} onToggleTheme={toggleTheme} {logoUrl} />
 
-	<main class="site-main">
+	<main id="main-content" class="site-main" tabindex="-1">
 		{@render children()}
 	</main>
 
@@ -64,6 +67,7 @@
 <style>
 	.site-shell {
 		min-height: 100vh;
+		min-height: 100dvh;
 		display: flex;
 		flex-direction: column;
 		position: relative;
@@ -71,7 +75,12 @@
 		background:
 			radial-gradient(circle at 8% 12%, var(--app-bg-radial-a), transparent 42%),
 			radial-gradient(circle at 88% 10%, var(--app-bg-radial-b), transparent 38%),
-			linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-mid) 52%, var(--app-bg-bottom) 100%);
+			linear-gradient(
+				180deg,
+				var(--app-bg-top) 0%,
+				var(--app-bg-mid) 52%,
+				var(--app-bg-bottom) 100%
+			);
 		color: var(--color-body-text, #e5e7eb);
 	}
 
@@ -81,19 +90,20 @@
 		pointer-events: none;
 		filter: blur(90px);
 		opacity: 0.5;
+		contain: strict;
 	}
 
 	.aurora-a {
-		width: 460px;
-		height: 460px;
+		width: min(460px, 50vw);
+		height: min(460px, 50vw);
 		left: -90px;
 		top: 14%;
 		background: var(--app-glow-a);
 	}
 
 	.aurora-b {
-		width: 390px;
-		height: 390px;
+		width: min(390px, 42vw);
+		height: min(390px, 42vw);
 		right: -100px;
 		bottom: 12%;
 		background: var(--app-glow-b);
@@ -107,12 +117,14 @@
 		background-image: radial-gradient(rgba(255, 255, 255, 0.035) 0.55px, transparent 0.55px);
 		background-size: 3px 3px;
 		opacity: 0.25;
+		contain: strict;
 	}
 
 	.site-main {
 		flex: 1;
 		width: 100%;
 		overflow-x: clip;
+		outline: none;
 	}
 
 	:global(body) {
@@ -137,5 +149,16 @@
 	:global(h2) {
 		font-size: var(--h2-font-size, inherit);
 		line-height: var(--h2-line-height, inherit);
+	}
+
+	/* Reduce visual complexity on small screens for performance */
+	@media (max-width: 480px) {
+		.aurora {
+			display: none;
+		}
+
+		.noise-layer {
+			opacity: 0.12;
+		}
 	}
 </style>

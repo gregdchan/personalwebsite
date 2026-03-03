@@ -47,7 +47,7 @@
 
 {#each safeSections as section, index (section._key || `${section._type}-${index}`)}
 	{@const Component = sectionMap[section._type] || UnknownSection}
-	<div id={section._type}>
+	<section data-section-type={section._type}>
 		<Component {section} />
-	</div>
+	</section>
 {/each}

@@ -8,9 +8,11 @@
 	import BeforeAfter from '$lib/components/BeforeAfter.svelte';
 	import MetricsGrid from '$lib/components/MetricsGrid.svelte';
 	import InfographicBlock from '$lib/components/InfographicBlock.svelte';
+	import SanityImage from '$lib/components/SanityImage.svelte';
+	import { optimizedUrl } from '$lib/sanity';
 
 	type StoryImage = {
-		src: string;
+		image: any;
 		alt: string;
 		caption?: string;
 	};
@@ -25,14 +27,22 @@
 	const githubUrl = $derived(project?.githubUrl || null);
 
 	const roles = $derived(Array.isArray(project?.roles) ? project.roles : []);
-	const collaborators = $derived(Array.isArray(project?.collaborators) ? project.collaborators : []);
+	const collaborators = $derived(
+		Array.isArray(project?.collaborators) ? project.collaborators : []
+	);
 	const technologies = $derived(Array.isArray(project?.technologies) ? project.technologies : []);
 	const tags = $derived(Array.isArray(project?.tags) ? project.tags : []);
 
 	const palette = $derived(project?.palette || null);
-	const designProcess = $derived(Array.isArray(project?.designProcess) ? project.designProcess : []);
-	const designPrinciples = $derived(Array.isArray(project?.designPrinciples) ? project.designPrinciples : []);
-	const beforeAfterComparisons = $derived(Array.isArray(project?.beforeAfterComparisons) ? project.beforeAfterComparisons : []);
+	const designProcess = $derived(
+		Array.isArray(project?.designProcess) ? project.designProcess : []
+	);
+	const designPrinciples = $derived(
+		Array.isArray(project?.designPrinciples) ? project.designPrinciples : []
+	);
+	const beforeAfterComparisons = $derived(
+		Array.isArray(project?.beforeAfterComparisons) ? project.beforeAfterComparisons : []
+	);
 	const metrics = $derived(Array.isArray(project?.metrics) ? project.metrics : []);
 	const infographics = $derived(Array.isArray(project?.infographics) ? project.infographics : []);
 
@@ -43,10 +53,9 @@
 	);
 
 	function asStoryImage(image: any, fallbackAlt: string, caption?: string): StoryImage | null {
-		const src = image?.asset?.url || image?.url;
-		if (!src) return null;
+		if (!image?.asset && !image?.url) return null;
 		return {
-			src,
+			image,
 			alt: image?.alt || fallbackAlt,
 			caption
 		};
@@ -227,7 +236,13 @@
 					onclick={() => openLightbox([coverImage], 0)}
 					aria-label="Open cover image"
 				>
-					<img src={coverImage.src} alt={coverImage.alt} class="hero-image" />
+					<SanityImage
+						image={coverImage.image}
+						alt={coverImage.alt}
+						class="hero-image"
+						loading="eager"
+						fetchpriority="high"
+					/>
 					<span class="image-open-tag">Open image</span>
 				</button>
 			{/if}
@@ -276,14 +291,14 @@
 							<ImageGallerySlideshow images={caseSections[index].images} {openLightbox} />
 						{:else}
 							<div class="visual-stack">
-								{#each caseSections[index].images as image, imageIndex (`${image.src}-${imageIndex}`)}
+								{#each caseSections[index].images as image, imageIndex (`${image.alt}-${imageIndex}`)}
 									<button
 										type="button"
 										class="visual-image"
 										onclick={() => openLightbox(caseSections[index].images, imageIndex)}
 										aria-label="Open case-study image"
 									>
-										<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+										<SanityImage image={image.image} alt={image.alt} loading="lazy" />
 										<span class="image-open-tag">Open image</span>
 									</button>
 								{/each}
@@ -305,14 +320,14 @@
 							<ImageGallerySlideshow images={section.images} {openLightbox} />
 						{:else}
 							<div class="visual-stack">
-								{#each section.images as image, imageIndex (`${image.src}-${imageIndex}`)}
+								{#each section.images as image, imageIndex (`${image.alt}-${imageIndex}`)}
 									<button
 										type="button"
 										class="visual-image"
 										onclick={() => openLightbox(section.images, imageIndex)}
 										aria-label="Open case-study image"
 									>
-										<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+										<SanityImage image={image.image} alt={image.alt} loading="lazy" />
 										<span class="image-open-tag">Open image</span>
 									</button>
 								{/each}
@@ -406,24 +421,48 @@
 		aria-label="Image lightbox"
 		tabindex="-1"
 	>
-		<button type="button" class="lightbox-dismiss" onclick={closeLightbox} aria-label="Dismiss image viewer"></button>
+		<button
+			type="button"
+			class="lightbox-dismiss"
+			onclick={closeLightbox}
+			aria-label="Dismiss image viewer"
+		></button>
 
-		<button type="button" class="lightbox-close" onclick={closeLightbox} aria-label="Close image viewer">
+		<button
+			type="button"
+			class="lightbox-close"
+			onclick={closeLightbox}
+			aria-label="Close image viewer"
+		>
 			<AppIcon name="x" size={18} />
 		</button>
 
 		{#if lightboxItems.length > 1}
-			<button type="button" class="lightbox-nav prev" onclick={onPrevLightboxClick} aria-label="Previous image">
+			<button
+				type="button"
+				class="lightbox-nav prev"
+				onclick={onPrevLightboxClick}
+				aria-label="Previous image"
+			>
 				<AppIcon name="arrow-left" size={20} />
 			</button>
-			<button type="button" class="lightbox-nav next" onclick={onNextLightboxClick} aria-label="Next image">
+			<button
+				type="button"
+				class="lightbox-nav next"
+				onclick={onNextLightboxClick}
+				aria-label="Next image"
+			>
 				<AppIcon name="arrow-right" size={20} />
 			</button>
 		{/if}
 
 		<div class="lightbox-content">
 			<figure class="lightbox-figure">
-				<img src={activeLightboxImage.src} alt={activeLightboxImage.alt} class="lightbox-image" />
+				<img
+					src={optimizedUrl(activeLightboxImage.image, 1600)}
+					alt={activeLightboxImage.alt}
+					class="lightbox-image"
+				/>
 				{#if activeLightboxImage.caption || lightboxItems.length > 1}
 					<figcaption>
 						{activeLightboxImage.caption || activeLightboxImage.alt}
@@ -547,7 +586,9 @@
 		background: color-mix(in oklab, var(--color-panel) 84%, transparent);
 		box-shadow: var(--story-image-shadow);
 		cursor: zoom-in;
-		transition: transform 220ms ease, border-color 220ms ease;
+		transition:
+			transform 220ms ease,
+			border-color 220ms ease;
 	}
 
 	.hero-media:hover,
@@ -556,8 +597,8 @@
 		border-color: color-mix(in oklab, var(--color-accent) 54%, var(--color-edge));
 	}
 
-	.hero-image,
-	.visual-image img {
+	:global(.hero-image),
+	:global(.visual-image .main-image) {
 		display: block;
 		width: 100%;
 		height: auto;

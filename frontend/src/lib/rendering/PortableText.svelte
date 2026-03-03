@@ -35,9 +35,7 @@
 
 	/** Get plain text from a block's children (for code blocks) */
 	function getPlainText(block: any): string {
-		return (block.children || [])
-			.map((child: any) => child.text || '')
-			.join('');
+		return (block.children || []).map((child: any) => child.text || '').join('');
 	}
 
 	function getChildren(block: any): string {
@@ -52,7 +50,7 @@
 				if (marks.includes('strong')) text = `<strong>${text}</strong>`;
 				if (marks.includes('em')) text = `<em>${text}</em>`;
 				if (marks.includes('code'))
-					text = `<code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm">${text}</code>`;
+					text = `<code class="rounded bg-primary-500/10 px-1.5 py-0.5 font-mono text-sm text-primary-300 border border-primary-500/20">${text}</code>`;
 
 				// Handle link annotations
 				const linkMark = marks.find((m: string) =>
@@ -61,7 +59,7 @@
 				if (linkMark) {
 					const def = markDefs.find((d: any) => d._key === linkMark);
 					const target = def.blank ? ' target="_blank" rel="noopener noreferrer"' : '';
-					text = `<a href="${safeHref(def?.href)}" class="text-primary-400 underline underline-offset-2 hover:text-primary-300 transition-colors"${target}>${text}</a>`;
+					text = `<a href="${safeHref(def?.href)}" class="text-primary-400 font-medium underline underline-offset-4 decoration-primary-500/30 hover:decoration-primary-400 transition-colors"${target}>${text}</a>`;
 				}
 
 				return text;
@@ -109,7 +107,7 @@
 			{#if block.listType === 'bullet'}
 				<ul class="space-y-2 pl-6">
 					{#each block.items as item}
-						<li class="flex gap-2 text-surface-300">
+						<li class="flex gap-2" style="color: var(--color-muted-text)">
 							<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"></span>
 							<span>{@html getChildren(item)}</span>
 						</li>
@@ -118,7 +116,7 @@
 			{:else}
 				<ol class="list-decimal space-y-2 pl-6">
 					{#each block.items as item}
-						<li class="text-surface-300">{@html getChildren(item)}</li>
+						<li style="color: var(--color-muted-text)">{@html getChildren(item)}</li>
 					{/each}
 				</ol>
 			{/if}
@@ -126,17 +124,24 @@
 			<pre class="code-block"><code>{block.lines.join('\n')}</code></pre>
 		{:else if block._type === 'block'}
 			{#if block.style === 'h2'}
-				<h2 class="mt-8 text-2xl font-bold tracking-tight text-white">
+				<h2 class="mt-8 text-2xl font-bold tracking-tight" style="color: var(--heading-color)">
 					{@html getChildren(block)}
 				</h2>
 			{:else if block.style === 'h3'}
-				<h3 class="mt-6 text-xl font-semibold text-white">{@html getChildren(block)}</h3>
+				<h3 class="mt-6 text-xl font-semibold" style="color: var(--heading-color)">
+					{@html getChildren(block)}
+				</h3>
 			{:else if block.style === 'blockquote'}
-				<blockquote class="border-l-4 border-primary-500 pl-4 text-surface-300 italic">
+				<blockquote
+					class="border-l-4 border-primary-500 pl-4 italic"
+					style="color: var(--color-muted-text)"
+				>
 					{@html getChildren(block)}
 				</blockquote>
 			{:else if getChildren(block)}
-				<p class="leading-relaxed text-surface-300">{@html getChildren(block)}</p>
+				<p class="leading-relaxed" style="color: var(--color-muted-text)">
+					{@html getChildren(block)}
+				</p>
 			{/if}
 		{:else if block._type === 'image'}
 			{#if block.asset?.url}
@@ -161,16 +166,16 @@
 
 <style>
 	.code-block {
-		margin: 1rem 0;
-		padding: 1rem 1.25rem;
+		margin: 1.5rem 0;
+		padding: 1.25rem;
 		border-radius: 0.75rem;
-		background: color-mix(in oklab, var(--color-panel, rgba(15, 15, 20, 0.85)) 40%, black);
-		border: 1px solid var(--color-edge, rgba(255, 255, 255, 0.08));
+		background: #09090b;
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		overflow-x: auto;
 		font-family: var(--font-mono);
-		font-size: 0.85rem;
-		line-height: 1.6;
-		color: var(--color-muted-text, rgba(200, 200, 210, 0.9));
+		font-size: 0.875rem;
+		line-height: 1.7;
+		color: #e4e4e7;
 		white-space: pre;
 		tab-size: 2;
 	}

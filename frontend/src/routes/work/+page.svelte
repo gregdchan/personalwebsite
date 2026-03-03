@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { reveal } from '$lib/actions/reveal';
+	import { optimizedUrl } from '$lib/sanity';
 
 	let { data } = $props();
 
@@ -15,39 +16,51 @@
 		'Selected case studies in product design, engineering, and creative technology.';
 </script>
 
-<section class="work-shell">
+<svelte:head>
+	<title>{title} — Greg D. Chan</title>
+	<meta name="description" content={description} />
+</svelte:head>
+
+<section class="work-shell" aria-labelledby="work-heading">
 	<div class="shell">
 		<header class="work-hero" use:reveal={{ delay: 25 }}>
 			<p class="label">Case Studies</p>
-			<h1>{title}</h1>
+			<h1 id="work-heading">{title}</h1>
 			<p class="intro">{description}</p>
 			{#if projects.length > 0}
-				<p class="count">{projects.length} published projects</p>
+				<p class="count">{projects.length} published project{projects.length !== 1 ? 's' : ''}</p>
 			{/if}
 		</header>
 
 		{#if projects.length === 0}
-			<div class="empty-state">
+			<div class="empty-state" role="status">
 				<h2>No projects published yet.</h2>
 				<p>Publish `project` or `portfolioProject` documents in Sanity to populate this page.</p>
 			</div>
 		{:else}
 			{#if leadProject}
+				{@const cover = leadProject?.cover || leadProject?.mainImage}
 				<a
 					class="work-lead"
 					href={`/work/${leadProject?.slug?.current || leadProject?.slug}`}
 					use:reveal={{ delay: 90 }}
+					aria-label={`Featured: ${leadProject?.title}`}
 				>
 					<div class="work-image-wrap lead-media">
-						{#if leadProject?.cover?.asset?.url}
+						{#if cover?.asset?.url}
 							<img
-								src={leadProject.cover.asset.url}
-								alt={leadProject.cover?.alt || leadProject.title}
-								loading="lazy"
+								src={optimizedUrl(cover, 1200)}
+								alt={cover?.alt || leadProject.title}
+								loading="eager"
 								decoding="async"
+								width="700"
+								height="394"
+								fetchpriority="high"
 							/>
 						{:else}
-							<div class="work-image-fallback">{leadProject?.title?.charAt(0) || 'P'}</div>
+							<div class="work-image-fallback" aria-hidden="true">
+								{leadProject?.title?.charAt(0) || 'P'}
+							</div>
 						{/if}
 					</div>
 					<div class="work-copy">
@@ -61,9 +74,9 @@
 							<p>{leadProject.excerpt}</p>
 						{/if}
 						{#if leadProject?.tags?.length}
-							<div class="tags">
+							<div class="tags" role="list" aria-label="Project tags">
 								{#each leadProject.tags.slice(0, 4) as tag}
-									<small>{tag}</small>
+									<small role="listitem">{tag}</small>
 								{/each}
 							</div>
 						{/if}
@@ -75,21 +88,27 @@
 			{#if secondaryProjects.length > 0}
 				<div class="work-grid">
 					{#each secondaryProjects as project, index}
+						{@const cover = project?.cover || project?.mainImage}
 						<a
 							class="work-card"
 							href={`/work/${project?.slug?.current || project?.slug}`}
 							use:reveal={{ delay: 130 + index * 50 }}
+							aria-label={`Case study: ${project?.title}`}
 						>
 							<div class="work-image-wrap">
-								{#if project?.cover?.asset?.url}
+								{#if cover?.asset?.url}
 									<img
-										src={project.cover.asset.url}
-										alt={project.cover?.alt || project.title}
+										src={optimizedUrl(cover, 800)}
+										alt={cover?.alt || project.title}
 										loading="lazy"
 										decoding="async"
+										width="600"
+										height="338"
 									/>
 								{:else}
-									<div class="work-image-fallback">{project?.title?.charAt(0) || 'P'}</div>
+									<div class="work-image-fallback" aria-hidden="true">
+										{project?.title?.charAt(0) || 'P'}
+									</div>
 								{/if}
 							</div>
 							<div class="work-copy">
@@ -103,9 +122,9 @@
 									<p>{project.excerpt}</p>
 								{/if}
 								{#if project?.tags?.length}
-									<div class="tags">
+									<div class="tags" role="list" aria-label="Project tags">
 										{#each project.tags.slice(0, 3) as tag}
-											<small>{tag}</small>
+											<small role="listitem">{tag}</small>
 										{/each}
 									</div>
 								{/if}
@@ -121,23 +140,23 @@
 
 <style>
 	.work-shell {
-		padding: 3.6rem 0 7rem;
+		padding: clamp(2.2rem, 5vw, 3.6rem) 0 clamp(4rem, 8vw, 7rem);
 	}
 
 	.shell {
 		max-width: 1200px;
 		margin: 0 auto;
-		padding: 0 1.25rem;
+		padding: 0 clamp(0.75rem, 3vw, 1.25rem);
 	}
 
 	.work-hero {
-		margin-bottom: 2.35rem;
+		margin-bottom: clamp(1.5rem, 3vw, 2.35rem);
 	}
 
 	.label {
 		margin: 0 0 0.72rem;
 		font-family: var(--font-mono);
-		font-size: 0.68rem;
+		font-size: clamp(0.6rem, 1.2vw, 0.68rem);
 		letter-spacing: 0.11em;
 		text-transform: uppercase;
 		color: var(--color-accent-alt);
@@ -155,6 +174,7 @@
 		max-width: 62ch;
 		line-height: 1.72;
 		color: var(--color-muted-text);
+		font-size: clamp(0.9rem, 1.5vw, 1rem);
 	}
 
 	.count {
@@ -172,10 +192,13 @@
 		text-decoration: none;
 		color: inherit;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 84%, transparent);
-		border-radius: 1.22rem;
-		padding: 1.1rem;
+		border-radius: clamp(0.85rem, 2vw, 1.22rem);
+		padding: clamp(0.75rem, 1.5vw, 1.1rem);
 		background: color-mix(in oklab, var(--color-panel) 90%, transparent);
-		transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+		transition:
+			border-color 220ms ease,
+			transform 220ms ease,
+			box-shadow 220ms ease;
 	}
 
 	.work-lead:hover {
@@ -184,10 +207,17 @@
 		box-shadow: 0 18px 38px color-mix(in oklab, black 12%, transparent);
 	}
 
+	@media (prefers-reduced-motion: reduce) {
+		.work-lead:hover,
+		.work-card:hover {
+			transform: none;
+		}
+	}
+
 	.work-grid {
-		margin-top: 1.6rem;
+		margin-top: clamp(1.2rem, 2.5vw, 1.6rem);
 		display: grid;
-		gap: 1.5rem;
+		gap: clamp(1rem, 2vw, 1.5rem);
 	}
 
 	.work-card {
@@ -196,10 +226,12 @@
 		text-decoration: none;
 		color: inherit;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 74%, transparent);
-		border-radius: 1.12rem;
-		padding: 1rem;
+		border-radius: clamp(0.85rem, 2vw, 1.12rem);
+		padding: clamp(0.75rem, 1.5vw, 1rem);
 		background: color-mix(in oklab, var(--color-panel) 86%, transparent);
-		transition: border-color 180ms ease, transform 180ms ease;
+		transition:
+			border-color 180ms ease,
+			transform 180ms ease;
 	}
 
 	.work-card:hover {
@@ -208,7 +240,7 @@
 	}
 
 	.work-image-wrap {
-		border-radius: 1rem;
+		border-radius: clamp(0.65rem, 1.5vw, 1rem);
 		overflow: hidden;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 70%, transparent);
 		background: var(--color-panel);
@@ -232,7 +264,7 @@
 		display: grid;
 		place-items: center;
 		height: 100%;
-		font-size: 3rem;
+		font-size: clamp(2rem, 5vw, 3rem);
 		color: color-mix(in oklab, var(--color-accent) 42%, var(--color-muted-text));
 	}
 
@@ -252,7 +284,7 @@
 
 	.work-copy h2 {
 		margin: 0.7rem 0 0.5rem;
-		font-size: clamp(1.28rem, 2.1vw, 1.86rem);
+		font-size: clamp(1.15rem, 2.1vw, 1.86rem);
 		line-height: 1.2;
 	}
 
@@ -261,6 +293,7 @@
 		line-height: 1.72;
 		color: var(--color-muted-text);
 		max-width: 68ch;
+		font-size: clamp(0.85rem, 1.3vw, 1rem);
 	}
 
 	.work-copy strong {
@@ -294,7 +327,7 @@
 	.empty-state {
 		border: 1px dashed color-mix(in oklab, var(--color-edge) 72%, transparent);
 		border-radius: 1rem;
-		padding: 1.8rem;
+		padding: clamp(1.2rem, 3vw, 1.8rem);
 		text-align: center;
 		background: color-mix(in oklab, var(--color-panel) 88%, transparent);
 	}
@@ -309,6 +342,13 @@
 		color: var(--color-muted-text);
 	}
 
+	/* Tablet layout */
+	@media (min-width: 680px) {
+		.work-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
 	@media (min-width: 920px) {
 		.work-lead {
 			grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
@@ -319,12 +359,6 @@
 
 		.work-card {
 			padding: 1.22rem;
-		}
-	}
-
-	@media (max-width: 740px) {
-		.work-shell {
-			padding-top: 2.2rem;
 		}
 	}
 </style>
