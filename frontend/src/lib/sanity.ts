@@ -91,15 +91,7 @@ const IMAGE_PROJECTION = `{
 
 const TAGS_PROJECTION = `coalesce(
   array::compact(
-    tags[]{
-      select(
-        defined(@->title) => @->title,
-        defined(@->name) => @->name,
-        defined(@.title) => @.title,
-        !defined(@._ref) => string(@),
-        true => null
-      )
-    }
+    (coalesce(tags[]->title, [])) + (coalesce(tags[!defined(@->_ref)], []))
   ),
   []
 )`;
@@ -287,6 +279,7 @@ export async function getProjects(options: {
   category?: string;
   tag?: string;
 } = {}): Promise<any[]> {
+  const requestedLimit = options.limit ?? 24;
   const query = `*[
     _type == "project"
     && defined(slug.current)
@@ -294,12 +287,12 @@ export async function getProjects(options: {
     && ($category == "" || category == $category || $category in categories[]->slug.current)
     && (
       $tag == ""
-      || count(tags[defined(@) && lower(string(@)) == lower($tag)]) > 0
-      || count(tags[defined(@->slug.current) && lower(@->slug.current) == lower($tag)]) > 0
-      || count(tags[defined(@->title) && lower(@->title) == lower($tag)]) > 0
+      || $tag in coalesce(tags[]->title, [])
+      || $tag in coalesce(tags[!defined(@->_ref)], [])
+      || $tag in coalesce(tags[]->slug.current, [])
     )
   ] | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
-  [0...$limit]{
+  [0...200]{
     _id,
     _type,
     title,
@@ -315,7 +308,6 @@ export async function getProjects(options: {
   }`;
 
   const fetchParams = {
-    limit: options.limit ?? 24,
     featuredOnly: options.featuredOnly ?? false,
     category: options.category ?? '',
     tag: options.tag ?? ''
@@ -325,7 +317,7 @@ export async function getProjects(options: {
     const projects = await withCache(cacheKey('projects', fetchParams), TTL_PAGE_MS, async () =>
       fetchPublished(query, fetchParams)
     );
-    return (projects as any[]) ?? [];
+    return ((projects as any[]) ?? []).slice(0, requestedLimit);
   } catch {
     return [];
   }
@@ -385,18 +377,19 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
 }
 
 export async function getPosts(options: { limit?: number; featuredOnly?: boolean; tag?: string } = {}): Promise<any[]> {
+  const requestedLimit = options.limit ?? 24;
   const query = `*[
     _type == "blogPost"
     && defined(slug.current)
     && ($featuredOnly == false || featured == true)
     && (
       $tag == ""
-      || count(tags[defined(@) && lower(string(@)) == lower($tag)]) > 0
-      || count(tags[defined(@->slug.current) && lower(@->slug.current) == lower($tag)]) > 0
-      || count(tags[defined(@->title) && lower(@->title) == lower($tag)]) > 0
+      || $tag in coalesce(tags[]->title, [])
+      || $tag in coalesce(tags[!defined(@->_ref)], [])
+      || $tag in coalesce(tags[]->slug.current, [])
     )
   ] | order(coalesce(publishedAt, _updatedAt) desc)
-  [0...$limit]{
+  [0...200]{
     _id,
     _type,
     title,
@@ -411,7 +404,6 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
   }`;
 
   const fetchParams = {
-    limit: options.limit ?? 24,
     featuredOnly: options.featuredOnly ?? false,
     tag: options.tag ?? ''
   };
@@ -419,7 +411,7 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
     const posts = await withCache(cacheKey('posts', fetchParams), TTL_PAGE_MS, async () =>
       fetchPublished(query, fetchParams)
     );
-    return (posts as any[]) ?? [];
+    return ((posts as any[]) ?? []).slice(0, requestedLimit);
   } catch {
     return [];
   }

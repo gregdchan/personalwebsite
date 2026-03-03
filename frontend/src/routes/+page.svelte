@@ -193,12 +193,18 @@
 	:global(.portrait) {
 		display: block;
 		width: 100%;
+		aspect-ratio: 1 / 1;
+		overflow: hidden;
 		border-radius: 999px;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 70%, transparent);
 		box-shadow: 0 16px 36px color-mix(in oklab, black 14%, transparent);
 	}
 
 	:global(.portrait .main-image) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
 		filter: saturate(0) contrast(1.05);
 	}
 
@@ -358,7 +364,17 @@
 		box-shadow: 0 16px 36px color-mix(in oklab, black 12%, transparent);
 	}
 
+	:global(.case-media .sanity-image-container) {
+		width: 100%;
+		height: 100%;
+		aspect-ratio: auto !important;
+	}
+
 	:global(.case-media .main-image) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
 		filter: saturate(0.98) contrast(1.03);
 	}
 

@@ -759,7 +759,6 @@
 		color: var(--color-accent);
 	}
 
-	.token-row.muted span,
 	.token-row.muted a {
 		background: color-mix(in oklab, var(--color-text) 5%, transparent);
 		border-color: color-mix(in oklab, var(--color-text) 12%, transparent);

@@ -89,6 +89,7 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center;
 		filter: blur(20px);
 		transform: scale(1.1);
 		transition: opacity 400ms ease;
@@ -103,6 +104,7 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center;
 		opacity: 0;
 		transition: opacity 300ms ease-out;
 		will-change: opacity;
