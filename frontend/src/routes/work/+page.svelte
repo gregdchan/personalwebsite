@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { reveal } from '$lib/actions/reveal';
 	import { optimizedUrl } from '$lib/sanity';
 
@@ -6,6 +7,7 @@
 
 	const page = data?.page ?? {};
 	const projects = Array.isArray(data?.projects) ? data.projects : [];
+	const activeTag = typeof data?.activeTag === 'string' ? data.activeTag : '';
 
 	const leadProject = projects[0] ?? null;
 	const secondaryProjects = projects.slice(1);
@@ -14,6 +16,16 @@
 	const description =
 		page?.description ||
 		'Selected case studies in product design, engineering, and creative technology.';
+
+	function isActiveTag(tag: string): boolean {
+		return activeTag.length > 0 && activeTag.toLowerCase() === tag.toLowerCase();
+	}
+
+	function onTagActivate(event: MouseEvent | KeyboardEvent, tag: string) {
+		event.preventDefault();
+		event.stopPropagation();
+		void goto(`/work?tag=${encodeURIComponent(tag)}`);
+	}
 </script>
 
 <svelte:head>
@@ -27,6 +39,12 @@
 			<p class="label">Case Studies</p>
 			<h1 id="work-heading">{title}</h1>
 			<p class="intro">{description}</p>
+			{#if activeTag}
+				<p class="active-filter">
+					Filtering by tag: <strong>{activeTag}</strong>
+					<a href="/work" aria-label="Clear tag filter">Clear</a>
+				</p>
+			{/if}
 			{#if projects.length > 0}
 				<p class="count">{projects.length} published project{projects.length !== 1 ? 's' : ''}</p>
 			{/if}
@@ -34,8 +52,13 @@
 
 		{#if projects.length === 0}
 			<div class="empty-state" role="status">
-				<h2>No projects published yet.</h2>
-				<p>Publish `project` documents in Sanity to populate this page.</p>
+				{#if activeTag}
+					<h2>No projects found for "{activeTag}".</h2>
+					<p>Try another tag or clear the active filter.</p>
+				{:else}
+					<h2>No projects published yet.</h2>
+					<p>Publish `project` documents in Sanity to populate this page.</p>
+				{/if}
 			</div>
 		{:else}
 			{#if leadProject}
@@ -49,7 +72,7 @@
 					<div class="work-image-wrap lead-media">
 						{#if cover?.asset?.url}
 							<img
-								src={optimizedUrl(cover, 1200)}
+								src={optimizedUrl(cover, 1200, 80, 675)}
 								alt={cover?.alt || leadProject.title}
 								loading="eager"
 								decoding="async"
@@ -76,7 +99,17 @@
 						{#if leadProject?.tags?.length}
 							<div class="tags" role="list" aria-label="Project tags">
 								{#each leadProject.tags.slice(0, 4) as tag}
-									<small role="listitem">{tag}</small>
+									<small
+										role="listitem"
+										tabindex="0"
+										class="tag-pill"
+										class:active={isActiveTag(tag)}
+										onclick={(event) => onTagActivate(event, tag)}
+										onkeydown={(event) =>
+											(event.key === 'Enter' || event.key === ' ') && onTagActivate(event, tag)}
+									>
+										{tag}
+									</small>
 								{/each}
 							</div>
 						{/if}
@@ -98,7 +131,7 @@
 							<div class="work-image-wrap">
 								{#if cover?.asset?.url}
 									<img
-										src={optimizedUrl(cover, 800)}
+										src={optimizedUrl(cover, 800, 80, 450)}
 										alt={cover?.alt || project.title}
 										loading="lazy"
 										decoding="async"
@@ -124,7 +157,18 @@
 								{#if project?.tags?.length}
 									<div class="tags" role="list" aria-label="Project tags">
 										{#each project.tags.slice(0, 3) as tag}
-											<small role="listitem">{tag}</small>
+											<small
+												role="listitem"
+												tabindex="0"
+												class="tag-pill"
+												class:active={isActiveTag(tag)}
+												onclick={(event) => onTagActivate(event, tag)}
+												onkeydown={(event) =>
+													(event.key === 'Enter' || event.key === ' ') &&
+													onTagActivate(event, tag)}
+											>
+												{tag}
+											</small>
 										{/each}
 									</div>
 								{/if}
@@ -184,6 +228,36 @@
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--color-muted-text);
+	}
+
+	.active-filter {
+		margin: 0.85rem 0 0;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		color: var(--color-muted-text);
+	}
+
+	.active-filter strong {
+		color: var(--color-text);
+	}
+
+	.active-filter a {
+		text-decoration: none;
+		padding: 0.24rem 0.5rem;
+		border-radius: 999px;
+		border: 1px solid color-mix(in oklab, var(--color-edge) 78%, transparent);
+		background: color-mix(in oklab, var(--color-panel) 80%, transparent);
+		color: var(--color-text);
+	}
+
+	.active-filter a:hover {
+		border-color: var(--color-accent);
+		color: var(--color-accent);
 	}
 
 	.work-lead {
@@ -313,7 +387,9 @@
 		margin-top: 0.95rem;
 	}
 
-	.tags small {
+	.tag-pill {
+		display: inline-flex;
+		align-items: center;
 		padding: 0.2rem 0.5rem;
 		border-radius: 999px;
 		background: var(--color-chip);
@@ -322,6 +398,29 @@
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
 		color: var(--color-muted-text);
+		border: 1px solid transparent;
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			border-color 140ms ease,
+			color 140ms ease,
+			background-color 140ms ease;
+	}
+
+	.tag-pill:focus-visible {
+		outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+		outline-offset: 1px;
+	}
+
+	.tag-pill:hover {
+		border-color: color-mix(in oklab, var(--color-accent) 54%, transparent);
+		color: var(--color-text);
+	}
+
+	.tag-pill.active {
+		border-color: color-mix(in oklab, var(--color-accent) 68%, transparent);
+		background: color-mix(in oklab, var(--color-accent) 18%, transparent);
+		color: var(--color-text);
 	}
 
 	.empty-state {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { optimizedUrl } from '$lib/sanity';
   let { title = 'Featured Projects', items = [] }: { title?: string; items?: any[] } = $props();
   const safeItems = $derived(Array.isArray(items) ? items : []);
   function href(p:any){ return p?.slug?.current ? `/work/${p.slug.current}` : '#' }
@@ -17,14 +18,16 @@
       {#each safeItems as p}
         <a href={href(p)} class="group relative overflow-hidden rounded-xl ring-1 ring-black/5 dark:ring-white/10 bg-[var(--color-body-bg)]">
           {#if p?.cover?.asset?.url}
-            <img src={p.cover.asset.url} alt={p.cover?.alt || p.title} class="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            <img src={optimizedUrl(p.cover, 900, 80, 560)} alt={p.cover?.alt || p.title} class="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
           {/if}
           <div class="p-4">
             <h3 class="font-medium">{p.title}</h3>
             {#if p.excerpt}<p class="mt-1 text-sm text-[var(--color-body-text)]/70 line-clamp-2">{p.excerpt}</p>{/if}
             {#if Array.isArray(p.tags) && p.tags.length}
               <div class="mt-3 flex flex-wrap gap-2">
-                {#each p.tags as t}<span class="rounded bg-[var(--color-body-text)]/10 px-2 py-0.5 text-xs text-[var(--color-body-text)]/80">{t}</span>{/each}
+                {#each p.tags as t}
+                  <span class="rounded bg-[var(--color-body-text)]/10 px-2 py-0.5 text-xs text-[var(--color-body-text)]/80">{t}</span>
+                {/each}
               </div>
             {/if}
           </div>

@@ -239,6 +239,8 @@
 					<SanityImage
 						image={coverImage.image}
 						alt={coverImage.alt}
+						width={1600}
+						height={900}
 						class="hero-image"
 						loading="eager"
 						fetchpriority="high"
@@ -403,7 +405,7 @@
 					<h3>Tags</h3>
 					<div class="token-row muted">
 						{#each tags as tag}
-							<span>{tag}</span>
+							<a href={`/work?tag=${encodeURIComponent(tag)}`}>{tag}</a>
 						{/each}
 					</div>
 				{/if}
@@ -604,11 +606,11 @@
 		border-color: color-mix(in oklab, var(--color-accent) 54%, var(--color-edge));
 	}
 
-	:global(.hero-image),
+	:global(.hero-image .main-image),
 	:global(.visual-image .main-image) {
 		display: block;
 		width: 100%;
-		height: auto;
+		height: 100%;
 		max-height: 72vh;
 		object-fit: cover;
 		filter: saturate(0.99) contrast(1.03);
@@ -618,14 +620,18 @@
 		position: absolute;
 		right: 0.64rem;
 		bottom: 0.64rem;
-		padding: 0.25rem 0.44rem;
+		padding: 0.28rem 0.52rem;
 		border-radius: 999px;
 		font-family: var(--font-mono);
-		font-size: 0.61rem;
-		letter-spacing: 0.08em;
+		font-size: 0.58rem;
+		letter-spacing: 0.07em;
 		text-transform: uppercase;
-		background: color-mix(in oklab, var(--color-accent) 56%, black);
-		color: var(--color-on-accent, #fff6e8);
+		background: color-mix(in oklab, var(--color-panel) 78%, black 22%);
+		color: color-mix(in oklab, var(--color-text) 92%, white 8%);
+		border: 1px solid color-mix(in oklab, white 26%, transparent);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+		box-shadow: 0 4px 14px color-mix(in oklab, black 18%, transparent);
 	}
 
 	.story-flow {
@@ -731,7 +737,30 @@
 		border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
 	}
 
-	.token-row.muted span {
+	.token-row a {
+		padding: 0.3rem 0.65rem;
+		border-radius: 999px;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 500;
+		letter-spacing: 0.05em;
+		color: var(--color-text);
+		background: color-mix(in oklab, var(--color-accent) 15%, transparent);
+		border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
+		text-decoration: none;
+		transition:
+			border-color 140ms ease,
+			color 140ms ease,
+			background-color 140ms ease;
+	}
+
+	.token-row a:hover {
+		border-color: color-mix(in oklab, var(--color-accent) 62%, transparent);
+		color: var(--color-accent);
+	}
+
+	.token-row.muted span,
+	.token-row.muted a {
 		background: color-mix(in oklab, var(--color-text) 5%, transparent);
 		border-color: color-mix(in oklab, var(--color-text) 12%, transparent);
 	}

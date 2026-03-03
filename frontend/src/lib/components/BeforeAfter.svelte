@@ -109,24 +109,27 @@
 		top: 0.45rem;
 		left: 0.45rem;
 		z-index: 1;
-		padding: 0.18rem 0.44rem;
+		padding: 0.2rem 0.5rem;
 		border-radius: 999px;
 		font-family: var(--font-mono);
-		font-size: 0.58rem;
-		letter-spacing: 0.08em;
+		font-size: 0.56rem;
+		letter-spacing: 0.07em;
 		text-transform: uppercase;
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+		box-shadow: 0 4px 10px color-mix(in oklab, black 14%, transparent);
 	}
 
 	.comp-label.before {
-		background: color-mix(in oklab, var(--color-muted-text) 25%, transparent);
-		color: var(--color-body-text);
-		border: 1px solid var(--color-edge);
+		background: color-mix(in oklab, var(--color-panel) 86%, black 14%);
+		color: color-mix(in oklab, var(--color-text) 85%, white 15%);
+		border: 1px solid color-mix(in oklab, white 22%, transparent);
 	}
 
 	.comp-label.after {
-		background: color-mix(in oklab, var(--color-accent) 30%, transparent);
-		color: var(--color-accent);
-		border: 1px solid color-mix(in oklab, var(--color-accent) 40%, transparent);
+		background: color-mix(in oklab, var(--color-accent) 22%, var(--color-panel) 78%);
+		color: color-mix(in oklab, var(--color-accent) 72%, var(--color-text));
+		border: 1px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
 	}
 
 	.comp-img-btn {

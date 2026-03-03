@@ -24,10 +24,15 @@ export function urlFor(source: any) {
 /**
  * Returns an optimized Sanity image URL with specific dimensions and auto-format.
  */
-export function optimizedUrl(source: any, width = 1200, quality = 80) {
+export function optimizedUrl(source: any, width = 1200, quality = 80, height?: number) {
   if (!source) return '';
   try {
-    return urlFor(source).width(width).auto('format').quality(quality).url();
+    let image = urlFor(source).width(width).auto('format').quality(quality);
+    if (typeof height === 'number' && Number.isFinite(height) && height > 0) {
+      // Height + fit(crop) allows Sanity to apply editor-defined crop/hotspot data.
+      image = image.height(height).fit('crop');
+    }
+    return image.url();
   } catch (e) {
     return '';
   }
@@ -84,6 +89,21 @@ const IMAGE_PROJECTION = `{
   asset->{url, metadata{dimensions, lqip}}
 }`;
 
+const TAGS_PROJECTION = `coalesce(
+  array::compact(
+    tags[]{
+      select(
+        defined(@->title) => @->title,
+        defined(@->name) => @->name,
+        defined(@.title) => @.title,
+        !defined(@._ref) => string(@),
+        true => null
+      )
+    }
+  ),
+  []
+)`;
+
 const PORTABLE_TEXT_PROJECTION = `[]{
   ...,
   _type == "image" => { ..., asset->{url, metadata{dimensions, lqip}} },
@@ -128,7 +148,7 @@ const SECTION_PROJECTION = `[]{
       excerpt,
       slug,
       "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
-      "tags": coalesce(tags[]->title, tags[]),
+      "tags": ${TAGS_PROJECTION},
       "category": coalesce(category, categories[0]->title, portfolioType),
       year,
       featured
@@ -265,12 +285,19 @@ export async function getProjects(options: {
   limit?: number;
   featuredOnly?: boolean;
   category?: string;
+  tag?: string;
 } = {}): Promise<any[]> {
   const query = `*[
     _type == "project"
     && defined(slug.current)
     && ($featuredOnly == false || featured == true)
     && ($category == "" || category == $category || $category in categories[]->slug.current)
+    && (
+      $tag == ""
+      || count(tags[defined(@) && lower(string(@)) == lower($tag)]) > 0
+      || count(tags[defined(@->slug.current) && lower(@->slug.current) == lower($tag)]) > 0
+      || count(tags[defined(@->title) && lower(@->title) == lower($tag)]) > 0
+    )
   ] | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
   [0...$limit]{
     _id,
@@ -279,7 +306,7 @@ export async function getProjects(options: {
     excerpt,
     slug,
     "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
-    "tags": coalesce(tags[]->title, tags[]),
+    "tags": ${TAGS_PROJECTION},
     "category": coalesce(category, categories[0]->title, portfolioType),
     year,
     featured,
@@ -290,7 +317,8 @@ export async function getProjects(options: {
   const fetchParams = {
     limit: options.limit ?? 24,
     featuredOnly: options.featuredOnly ?? false,
-    category: options.category ?? ''
+    category: options.category ?? '',
+    tag: options.tag ?? ''
   };
 
   try {
@@ -316,7 +344,7 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
     slug,
     "cover": coalesce(cover, mainImage)${IMAGE_PROJECTION},
     "gallery": coalesce(gallery, [])[]{..., asset->{url, metadata{dimensions, lqip}}},
-    "tags": coalesce(tags[]->title, tags[]),
+    "tags": ${TAGS_PROJECTION},
     "category": coalesce(category, categories[0]->title, portfolioType),
     "categories": coalesce(categories[]->title, []),
     year,
@@ -356,11 +384,17 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
   }
 }
 
-export async function getPosts(options: { limit?: number; featuredOnly?: boolean } = {}): Promise<any[]> {
+export async function getPosts(options: { limit?: number; featuredOnly?: boolean; tag?: string } = {}): Promise<any[]> {
   const query = `*[
     _type == "blogPost"
     && defined(slug.current)
     && ($featuredOnly == false || featured == true)
+    && (
+      $tag == ""
+      || count(tags[defined(@) && lower(string(@)) == lower($tag)]) > 0
+      || count(tags[defined(@->slug.current) && lower(@->slug.current) == lower($tag)]) > 0
+      || count(tags[defined(@->title) && lower(@->title) == lower($tag)]) > 0
+    )
   ] | order(coalesce(publishedAt, _updatedAt) desc)
   [0...$limit]{
     _id,
@@ -372,11 +406,15 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
     publishedAt,
     "authorName": author->name,
     "categories": coalesce(categories[]->title, []),
-    "tags": coalesce(tags[]->title, tags[]),
+    "tags": ${TAGS_PROJECTION},
     featured
   }`;
 
-  const fetchParams = { limit: options.limit ?? 24, featuredOnly: options.featuredOnly ?? false };
+  const fetchParams = {
+    limit: options.limit ?? 24,
+    featuredOnly: options.featuredOnly ?? false,
+    tag: options.tag ?? ''
+  };
   try {
     const posts = await withCache(cacheKey('posts', fetchParams), TTL_PAGE_MS, async () =>
       fetchPublished(query, fetchParams)
@@ -403,7 +441,7 @@ export async function getPostBySlug(slug: string): Promise<any | null> {
     updatedAt,
     "authorName": author->name,
     "categories": coalesce(categories[]->title, []),
-    "tags": coalesce(tags[]->title, tags[]),
+    "tags": ${TAGS_PROJECTION},
     seo,
     body${PORTABLE_TEXT_PROJECTION}
   }`;

@@ -6,6 +6,7 @@
 		image,
 		alt = '',
 		width = 800,
+		height,
 		class: className = '',
 		loading = 'lazy',
 		fetchpriority = 'auto'
@@ -13,6 +14,7 @@
 		image: any;
 		alt?: string;
 		width?: number;
+		height?: number;
 		class?: string;
 		loading?: 'lazy' | 'eager';
 		fetchpriority?: 'high' | 'low' | 'auto';
@@ -22,8 +24,15 @@
 	const asset = $derived(image?.asset || image);
 	const lqip = $derived(isStatic ? null : asset?.metadata?.lqip);
 	const dimensions = $derived(isStatic ? null : asset?.metadata?.dimensions);
-	const src = $derived(isStatic ? image : optimizedUrl(image, width));
+	const src = $derived(isStatic ? image : optimizedUrl(image, width, 80, height));
 	const imageAlt = $derived(alt || image?.alt || '');
+	const resolvedAspectRatio = $derived(
+		typeof height === 'number' && height > 0
+			? `${width} / ${height}`
+			: dimensions
+				? `${dimensions.width} / ${dimensions.height}`
+				: undefined
+	);
 
 	let isLoaded = $state(false);
 	let imgElement = $state<HTMLImageElement | null>(null);
@@ -43,7 +52,7 @@
 
 <div
 	class="sanity-image-container {className}"
-	style:aspect-ratio={dimensions ? `${dimensions.width} / ${dimensions.height}` : undefined}
+	style:aspect-ratio={resolvedAspectRatio}
 >
 	{#if lqip}
 		<img src={lqip} alt="" aria-hidden="true" class="lqip-placeholder" class:hidden={isLoaded} />

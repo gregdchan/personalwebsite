@@ -99,14 +99,18 @@
 		position: absolute;
 		right: 0.64rem;
 		bottom: 0.64rem;
-		padding: 0.25rem 0.44rem;
+		padding: 0.28rem 0.52rem;
 		border-radius: 999px;
 		font-family: var(--font-mono);
-		font-size: 0.61rem;
-		letter-spacing: 0.08em;
+		font-size: 0.58rem;
+		letter-spacing: 0.07em;
 		text-transform: uppercase;
-		background: color-mix(in oklab, var(--color-accent) 56%, black);
-		color: var(--color-on-accent, #fff6e8);
+		background: color-mix(in oklab, var(--color-panel) 78%, black 22%);
+		color: color-mix(in oklab, var(--color-text) 92%, white 8%);
+		border: 1px solid color-mix(in oklab, white 26%, transparent);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+		box-shadow: 0 4px 14px color-mix(in oklab, black 18%, transparent);
 	}
 
 	.slideshow {

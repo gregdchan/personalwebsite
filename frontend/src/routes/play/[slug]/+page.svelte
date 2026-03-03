@@ -29,7 +29,7 @@
 		{#if post?.tags?.length}
 			<div class="tags">
 				{#each post.tags as tag}
-					<small>{tag}</small>
+					<a href={`/play?tag=${encodeURIComponent(tag)}`}>{tag}</a>
 				{/each}
 			</div>
 		{/if}
@@ -97,12 +97,26 @@
 		margin-top: 0.9rem;
 	}
 
-	.tags small {
+	.tags a {
+		display: inline-flex;
+		align-items: center;
 		padding: 0.2rem 0.55rem;
 		background: var(--color-chip);
 		border-radius: 999px;
 		font-size: 0.66rem;
 		font-family: var(--font-mono);
+		color: var(--color-muted-text);
+		text-decoration: none;
+		border: 1px solid transparent;
+		transition:
+			border-color 140ms ease,
+			color 140ms ease,
+			background-color 140ms ease;
+	}
+
+	.tags a:hover {
+		border-color: color-mix(in oklab, var(--color-accent) 54%, transparent);
+		color: var(--color-text);
 	}
 
 	.cover-wrap {

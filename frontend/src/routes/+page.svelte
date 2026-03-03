@@ -112,6 +112,7 @@
 										alt={cover?.alt || project.title}
 										loading="lazy"
 										width={800}
+										height={450}
 									/>
 								{:else}
 									<div class="case-image-fallback" aria-hidden="true">

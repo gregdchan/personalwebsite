@@ -1,14 +1,26 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { optimizedUrl } from '$lib/sanity';
 	let { data } = $props();
 
 	const page = data?.page;
 	const posts = data?.posts ?? [];
+	const activeTag = typeof data?.activeTag === 'string' ? data.activeTag : '';
 
 	const title = page?.title || 'Play';
 	const description =
 		page?.description ||
 		'Writing about process, experimentation, design systems, and creative technology.';
+
+	function isActiveTag(tag: string): boolean {
+		return activeTag.length > 0 && activeTag.toLowerCase() === tag.toLowerCase();
+	}
+
+	function onTagActivate(event: MouseEvent | KeyboardEvent, tag: string) {
+		event.preventDefault();
+		event.stopPropagation();
+		void goto(`/play?tag=${encodeURIComponent(tag)}`);
+	}
 </script>
 
 <svelte:head>
@@ -21,12 +33,23 @@
 		<p class="label">Writing and Notes</p>
 		<h1 id="play-heading">{title}</h1>
 		<p class="intro-text">{description}</p>
+		{#if activeTag}
+			<p class="active-filter">
+				Filtering by tag: <strong>{activeTag}</strong>
+				<a href="/play" aria-label="Clear tag filter">Clear</a>
+			</p>
+		{/if}
 	</div>
 
 	{#if posts.length === 0}
 		<div class="empty-state" role="status">
-			<h2>No posts published yet.</h2>
-			<p>Publish `blogPost` documents in Sanity to populate this page.</p>
+			{#if activeTag}
+				<h2>No posts found for "{activeTag}".</h2>
+				<p>Try another tag or clear the active filter.</p>
+			{:else}
+				<h2>No posts published yet.</h2>
+				<p>Publish `blogPost` documents in Sanity to populate this page.</p>
+			{/if}
 		</div>
 	{:else}
 		<div class="post-grid">
@@ -70,7 +93,17 @@
 						{#if post.tags?.length}
 							<div class="tags" role="list" aria-label="Post tags">
 								{#each post.tags.slice(0, 3) as tag}
-									<small role="listitem">{tag}</small>
+									<small
+										role="listitem"
+										tabindex="0"
+										class="tag-pill"
+										class:active={isActiveTag(tag)}
+										onclick={(event) => onTagActivate(event, tag)}
+										onkeydown={(event) =>
+											(event.key === 'Enter' || event.key === ' ') && onTagActivate(event, tag)}
+									>
+										{tag}
+									</small>
 								{/each}
 							</div>
 						{/if}
@@ -113,6 +146,36 @@
 		color: var(--color-muted-text);
 		font-size: clamp(1rem, 1.5vw, 1.15rem);
 		line-height: 1.6;
+	}
+
+	.active-filter {
+		margin: 0.85rem 0 0;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		color: var(--color-muted-text);
+	}
+
+	.active-filter strong {
+		color: var(--color-text);
+	}
+
+	.active-filter a {
+		text-decoration: none;
+		padding: 0.24rem 0.5rem;
+		border-radius: 999px;
+		border: 1px solid color-mix(in oklab, var(--color-edge) 78%, transparent);
+		background: color-mix(in oklab, var(--color-panel) 80%, transparent);
+		color: var(--color-text);
+	}
+
+	.active-filter a:hover {
+		border-color: var(--color-accent);
+		color: var(--color-accent);
 	}
 
 	.post-grid {
@@ -203,13 +266,38 @@
 		padding-top: 1.25rem;
 	}
 
-	.tags small {
+	.tag-pill {
+		display: inline-flex;
+		align-items: center;
 		padding: 0.25rem 0.6rem;
 		border-radius: 999px;
 		background: var(--color-chip);
 		font-size: 0.65rem;
 		font-family: var(--font-mono);
 		color: var(--color-muted-text);
+		border: 1px solid transparent;
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			border-color 140ms ease,
+			color 140ms ease,
+			background-color 140ms ease;
+	}
+
+	.tag-pill:focus-visible {
+		outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+		outline-offset: 1px;
+	}
+
+	.tag-pill:hover {
+		border-color: color-mix(in oklab, var(--color-accent) 54%, transparent);
+		color: var(--color-text);
+	}
+
+	.tag-pill.active {
+		border-color: color-mix(in oklab, var(--color-accent) 68%, transparent);
+		background: color-mix(in oklab, var(--color-accent) 18%, transparent);
+		color: var(--color-text);
 	}
 
 	.empty-state {

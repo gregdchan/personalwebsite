@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { optimizedUrl } from '$lib/sanity';
   let { items = [] }: { items?: any[] } = $props();
   const safeItems = $derived(Array.isArray(items) ? items : []);
   function href(p:any){ return p?.slug?.current ? `/play/${p.slug.current}` : '#' }
@@ -16,7 +17,7 @@
       {#each safeItems as p}
         <a href={href(p)} class="group overflow-hidden rounded-xl ring-1 ring-black/5 dark:ring-white/10 bg-[var(--color-body-bg)]">
           {#if p?.cover?.asset?.url}
-            <img src={p.cover.asset.url} alt={p.cover?.alt || p.title} class="h-48 w-full object-cover transition duration-300 group-hover:scale-105" />
+            <img src={optimizedUrl(p.cover, 900, 80, 540)} alt={p.cover?.alt || p.title} class="h-48 w-full object-cover transition duration-300 group-hover:scale-105" />
           {/if}
           <div class="p-4">
             <h3 class="font-medium">{p.title}</h3>
