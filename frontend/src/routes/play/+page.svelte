@@ -26,7 +26,7 @@
 	{#if posts.length === 0}
 		<div class="empty-state" role="status">
 			<h2>No posts published yet.</h2>
-			<p>Publish `post` or `blogPost` documents in Sanity to populate this page.</p>
+			<p>Publish `blogPost` documents in Sanity to populate this page.</p>
 		</div>
 	{:else}
 		<div class="post-grid">

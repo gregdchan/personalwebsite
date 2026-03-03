@@ -10,7 +10,7 @@
     <a href="/play" class="text-sm text-[var(--color-primary)] hover:opacity-80 focus:outline-none focus-visible:ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-body-bg)] rounded px-2 py-1">All posts</a>
   </div>
   {#if !safeItems.length}
-    <p class="text-[var(--color-body-text)]/70">Add “post” docs in Sanity to populate this section.</p>
+    <p class="text-[var(--color-body-text)]/70">Add “blogPost” docs in Sanity to populate this section.</p>
   {:else}
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {#each safeItems as p}

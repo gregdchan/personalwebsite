@@ -63,9 +63,18 @@
 			)
 	);
 
-	const toolkit = $derived(
+	const baseToolkit = $derived(
 		toolkitFromSections.length ? toolkitFromSections : ABOUT_FALLBACK.toolkit
 	);
+
+	const toolkit = $derived.by(() => {
+		const newSkills = ['Design Thinking', 'Software Development', 'Data Science & Visualization'];
+		const combined = [...baseToolkit];
+		for (const skill of newSkills) {
+			if (!combined.includes(skill)) combined.push(skill);
+		}
+		return combined;
+	});
 
 	const extraSections = $derived(
 		allSections.filter((section: any) => {

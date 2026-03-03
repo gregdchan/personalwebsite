@@ -1,17 +1,13 @@
 import designToken from './documents/designToken'
-import gameConfig from './documents/gameConfig'
 
 // Documents
 import navigation from './documents/navigation'
 import blogPost from './documents/blogPost'
-import caseStudy from './documents/caseStudy'
 import category from './documents/category'
-import portfolioProject from './documents/portfolioProject'
 import tag from './documents/tag'
 import author from './documents/author'
 import page from './documents/page'
 import project from './documents/project'
-import post from './documents/post'
 import errorPage from './objects/errorPage'
 
 // Objects
@@ -76,13 +72,9 @@ const all = [
   validateSchema(tag),
   validateSchema(author),
   validateSchema(designToken),
-  validateSchema(gameConfig),
   validateSchema(navigation),
-  validateSchema(caseStudy),
   validateSchema(category),
-  validateSchema(portfolioProject),
   validateSchema(project),
-  validateSchema(post),
   validateSchema(errorPage),
   validateSchema(designPrinciple),
 

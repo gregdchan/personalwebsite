@@ -92,7 +92,7 @@
 				<div class="empty-state" use:reveal={{ delay: 90 }}>
 					<h3>No case studies published yet.</h3>
 					<p>
-						Publish `project` or `portfolioProject` documents in Sanity to populate this section.
+						Publish `project` documents in Sanity to populate this section.
 					</p>
 				</div>
 			{:else}

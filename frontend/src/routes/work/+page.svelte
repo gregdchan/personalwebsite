@@ -35,7 +35,7 @@
 		{#if projects.length === 0}
 			<div class="empty-state" role="status">
 				<h2>No projects published yet.</h2>
-				<p>Publish `project` or `portfolioProject` documents in Sanity to populate this page.</p>
+				<p>Publish `project` documents in Sanity to populate this page.</p>
 			</div>
 		{:else}
 			{#if leadProject}

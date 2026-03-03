@@ -119,7 +119,7 @@ const SECTION_PROJECTION = `[]{
   },
   _type == "projectGrid" => {
     ...,
-    "items": *[_type in ["project", "portfolioProject"] && defined(slug.current)]
+    "items": *[_type == "project" && defined(slug.current)]
       | order(coalesce(order, 9999) asc, coalesce(year, 0) desc, coalesce(publishedAt, _updatedAt) desc)
       [0...24]{
       _id,
@@ -173,9 +173,8 @@ export async function getNavigation(): Promise<any | null> {
         lower(text) == "about" || lower(text) == "about me" => "/about",
         lower(text) == "contact" => "/contact",
         link.linkType == "external" && defined(link.external) => link.external,
-        defined(link.internal->_type) && link.internal->_type in ["project", "portfolioProject"] && defined(link.internal->slug.current) => "/work/" + link.internal->slug.current,
+        defined(link.internal->_type) && link.internal->_type == "project" && defined(link.internal->slug.current) => "/work/" + link.internal->slug.current,
         defined(link.internal->_type) && link.internal->_type == "blogPost" && defined(link.internal->slug.current) => "/play/" + link.internal->slug.current,
-        defined(link.internal->_type) && link.internal->_type == "post" && defined(link.internal->slug.current) => "/play/" + link.internal->slug.current,
         defined(link.internal->_type) && link.internal->_type == "page" && (link.internal->slug.current == "about" || link.internal->slug.current == "about-me") => "/about",
         defined(link.internal->_type) && link.internal->_type == "page" && link.internal->isIndexPage == true => "/",
         defined(link.href) && link.href == "/about-me" => "/about",
@@ -268,7 +267,7 @@ export async function getProjects(options: {
   category?: string;
 } = {}): Promise<any[]> {
   const query = `*[
-    _type in ["project", "portfolioProject"]
+    _type == "project"
     && defined(slug.current)
     && ($featuredOnly == false || featured == true)
     && ($category == "" || category == $category || $category in categories[]->slug.current)
@@ -307,7 +306,7 @@ export async function getProjects(options: {
 export async function getProjectBySlug(slug: string): Promise<any | null> {
   const resolvedSlug = cleanSlug(slug);
   const query = `*[
-    _type in ["project", "portfolioProject"]
+    _type == "project"
     && slug.current == $slug
   ][0]{
     _id,
@@ -359,7 +358,7 @@ export async function getProjectBySlug(slug: string): Promise<any | null> {
 
 export async function getPosts(options: { limit?: number; featuredOnly?: boolean } = {}): Promise<any[]> {
   const query = `*[
-    _type in ["post", "blogPost"]
+    _type == "blogPost"
     && defined(slug.current)
     && ($featuredOnly == false || featured == true)
   ] | order(coalesce(publishedAt, _updatedAt) desc)
@@ -391,7 +390,7 @@ export async function getPosts(options: { limit?: number; featuredOnly?: boolean
 export async function getPostBySlug(slug: string): Promise<any | null> {
   const resolvedSlug = cleanSlug(slug);
   const query = `*[
-    _type in ["post", "blogPost"]
+    _type == "blogPost"
     && slug.current == $slug
   ][0]{
     _id,
