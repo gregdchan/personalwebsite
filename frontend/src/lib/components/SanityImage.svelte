@@ -35,11 +35,13 @@
 	);
 
 	let isLoaded = $state(false);
+	let hydrated = $state(false);
 	let imgElement = $state<HTMLImageElement | null>(null);
 	let loadedInstantly = $state(false);
 
 	onMount(() => {
-		if (imgElement?.complete) {
+		hydrated = true;
+		if (imgElement?.complete && imgElement.naturalWidth > 0) {
 			isLoaded = true;
 			loadedInstantly = true;
 		}
@@ -66,6 +68,7 @@
 		{fetchpriority}
 		decoding="async"
 		class="main-image"
+		class:has-lqip={hydrated && lqip}
 		class:visible={isLoaded || !lqip}
 		class:instant={loadedInstantly}
 		onload={handleLoad}
@@ -105,9 +108,13 @@
 		height: 100%;
 		object-fit: cover;
 		object-position: center;
-		opacity: 0;
+		opacity: 1;
 		transition: opacity 300ms ease-out;
-		will-change: opacity;
+	}
+
+	/* When JS has hydrated and LQIP exists, hide until loaded */
+	.main-image.has-lqip {
+		opacity: 0;
 	}
 
 	.main-image.instant {

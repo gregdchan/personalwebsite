@@ -39,18 +39,18 @@
 
   <link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
 
-  <!-- Reload if JS chunks from a previous deployment fail to load -->
+  <!-- Recover from stale chunk references after a new deployment -->
   <script>
-    window.addEventListener('error', function (e) {
-      if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') &&
-          e.target.src && e.target.src.includes('/_app/immutable/')) {
-        if (!sessionStorage.getItem('chunk_reload')) {
+    (function () {
+      if (sessionStorage.getItem('chunk_reload')) { sessionStorage.removeItem('chunk_reload'); return; }
+      window.addEventListener('error', function (e) {
+        if (e.target && e.target.tagName === 'SCRIPT' &&
+            e.target.src && e.target.src.includes('/_app/immutable/')) {
           sessionStorage.setItem('chunk_reload', '1');
           window.location.reload();
         }
-      }
-    }, true);
-    window.addEventListener('load', function () { sessionStorage.removeItem('chunk_reload'); });
+      }, true);
+    })();
   </script>
 
   %sveltekit.head%
