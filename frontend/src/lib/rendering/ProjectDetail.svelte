@@ -528,14 +528,16 @@
 	}
 
 	.meta-row span {
-		padding: 0.22rem 0.52rem;
+		padding: 0.25rem 0.6rem;
 		border-radius: 999px;
-		font-size: 0.64rem;
+		font-size: 0.65rem;
 		font-family: var(--font-mono);
+		font-weight: 600;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		background: var(--color-chip);
-		border: 1px solid var(--color-edge);
+		background: color-mix(in oklab, var(--color-text) 6%, transparent);
+		border: 1px solid color-mix(in oklab, var(--color-text) 15%, transparent);
+		color: var(--color-text);
 	}
 
 	.lead {
@@ -556,21 +558,24 @@
 	.hero-links a {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.34rem;
-		padding: 0.5rem 0.72rem;
+		gap: 0.38rem;
+		padding: 0.55rem 0.85rem;
 		text-decoration: none;
 		font-family: var(--font-mono);
-		font-size: 0.69rem;
-		letter-spacing: 0.08em;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		border-radius: 0.75rem;
-		border: 1px solid var(--color-edge);
-		background: var(--color-control-bg);
+		border-radius: 999px;
+		color: var(--color-text);
+		border: 1px solid color-mix(in oklab, var(--color-text) 18%, transparent);
+		background: color-mix(in oklab, var(--color-text) 4%, transparent);
+		transition: all 180ms ease;
 	}
 
 	.hero-links a:hover {
-		border-color: var(--color-accent);
-		color: var(--color-accent);
+		border-color: var(--color-text);
+		background: color-mix(in oklab, var(--color-text) 8%, transparent);
 	}
 
 	.hero-media,
@@ -580,6 +585,8 @@
 		width: 100%;
 		padding: 0;
 		margin: 1.1rem 0 0;
+		font-size: 0;
+		line-height: 0;
 		overflow: hidden;
 		border-radius: var(--story-image-radius);
 		border: var(--story-image-border);
@@ -713,18 +720,20 @@
 	}
 
 	.token-row span {
-		padding: 0.25rem 0.5rem;
+		padding: 0.3rem 0.65rem;
 		border-radius: 999px;
 		font-family: var(--font-mono);
-		font-size: 0.64rem;
+		font-size: 0.68rem;
+		font-weight: 500;
 		letter-spacing: 0.05em;
-		background: color-mix(in oklab, var(--color-accent) 20%, transparent);
-		border: 1px solid color-mix(in oklab, var(--color-accent) 35%, transparent);
+		color: var(--color-text);
+		background: color-mix(in oklab, var(--color-accent) 15%, transparent);
+		border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
 	}
 
 	.token-row.muted span {
-		background: var(--color-chip);
-		border-color: var(--color-edge);
+		background: color-mix(in oklab, var(--color-text) 5%, transparent);
+		border-color: color-mix(in oklab, var(--color-text) 12%, transparent);
 	}
 
 	.lightbox {

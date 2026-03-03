@@ -26,6 +26,15 @@
 	const imageAlt = $derived(alt || image?.alt || '');
 
 	let isLoaded = $state(false);
+	let imgElement = $state<HTMLImageElement | null>(null);
+	let loadedInstantly = $state(false);
+
+	onMount(() => {
+		if (imgElement?.complete) {
+			isLoaded = true;
+			loadedInstantly = true;
+		}
+	});
 
 	function handleLoad() {
 		isLoaded = true;
@@ -41,6 +50,7 @@
 	{/if}
 
 	<img
+		bind:this={imgElement}
 		{src}
 		alt={imageAlt}
 		{loading}
@@ -48,6 +58,7 @@
 		decoding="async"
 		class="main-image"
 		class:visible={isLoaded || !lqip}
+		class:instant={loadedInstantly}
 		onload={handleLoad}
 		width={dimensions?.width}
 		height={dimensions?.height}
@@ -84,7 +95,12 @@
 		height: 100%;
 		object-fit: cover;
 		opacity: 0;
-		transition: opacity 500ms ease;
+		transition: opacity 300ms ease-out;
+		will-change: opacity;
+	}
+
+	.main-image.instant {
+		transition: none !important;
 	}
 
 	.main-image.visible {

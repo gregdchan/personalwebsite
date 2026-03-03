@@ -84,7 +84,7 @@
 			<div class="section-head work-head" use:reveal={{ delay: 20 }}>
 				<div>
 					<p>Case Studies</p>
-					<h2 id="case-studies-heading">Design-first, pluriversal work with clear outcomes.</h2>
+					<h2 id="case-studies-heading">Check out my latest work.</h2>
 				</div>
 				<a href="/work" aria-label="View all case studies">View case studies</a>
 			</div>
@@ -257,7 +257,7 @@
 	}
 
 	.practice {
-		margin-bottom: clamp(1.5rem, 3vw, 2.2rem);
+		margin-bottom: clamp(2.5rem, 5vw, 4rem);
 	}
 
 	.practice-head h2 {

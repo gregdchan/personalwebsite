@@ -53,10 +53,10 @@
   --font-heading: 'Sora', 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-primary: #FF8B3D;
-  --color-secondary: #F59E0B;
-  --color-accent: #FF8B3D;
-  --color-accent-alt: #F59E0B;
+  --color-primary: #e87722;
+  --color-secondary: #de8800;
+  --color-accent: #e87722;
+  --color-accent-alt: #de8800;
   --color-on-accent: #2a1507;
 
   --app-bg-top: #fffbf7;
@@ -127,6 +127,13 @@
 html,
 body {
   min-height: 100%;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 1.5em;
+    /* Increase base font size on mobile */
+  }
 }
 
 body {

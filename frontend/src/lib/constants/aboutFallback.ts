@@ -39,6 +39,9 @@ export const ABOUT_FALLBACK = {
   ],
   toolkit: [
     'Design Systems',
+    'Design Thinking',
+    'Software Development',
+    'Data Science & Visualization',
     'Creative Direction',
     'Front-end Development',
     'Svelte / TypeScript',

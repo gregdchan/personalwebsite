@@ -67,6 +67,8 @@
 		width: 100%;
 		padding: 0;
 		margin: 0;
+		font-size: 0;
+		line-height: 0;
 		overflow: hidden;
 		border-radius: 1rem;
 		border: 1px solid color-mix(in oklab, var(--color-edge) 82%, transparent);
@@ -90,7 +92,7 @@
 		width: 100%;
 		height: auto;
 		max-height: 72vh;
-		object-fit: cover;
+		object-fit: contain;
 	}
 
 	.open-tag {

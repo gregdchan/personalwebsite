@@ -255,7 +255,7 @@
 	.desktop-nav {
 		display: none;
 		align-items: center;
-		gap: 0.3rem;
+		gap: 0.5rem;
 	}
 
 	.desktop-nav a {
@@ -264,11 +264,11 @@
 		font-size: 0.68rem;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		padding: 0.52rem 0.72rem;
+		padding: 0.52rem 0.82rem;
 		min-height: 44px;
 		display: inline-flex;
 		align-items: center;
-		border-radius: 999px;
+		border-radius: 0.5rem;
 		color: var(--color-muted-text);
 		border: 1px solid transparent;
 		transition:
